@@ -1,7 +1,42 @@
-import { cn } from "@/lib/utils";
+import { View, StyleSheet, Animated } from 'react-native';
+import React, { useEffect, useRef } from 'react';
 
-function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("animate-pulse rounded-md bg-primary/10", className)} {...props} />;
+function Skeleton({ style }: any) {
+  const opacity = useRef(new Animated.Value(0.3)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, {
+          toValue: 0.7,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0.3,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [opacity]);
+
+  return (
+    <Animated.View
+      style={[
+        styles.skeleton,
+        { opacity },
+        style,
+      ]}
+    />
+  );
 }
+
+const styles = StyleSheet.create({
+  skeleton: {
+    backgroundColor: '#E2E8F0',
+    borderRadius: 4,
+  },
+});
 
 export { Skeleton };

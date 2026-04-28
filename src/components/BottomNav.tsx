@@ -1,58 +1,72 @@
-import { Link, useLocation } from "@tanstack/react-router";
-import { Home, BarChart3, Bell, User, Activity } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
+import React from 'react';
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { Feather } from "@expo/vector-icons";
 
-type NavItem = {
-  to: "/dashboard" | "/history" | "/assessment" | "/alerts" | "/profile";
-  label: string;
-  icon: typeof Home;
-  accent?: boolean;
+export const BottomNav = () => {
+  const navigation = useNavigation<any>();
+  const route = useRoute();
+
+  const navItems = [
+    { name: "Dashboard", icon: "home", label: "Home" },
+    { name: "Assessment", icon: "activity", label: "Checkup" },
+    { name: "History", icon: "clock", label: "History" },
+    { name: "Profile", icon: "user", label: "Profile" },
+  ];
+
+  return (
+    <View style={styles.navContainer}>
+      {navItems.map((item) => {
+        const isActive = route.name === item.name;
+        return (
+          <TouchableOpacity
+            key={item.name}
+            style={styles.navItem}
+            onPress={() => navigation.navigate(item.name)}
+          >
+            <Feather
+              name={item.icon as any}
+              size={24}
+              color={isActive ? "#157A6E" : "#64748B"}
+            />
+            <Text style={[styles.navLabel, isActive && styles.activeLabel]}>
+              {item.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
 };
 
-const items: NavItem[] = [
-  { to: "/dashboard", label: "Home", icon: Home },
-  { to: "/history", label: "History", icon: BarChart3 },
-  { to: "/assessment", label: "Assess", icon: Activity, accent: true },
-  { to: "/alerts", label: "Alerts", icon: Bell },
-  { to: "/profile", label: "Profile", icon: User },
-];
-
-export function BottomNav() {
-  const location = useLocation();
-  return (
-    <nav className="sticky bottom-0 left-0 right-0 z-30 border-t border-border bg-card/95 backdrop-blur-md">
-      <ul className="mx-auto flex max-w-md items-end justify-between px-3 py-2">
-        {items.map(({ to, label, icon: Icon, accent }) => {
-          const active = location.pathname === to;
-          if (accent) {
-            return (
-              <li key={to} className="-mt-6">
-                <Link
-                  to={to}
-                  className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-mint text-mint-foreground shadow-glow ring-4 ring-background"
-                  aria-label={label}
-                >
-                  <Icon className="h-6 w-6" />
-                </Link>
-              </li>
-            );
-          }
-          return (
-            <li key={to}>
-              <Link
-                to={to}
-                className={cn(
-                  "flex flex-col items-center gap-1 rounded-xl px-3 py-1.5 text-[11px] font-medium transition-colors",
-                  active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <Icon className={cn("h-5 w-5", active && "text-mint-foreground")} />
-                {label}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
-  );
-}
+const styles = StyleSheet.create({
+  navContainer: {
+    flexDirection: 'row',
+    height: 80,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+    paddingBottom: 20,
+    paddingHorizontal: 10,
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  navItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  navLabel: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 4,
+  },
+  activeLabel: {
+    color: '#157A6E',
+    fontWeight: '600',
+  },
+});

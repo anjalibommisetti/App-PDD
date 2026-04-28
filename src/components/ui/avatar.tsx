@@ -1,47 +1,40 @@
-"use client";
-
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
 import * as React from "react";
-import * as AvatarPrimitive from "@radix-ui/react-avatar";
+import { Avatar as PaperAvatar } from 'react-native-paper';
 
-import { cn } from "@/lib/utils";
+const Avatar = ({ children, style }: any) => (
+  <View style={[styles.avatar, style]}>
+    {children}
+  </View>
+);
 
-const Avatar = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Root
-    ref={ref}
-    className={cn("relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full", className)}
-    {...props}
+const AvatarImage = ({ source, style }: any) => (
+  <PaperAvatar.Image
+    size={40}
+    source={source}
+    style={style}
   />
-));
-Avatar.displayName = AvatarPrimitive.Root.displayName;
+);
 
-const AvatarImage = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Image>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Image
-    ref={ref}
-    className={cn("aspect-square h-full w-full", className)}
-    {...props}
+const AvatarFallback = ({ children, style, textStyle }: any) => (
+  <PaperAvatar.Text
+    size={40}
+    label={typeof children === 'string' ? children : ""}
+    style={[styles.fallback, style]}
+    labelStyle={textStyle}
   />
-));
-AvatarImage.displayName = AvatarPrimitive.Image.displayName;
+);
 
-const AvatarFallback = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Fallback>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Fallback
-    ref={ref}
-    className={cn(
-      "flex h-full w-full items-center justify-center rounded-full bg-muted",
-      className,
-    )}
-    {...props}
-  />
-));
-AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName;
+const styles = StyleSheet.create({
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  fallback: {
+    backgroundColor: '#E2E8F0',
+  },
+});
 
 export { Avatar, AvatarImage, AvatarFallback };

@@ -1,61 +1,173 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Activity, Sparkles } from "lucide-react";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
+import React from 'react';
+import { useNavigation } from "@react-navigation/native";
+import { Feather } from "@expo/vector-icons";
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "OralAI — AI Dental Risk Assessment" },
-      { name: "description", content: "Predictive analytics and early intervention for oral healthcare powered by AI." },
-    ],
-  }),
-  component: Welcome,
-});
+export default function IndexScreen() {
+  const navigation = useNavigation<any>();
 
-function Welcome() {
-  const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-gradient-hero">
-      <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background sm:my-6 sm:min-h-[calc(100vh-3rem)] sm:rounded-[2.25rem] sm:overflow-hidden sm:border sm:border-border shadow-card">
-        <div className="relative flex flex-1 flex-col items-center justify-between bg-gradient-hero px-6 py-12 text-center">
-          <div className="mt-10 flex flex-col items-center gap-3">
-            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-card shadow-glow">
-              <Sparkles className="h-10 w-10 text-mint-foreground" />
-            </div>
-            <h1 className="mt-4 text-3xl font-bold tracking-tight text-foreground">OralAI</h1>
-            <p className="text-sm text-muted-foreground">Predictive analytics for oral healthcare</p>
-          </div>
+    <View style={styles.container}>
+      <View style={styles.innerContainer}>
+        <View style={styles.content}>
+          <View style={styles.badge}>
+            <Feather name="star" size={14} color="#157A6E" />
+            <Text style={styles.badgeText}>AI-Powered Dental Care</Text>
+          </View>
+          
+          <Text style={styles.title}>
+            Your Personal <Text style={styles.titleHighlight}>Dental</Text> Assistant
+          </Text>
+          
+          <Text style={styles.subtitle}>
+            Detect risks early, track your brushing habits, and get personalized advice for a perfect smile.
+          </Text>
 
-          <div className="my-10 grid w-full grid-cols-2 gap-3">
-            {[
-              { t: "AI Risk", d: "Smart scoring" },
-              { t: "Early Care", d: "Prevention first" },
-              { t: "Reports", d: "Trends & insights" },
-              { t: "Dentists", d: "Connect easily" },
-            ].map((f) => (
-              <div key={f.t} className="rounded-2xl bg-card p-4 text-left shadow-soft">
-                <Activity className="mb-2 h-5 w-5 text-mint-foreground" />
-                <p className="text-sm font-semibold">{f.t}</p>
-                <p className="text-xs text-muted-foreground">{f.d}</p>
-              </div>
-            ))}
-          </div>
+          <View style={styles.features}>
+            <FeatureRow icon="shield" text="Instant Risk Assessment" />
+            <FeatureRow icon="activity" text="Track Daily Habits" />
+            <FeatureRow icon="star" text="Earn Health Badges" />
+          </View>
 
-          <div className="w-full space-y-3">
-            <button
-              onClick={() => navigate({ to: "/signup" })}
-              className="w-full rounded-2xl bg-gradient-mint py-4 text-base font-semibold text-mint-foreground shadow-glow active:scale-[0.99]"
+          <View style={styles.actions}>
+            <TouchableOpacity 
+              style={styles.btnPrimary}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate("Signup")}
             >
-              Get Started
-            </button>
-            <Link
-              to="/login"
-              className="block w-full rounded-2xl border border-border bg-card py-4 text-center text-base font-semibold text-foreground"
+              <Text style={styles.btnPrimaryText}>Get Started</Text>
+              <Feather name="arrow-right" size={18} color="#0D4B42" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.btnSecondary}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate("Login")}
             >
-              I already have an account
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
+              <Text style={styles.btnSecondaryText}>I already have an account</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </View>
   );
 }
+
+function FeatureRow({ icon, text }: { icon: any; text: string }) {
+  return (
+    <View style={styles.featureRow}>
+      <View style={styles.featureIconBox}>
+        <Feather name={icon} size={16} color="#157A6E" />
+      </View>
+      <Text style={styles.featureText}>{text}</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F8FBFB',
+  },
+  innerContainer: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(134, 241, 212, 0.4)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 999,
+    marginBottom: 24,
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#157A6E',
+  },
+  title: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#0F172A',
+    lineHeight: 44,
+  },
+  titleHighlight: {
+    color: '#157A6E',
+  },
+  subtitle: {
+    marginTop: 16,
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#64748B',
+    lineHeight: 24,
+    paddingHorizontal: 16,
+  },
+  features: {
+    marginTop: 40,
+    width: '100%',
+    gap: 16,
+  },
+  featureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  featureIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  featureText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#0F172A',
+  },
+  actions: {
+    marginTop: 'auto',
+    width: '100%',
+    gap: 12,
+  },
+  btnPrimary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#86F1D4',
+    paddingVertical: 16,
+    borderRadius: 16,
+    elevation: 4,
+    shadowColor: '#86F1D4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  btnPrimaryText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#0D4B42',
+  },
+  btnSecondary: {
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  btnSecondaryText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#64748B',
+  }
+});

@@ -1,127 +1,302 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { PhoneShell } from "@/components/PhoneShell";
-import { Activity, BarChart3, Bell, Calendar, ChevronRight, Flame, Sparkles, Stethoscope, TrendingUp } from "lucide-react";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
+import React from 'react';
+import { useNavigation } from "@react-navigation/native";
+import { PhoneShell } from "../components/PhoneShell";
+import { Feather } from "@expo/vector-icons";
 
-export const Route = createFileRoute("/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — OralAI" }] }),
-  component: Dashboard,
-});
+export default function DashboardScreen() {
+  const navigation = useNavigation<any>();
 
-function Dashboard() {
   return (
     <PhoneShell>
-      <header className="px-5 pt-7">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs text-muted-foreground">Good morning,</p>
-            <h1 className="text-xl font-bold">Jane Doe</h1>
-          </div>
-          <Link to="/alerts" className="relative flex h-11 w-11 items-center justify-center rounded-full bg-secondary">
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-alert" />
-          </Link>
-        </div>
-        <h2 className="mt-6 text-sm font-medium uppercase tracking-wider text-muted-foreground">Oral Health Dashboard</h2>
-      </header>
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.greeting}>Good morning,</Text>
+          <Text style={styles.name}>Jane Doe</Text>
+        </View>
+        <TouchableOpacity style={styles.avatar}>
+          <Text style={styles.avatarText}>JD</Text>
+        </TouchableOpacity>
+      </View>
 
-      <div className="space-y-4 px-5 pb-24 pt-4">
-        {/* Hero AI card */}
-        <Link
-          to="/assessment"
-          className="block rounded-3xl bg-gradient-mint p-5 shadow-glow"
-        >
-          <div className="flex items-start justify-between">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-card/70 backdrop-blur">
-              <Sparkles className="h-5 w-5 text-mint-foreground" />
-            </div>
-            <span className="rounded-full bg-card/60 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-mint-foreground">AI</span>
-          </div>
-          <p className="mt-5 text-lg font-bold text-mint-foreground">AI Risk Assessment</p>
-          <p className="mt-1 text-sm text-mint-foreground/80">Check your dental health using AI analysis</p>
-          <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-card px-4 py-2.5 text-sm font-semibold text-foreground shadow-soft">
-            Start Assessment <ChevronRight className="h-4 w-4" />
-          </div>
-        </Link>
-
-        {/* Streak */}
-        <div className="flex items-center gap-4 rounded-3xl bg-gradient-peach p-4 shadow-soft">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-card/70">
-            <Flame className="h-6 w-6 text-peach-foreground" />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-peach-foreground">5 Day Oral Care Streak 🔥</p>
-            <p className="text-xs text-peach-foreground/80">Keep brushing to reach 7 days</p>
-          </div>
-        </div>
-
-        {/* Last report */}
-        <div className="rounded-3xl bg-card p-5 shadow-card">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">Last assessment</p>
-              <p className="mt-1 text-3xl font-bold">72%</p>
-              <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-peach/40 px-2.5 py-1 text-[11px] font-semibold text-peach-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-warning" />
-                Medium Risk
-              </div>
-            </div>
-            <div className="text-right text-xs text-muted-foreground">
-              <Calendar className="ml-auto mb-1 h-4 w-4" />
-              Apr 22, 2026
-            </div>
-          </div>
-          <Link
-            to="/results"
-            className="mt-4 flex items-center justify-center gap-2 rounded-2xl border border-border bg-secondary py-3 text-sm font-semibold text-foreground hover:bg-muted"
+      <View style={styles.content}>
+        {/* Risk Card */}
+        <View style={styles.riskCard}>
+          <View style={styles.riskTop}>
+            <Text style={styles.riskLabel}>Current Risk Level</Text>
+            <View style={styles.riskBadge}>
+              <Text style={styles.riskBadgeText}>High</Text>
+            </View>
+          </View>
+          <View style={styles.riskMiddle}>
+            <Text style={styles.riskScore}>78</Text>
+            <Text style={styles.riskDesc}>Needs attention</Text>
+          </View>
+          <TouchableOpacity 
+            style={styles.riskBtn}
+            onPress={() => navigation.navigate("Assessment")}
           >
-            View Report <ChevronRight className="h-4 w-4" />
-          </Link>
-        </div>
+            <Text style={styles.riskBtnText}>Re-assess now</Text>
+            <Feather name="arrow-right" size={16} color="#0D4B42" />
+          </TouchableOpacity>
+        </View>
 
-        {/* Quick actions */}
-        <div>
-          <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quick actions</p>
-          <div className="grid grid-cols-3 gap-3">
-            <QuickAction to="/history" icon={<BarChart3 className="h-5 w-5" />} label="Reports" tone="mint" />
-            <QuickAction to="/dentists" icon={<Stethoscope className="h-5 w-5" />} label="Dentist" tone="peach" />
-            <QuickAction to="/alerts" icon={<Bell className="h-5 w-5" />} label="Reminders" tone="beige" />
-          </div>
-        </div>
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.grid}>
+            <ActionCard 
+              icon="calendar" 
+              title="Book Visit" 
+              color="#E0E7FF" 
+              iconColor="#4F46E5" 
+              onPress={() => navigation.navigate("Dentists")}
+            />
+            <ActionCard 
+              icon="activity" 
+              title="History" 
+              color="#DCFCE7" 
+              iconColor="#16A34A" 
+              onPress={() => navigation.navigate("History")}
+            />
+            <ActionCard 
+              icon="file-text" 
+              title="Reports" 
+              color="#FEF9C3" 
+              iconColor="#CA8A04" 
+              onPress={() => navigation.navigate("Report")}
+            />
+            <ActionCard 
+              icon="bell" 
+              title="Alerts" 
+              color="#FCE7F3" 
+              iconColor="#DB2777" 
+              onPress={() => navigation.navigate("Alerts")}
+            />
+          </View>
+        </View>
 
-        {/* AI confidence */}
-        <div className="rounded-3xl bg-card p-5 shadow-soft">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-mint/40">
-                <TrendingUp className="h-5 w-5 text-mint-foreground" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold">AI Confidence</p>
-                <p className="text-xs text-muted-foreground">Based on data quality</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-xl font-bold">92%</p>
-              <p className="text-[11px] font-semibold text-success">High</p>
-            </div>
-          </div>
-          <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
-            <div className="h-full w-[92%] rounded-full bg-gradient-mint" />
-          </div>
-        </div>
-      </div>
+        {/* Recent Activity */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Recent Activity</Text>
+          <View style={styles.activityList}>
+            <ActivityItem 
+              icon="check-circle" 
+              title="Brushed teeth" 
+              time="Today, 8:00 AM" 
+              color="#10B981" 
+            />
+            <ActivityItem 
+              icon="alert-triangle" 
+              title="Gum bleeding reported" 
+              time="Yesterday" 
+              color="#EF4444" 
+            />
+            <ActivityItem 
+              icon="shield" 
+              title="Risk assessment completed" 
+              time="3 days ago" 
+              color="#3B82F6" 
+            />
+          </View>
+        </View>
+      </View>
     </PhoneShell>
   );
 }
 
-function QuickAction({
-  to, icon, label, tone,
-}: { to: "/history" | "/dentists" | "/alerts"; icon: React.ReactNode; label: string; tone: "mint" | "peach" | "beige" }) {
-  const bg = tone === "mint" ? "bg-mint/40" : tone === "peach" ? "bg-peach/50" : "bg-beige";
+function ActionCard({ icon, title, color, iconColor, onPress }: any) {
   return (
-    <Link to={to} className="flex flex-col items-center gap-2 rounded-2xl bg-card p-4 shadow-soft active:scale-[0.97]">
-      <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${bg} text-foreground`}>{icon}</div>
-      <span className="text-xs font-medium">{label}</span>
-    </Link>
+    <TouchableOpacity style={styles.actionCard} onPress={onPress}>
+      <View style={[styles.actionIconBox, { backgroundColor: color }]}>
+        <Feather name={icon} size={20} color={iconColor} />
+      </View>
+      <Text style={styles.actionTitle}>{title}</Text>
+    </TouchableOpacity>
   );
 }
+
+function ActivityItem({ icon, title, time, color }: any) {
+  return (
+    <View style={styles.activityItem}>
+      <View style={[styles.activityIconBox, { backgroundColor: color + '20' }]}>
+        <Feather name={icon} size={16} color={color} />
+      </View>
+      <View style={styles.activityBody}>
+        <Text style={styles.activityTitle}>{title}</Text>
+        <Text style={styles.activityTime}>{time}</Text>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
+  },
+  greeting: {
+    fontSize: 14,
+    color: '#64748B',
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#86F1D4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#0D4B42',
+  },
+  content: {
+    paddingHorizontal: 20,
+    paddingBottom: 100,
+    gap: 24,
+  },
+  riskCard: {
+    backgroundColor: '#EF4444',
+    borderRadius: 24,
+    padding: 24,
+    elevation: 8,
+    shadowColor: '#EF4444',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  riskTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  riskLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.9)',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  riskBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  riskBadgeText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  riskMiddle: {
+    marginTop: 16,
+  },
+  riskScore: {
+    fontSize: 48,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  riskDesc: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginTop: 4,
+  },
+  riskBtn: {
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  riskBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  section: {},
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginBottom: 12,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  actionCard: {
+    width: '48%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+  actionIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  actionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  activityList: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 16,
+    gap: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  activityIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activityBody: {
+    flex: 1,
+  },
+  activityTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#0F172A',
+  },
+  activityTime: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
+  }
+});

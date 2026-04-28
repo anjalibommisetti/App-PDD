@@ -1,32 +1,70 @@
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
 import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils";
+const Badge = ({ children, variant, style, textStyle }: any) => {
+  const getBadgeStyle = () => {
+    switch (variant) {
+      case "secondary":
+        return styles.secondary;
+      case "destructive":
+        return styles.destructive;
+      case "outline":
+        return styles.outline;
+      default:
+        return styles.default;
+    }
+  };
 
-const badgeVariants = cva(
-  "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-  {
-    variants: {
-      variant: {
-        default: "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        destructive:
-          "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
-        outline: "text-foreground",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
+  const getTextStyle = () => {
+    switch (variant) {
+      case "outline":
+        return styles.outlineText;
+      default:
+        return styles.defaultText;
+    }
+  };
+
+  return (
+    <View style={[styles.badge, getBadgeStyle(), style]}>
+      <Text style={[getTextStyle(), textStyle]}>
+        {children}
+      </Text>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-);
+  default: {
+    backgroundColor: '#157A6E',
+  },
+  secondary: {
+    backgroundColor: '#F1F5F9',
+  },
+  destructive: {
+    backgroundColor: '#EF4444',
+  },
+  outline: {
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    backgroundColor: 'transparent',
+  },
+  defaultText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  outlineText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+});
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
-
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
-}
-
-export { Badge, badgeVariants };
+export { Badge };

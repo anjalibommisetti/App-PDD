@@ -1,18 +1,44 @@
-import { ReactNode } from "react";
-import { BottomNav } from "./BottomNav";
+import React from 'react';
+import { View, StyleSheet, SafeAreaView, Platform, StatusBar } from 'react-native';
 
 interface PhoneShellProps {
-  children: ReactNode;
-  showNav?: boolean;
+  children: React.ReactNode;
 }
 
-export function PhoneShell({ children, showNav = true }: PhoneShellProps) {
+export const PhoneShell = ({ children }: PhoneShellProps) => {
   return (
-    <div className="min-h-screen bg-gradient-hero">
-      <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background shadow-card sm:my-6 sm:min-h-[calc(100vh-3rem)] sm:rounded-[2.25rem] sm:overflow-hidden sm:border sm:border-border">
-        <main className="flex-1 overflow-y-auto pb-2">{children}</main>
-        {showNav && <BottomNav />}
-      </div>
-    </div>
+    <View style={styles.root}>
+      <SafeAreaView style={[styles.safeArea, Platform.OS === 'web' && styles.webSafeArea]}>
+        <View style={styles.container}>
+          {children}
+        </View>
+      </SafeAreaView>
+    </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: Platform.OS === 'web' ? '#E2E8F0' : '#F8FAFC', // Darker background on web to frame the phone
+    alignItems: Platform.OS === 'web' ? 'center' : 'stretch',
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
+  webSafeArea: {
+    width: '100%',
+    maxWidth: 480,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+});

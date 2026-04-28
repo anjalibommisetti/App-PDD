@@ -1,22 +1,32 @@
+import { View, Text, StyleSheet, TouchableOpacity, TextInput as RNTextInput, ScrollView, Image } from 'react-native';
 import * as React from "react";
+import { TextInput as PaperInput } from 'react-native-paper';
 
-import { cn } from "@/lib/utils";
-
-const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
-  ({ className, type, ...props }, ref) => {
+const Input = React.forwardRef<any, any>(
+  ({ style, ...props }, ref) => {
     return (
-      <input
-        type={type}
-        className={cn(
-          "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-          className,
-        )}
+      <PaperInput
         ref={ref}
+        mode="outlined"
+        style={[styles.input, style]}
+        outlineStyle={styles.outline}
         {...props}
       />
     );
-  },
+  }
 );
+
+const styles = StyleSheet.create({
+  input: {
+    height: 48,
+    backgroundColor: '#FFFFFF',
+  },
+  outline: {
+    borderRadius: 8,
+    borderColor: '#E2E8F0',
+  },
+});
+
 Input.displayName = "Input";
 
 export { Input };

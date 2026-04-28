@@ -1,31 +1,77 @@
-import { ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
-import { ChevronLeft } from "lucide-react";
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { Feather } from '@expo/vector-icons';
 
 interface ScreenHeaderProps {
   title: string;
   subtitle?: string;
+  showBack?: boolean;
   back?: string;
-  right?: ReactNode;
+  onBack?: () => void;
 }
 
-export function ScreenHeader({ title, subtitle, back, right }: ScreenHeaderProps) {
+export const ScreenHeader = ({ title, subtitle, showBack = false, back, onBack }: ScreenHeaderProps) => {
+  const navigation = useNavigation<any>();
+  
+  const shouldShowBack = showBack || !!back || !!onBack;
+
   return (
-    <header className="flex items-center gap-3 px-5 pt-6 pb-3">
-      {back && (
-        <Link
-          to={back}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-secondary-foreground hover:bg-muted"
-          aria-label="Back"
+    <View style={styles.header}>
+      {shouldShowBack && (
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => {
+            if (onBack) {
+              onBack();
+            } else if (back) {
+              navigation.navigate(back);
+            } else {
+              navigation.goBack();
+            }
+          }}
         >
-          <ChevronLeft className="h-5 w-5" />
-        </Link>
+          <Feather name="arrow-left" size={24} color="#0F172A" />
+        </TouchableOpacity>
       )}
-      <div className="flex-1">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">{title}</h1>
-        {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
-      </div>
-      {right}
-    </header>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>{title}</Text>
+        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+      </View>
+      {/* Invisible placeholder for alignment if back button exists */}
+      {shouldShowBack && <View style={styles.backButton} />}
+    </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center', // Centers title container by default
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    zIndex: 1, // Ensure button is clickable above titleContainer if needed
+  },
+  titleContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#64748B',
+    marginTop: 2,
+  },
+});
