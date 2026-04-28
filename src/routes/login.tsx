@@ -1,23 +1,70 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
-import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
+import { supabase } from "../lib/supabase";
 
 export default function LoginScreen() {
   const navigation = useNavigation<any>();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter your email and password');
+      return;
+    }
+
+    setLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setLoading(false);
+
+    if (error) {
+      Alert.alert('Login Error', error.message);
+    } else {
+      navigation.navigate("Dashboard");
+    }
+  };
 
   return (
     <PhoneShell>
       <View style={styles.container}>
         <Text style={styles.title}>Welcome back</Text>
-        <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" />
-        <TextInput style={styles.input} placeholder="Password" secureTextEntry />
+        
+        <TextInput 
+          style={styles.input} 
+          placeholder="Email" 
+          keyboardType="email-address" 
+          autoCapitalize="none"
+          value={email}
+          onChangeText={setEmail}
+        />
+        
+        <TextInput 
+          style={styles.input} 
+          placeholder="Password" 
+          secureTextEntry 
+          value={password}
+          onChangeText={setPassword}
+        />
+        
         <TouchableOpacity 
           style={styles.button}
-          onPress={() => navigation.navigate("Dashboard")}
+          onPress={handleLogin}
+          disabled={loading}
         >
-          <Text style={styles.buttonText}>Login</Text>
+          {loading ? (
+            <ActivityIndicator color="#0D4B42" />
+          ) : (
+            <Text style={styles.buttonText}>Login</Text>
+          )}
         </TouchableOpacity>
+        
         <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
           <Text style={styles.link}>Don't have an account? Sign up</Text>
         </TouchableOpacity>
@@ -43,17 +90,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 16,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   button: {
     backgroundColor: '#86F1D4',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
+    justifyContent: 'center',
     marginTop: 8,
+    minHeight: 56,
   },
   buttonText: {
     fontWeight: 'bold',
     color: '#0D4B42',
+    fontSize: 16,
   },
   link: {
     textAlign: 'center',

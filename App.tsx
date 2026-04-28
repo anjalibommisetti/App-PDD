@@ -1,7 +1,14 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image, Platform } from 'react-native';
+import { enableScreens } from 'react-native-screens';
+import 'react-native-gesture-handler';
 import React from 'react';
+
+// Disable native screens on web to prevent aria-hidden and focus warnings
+if (Platform.OS === 'web') {
+  enableScreens(false);
+}
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import IndexScreen from './src/routes/index';
 import SignupScreen from './src/routes/signup';
@@ -15,7 +22,7 @@ import HistoryScreen from './src/routes/history';
 import DentistsScreen from './src/routes/dentists';
 import AlertsScreen from './src/routes/alerts';
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 export default function App() {
   return (
@@ -24,7 +31,8 @@ export default function App() {
         initialRouteName="Index"
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: '#F8FBFB' }
+          cardStyle: { backgroundColor: '#F8FBFB' },
+          detachPreviousScreen: Platform.OS !== 'web' // Only detach on native for performance
         }}
       >
         <Stack.Screen name="Index" component={IndexScreen} />

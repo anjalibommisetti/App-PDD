@@ -1,9 +1,10 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
-import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
+import { supabase } from "../lib/supabase";
 
 const badges = [
   { name: "Healthy Habits", icon: "star", tone: "mint" },
@@ -13,19 +14,53 @@ const badges = [
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const fetchUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
+    setLoading(false);
+  };
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      Alert.alert('Error', error.message);
+    } else {
+      navigation.navigate("Index");
+    }
+  };
+
+  if (loading) {
+    return (
+      <PhoneShell>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#157A6E" />
+        </View>
+      </PhoneShell>
+    );
+  }
+
+  const fullName = user?.user_metadata?.full_name || "User";
+  const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase();
 
   return (
     <PhoneShell>
       <ScreenHeader title="Profile" />
 
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.userCard}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>JD</Text>
+            <Text style={styles.avatarText}>{initials}</Text>
           </View>
           <View>
-            <Text style={styles.userName}>Jane Doe</Text>
-            <Text style={styles.userEmail}>jane@example.com</Text>
+            <Text style={styles.userName}>{fullName}</Text>
+            <Text style={styles.userEmail}>{user?.email}</Text>
             <View style={styles.roleBadge}>
               <Text style={styles.roleText}>Patient</Text>
             </View>
@@ -90,7 +125,7 @@ export default function ProfileScreen() {
           <View style={styles.divider} />
           <TouchableOpacity 
             style={styles.menuRow}
-            onPress={() => navigation.navigate("Index")}
+            onPress={handleLogout}
           >
             <View style={styles.menuRowLeft}>
               <Feather name="log-out" size={16} color="#EF4444" />
@@ -99,7 +134,7 @@ export default function ProfileScreen() {
             <Feather name="chevron-right" size={16} color="#EF4444" />
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </PhoneShell>
   );
 }
@@ -117,6 +152,11 @@ function MenuRow({ icon, label }: { icon: any; label: string }) {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   content: {
     paddingHorizontal: 20,
     paddingBottom: 96,
