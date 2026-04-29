@@ -25,7 +25,11 @@ export default function LoginScreen() {
     setLoading(false);
 
     if (error) {
-      Alert.alert('Login Error', error.message);
+      if (error.message.includes("Invalid login credentials")) {
+        Alert.alert('Login Failed', 'The email or password you entered is incorrect. Please try again.');
+      } else {
+        Alert.alert('Login Error', error.message);
+      }
     } else {
       navigation.navigate("Dashboard");
     }

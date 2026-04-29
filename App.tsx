@@ -51,24 +51,32 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator 
-        initialRouteName={session ? "Dashboard" : "Index"}
         screenOptions={{
           headerShown: false,
           cardStyle: { backgroundColor: '#F8FBFB' },
-          detachPreviousScreen: Platform.OS !== 'web' // Only detach on native for performance
+          detachPreviousScreen: Platform.OS !== 'web'
         }}
       >
-        <Stack.Screen name="Index" component={IndexScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Dashboard" component={DashboardScreen} />
-        <Stack.Screen name="Assessment" component={AssessmentScreen} />
-        <Stack.Screen name="Results" component={ResultsScreen} />
-        <Stack.Screen name="Report" component={ReportScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-        <Stack.Screen name="History" component={HistoryScreen} />
-        <Stack.Screen name="Dentists" component={DentistsScreen} />
-        <Stack.Screen name="Alerts" component={AlertsScreen} />
+        {session ? (
+          // Protected Screens
+          <>
+            <Stack.Screen name="Dashboard" component={DashboardScreen} />
+            <Stack.Screen name="Assessment" component={AssessmentScreen} />
+            <Stack.Screen name="Results" component={ResultsScreen} />
+            <Stack.Screen name="Report" component={ReportScreen} />
+            <Stack.Screen name="Profile" component={ProfileScreen} />
+            <Stack.Screen name="History" component={HistoryScreen} />
+            <Stack.Screen name="Dentists" component={DentistsScreen} />
+            <Stack.Screen name="Alerts" component={AlertsScreen} />
+          </>
+        ) : (
+          // Auth Screens
+          <>
+            <Stack.Screen name="Index" component={IndexScreen} />
+            <Stack.Screen name="Signup" component={SignupScreen} />
+            <Stack.Screen name="Login" component={LoginScreen} />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

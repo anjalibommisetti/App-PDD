@@ -4,11 +4,26 @@ import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
+import { supabase } from "../lib/supabase";
+import { useEffect, useState } from 'react';
 
 const trend = [62, 70, 65, 74, 71, 76, 78];
 
 export default function ReportScreen() {
   const navigation = useNavigation<any>();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const fetchUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
+  };
+
+  const fullName = user?.user_metadata?.full_name || "User";
+  const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase();
   const max = Math.max(...trend);
 
   return (
@@ -20,11 +35,11 @@ export default function ReportScreen() {
           <Text style={styles.cardLabel}>Patient</Text>
           <View style={styles.patientRow}>
             <View style={styles.avatar}>
-              <Text style={styles.avatarText}>JD</Text>
+              <Text style={styles.avatarText}>{initials}</Text>
             </View>
             <View>
-              <Text style={styles.patientName}>Jane Doe</Text>
-              <Text style={styles.patientMeta}>Female · 28 · Urban</Text>
+              <Text style={styles.patientName}>{fullName}</Text>
+              <Text style={styles.patientMeta}>Patient ID: {user?.id?.slice(0, 8) || "N/A"}</Text>
             </View>
           </View>
         </View>

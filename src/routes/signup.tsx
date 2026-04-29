@@ -33,7 +33,7 @@ export default function SignupScreen() {
     if (error) {
       Alert.alert('Signup Error', error.message);
     } else {
-      Alert.alert('Success', 'Registration successful! Please check your email for verification.');
+      Alert.alert('Success', 'Registration successful! Please check your email for a verification link.');
       navigation.navigate("Login");
     }
   };
