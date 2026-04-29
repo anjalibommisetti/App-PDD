@@ -9,6 +9,8 @@ if (Platform.OS === 'web') {
 }
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { supabase } from './src/lib/supabase';
+import { useEffect, useState } from 'react';
 
 import IndexScreen from './src/routes/index';
 import SignupScreen from './src/routes/signup';
@@ -25,10 +27,31 @@ import AlertsScreen from './src/routes/alerts';
 const Stack = createStackNavigator();
 
 export default function App() {
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(true); // Still loading for listener to settle? No, let's just set it.
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (loading) return null; // Or a splash screen
+
   return (
     <NavigationContainer>
       <Stack.Navigator 
-        initialRouteName="Index"
+        initialRouteName={session ? "Dashboard" : "Index"}
         screenOptions={{
           headerShown: false,
           cardStyle: { backgroundColor: '#F8FBFB' },

@@ -3,19 +3,37 @@ import React from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { Feather } from "@expo/vector-icons";
+import { supabase } from "../lib/supabase";
+import { useEffect, useState } from 'react';
 
 export default function DashboardScreen() {
   const navigation = useNavigation<any>();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const fetchUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
+  };
+
+  const fullName = user?.user_metadata?.full_name || "User";
+  const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase();
 
   return (
     <PhoneShell>
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>Good morning,</Text>
-          <Text style={styles.name}>Jane Doe</Text>
+          <Text style={styles.name}>{fullName}</Text>
         </View>
-        <TouchableOpacity style={styles.avatar}>
-          <Text style={styles.avatarText}>JD</Text>
+        <TouchableOpacity 
+          style={styles.avatar}
+          onPress={() => navigation.navigate("Profile")}
+        >
+          <Text style={styles.avatarText}>{initials}</Text>
         </TouchableOpacity>
       </View>
 
