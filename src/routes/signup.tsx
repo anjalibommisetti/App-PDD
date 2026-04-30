@@ -5,6 +5,7 @@ import { PhoneShell } from "../components/PhoneShell";
 import { supabase } from "../lib/supabase";
 
 export default function SignupScreen() {
+  console.log('SignupScreen rendered');
   const navigation = useNavigation<any>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,6 +19,7 @@ export default function SignupScreen() {
     }
 
     setLoading(true);
+    console.log('Attempting signup for:', email.trim());
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
@@ -31,8 +33,10 @@ export default function SignupScreen() {
     setLoading(false);
 
     if (error) {
+      console.error('Signup error:', error);
       Alert.alert('Signup Error', error.message);
     } else {
+      console.log('Signup successful:', data);
       Alert.alert('Success', 'Registration successful! Please check your email for a verification link.');
       navigation.navigate("Login");
     }

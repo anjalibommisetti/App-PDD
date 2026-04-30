@@ -33,7 +33,10 @@ export default function IndexScreen() {
             <TouchableOpacity 
               style={styles.btnPrimary}
               activeOpacity={0.8}
-              onPress={() => navigation.navigate("Signup")}
+              onPress={() => {
+                console.log('Navigating to Signup');
+                navigation.navigate("Signup");
+              }}
             >
               <Text style={styles.btnPrimaryText}>Get Started</Text>
               <Feather name="arrow-right" size={18} color="#0D4B42" />
@@ -42,7 +45,10 @@ export default function IndexScreen() {
             <TouchableOpacity 
               style={styles.btnSecondary}
               activeOpacity={0.8}
-              onPress={() => navigation.navigate("Login")}
+              onPress={() => {
+                console.log('Navigating to Login');
+                navigation.navigate("Login");
+              }}
             >
               <Text style={styles.btnSecondaryText}>I already have an account</Text>
             </TouchableOpacity>
