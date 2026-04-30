@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { supabase } from "../lib/supabase";
+import { Feather } from "@expo/vector-icons";
 
 export default function SignupScreen() {
   console.log('SignupScreen rendered');
   const navigation = useNavigation<any>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -68,13 +70,21 @@ export default function SignupScreen() {
           onChangeText={setEmail}
         />
         
-        <TextInput 
-          style={styles.input} 
-          placeholder="Password" 
-          secureTextEntry 
-          value={password}
-          onChangeText={setPassword}
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput 
+            style={styles.passwordInput} 
+            placeholder="Password" 
+            secureTextEntry={!showPassword}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity 
+            style={styles.eyeIcon} 
+            onPress={() => setShowPassword(!showPassword)}
+          >
+            <Feather name={showPassword ? "eye" : "eye-off"} size={20} color="#64748B" />
+          </TouchableOpacity>
+        </View>
         
         <TouchableOpacity 
           style={styles.button}
@@ -115,6 +125,21 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 16,
+  },
+  eyeIcon: {
+    padding: 12,
   },
   button: {
     backgroundColor: '#86F1D4',
