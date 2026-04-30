@@ -18,6 +18,11 @@ export default function SignupScreen() {
       return;
     }
 
+    if (password.length < 6) {
+      Alert.alert('Weak Password', 'Password must be at least 6 characters long.');
+      return;
+    }
+
     setLoading(true);
     console.log('Attempting signup for:', email.trim());
     const { data, error } = await supabase.auth.signUp({
