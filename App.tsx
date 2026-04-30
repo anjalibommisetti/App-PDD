@@ -28,6 +28,7 @@ const Stack = createStackNavigator();
 
 export default function App() {
   const [session, setSession] = useState<any>(null);
+  const [bypassAuth, setBypassAuth] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -71,7 +72,7 @@ export default function App() {
           detachPreviousScreen: Platform.OS !== 'web'
         }}
       >
-        {session ? (
+        {(session || bypassAuth) ? (
           // Protected Screens
           <>
             <Stack.Screen name="Dashboard" component={DashboardScreen} />
