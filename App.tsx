@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image, Platform, ActivityIndicator } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 import 'react-native-gesture-handler';
 import React from 'react';
@@ -32,21 +32,35 @@ export default function App() {
 
   useEffect(() => {
     // Check initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(true); // Still loading for listener to settle? No, let's just set it.
-      setLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        console.log('Session checked:', session ? 'User logged in' : 'No session');
+        setSession(session);
+      })
+      .catch((err) => {
+        console.error('Supabase getSession error:', err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('Auth state changed:', _event, session ? 'User logged in' : 'No session');
       setSession(session);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  if (loading) return null; // Or a splash screen
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FBFB' }}>
+        <ActivityIndicator size="large" color="#157A6E" />
+        <Text style={{ marginTop: 12, color: '#64748B' }}>Loading SmileGuard...</Text>
+      </View>
+    );
+  }
 
   return (
     <NavigationContainer>
