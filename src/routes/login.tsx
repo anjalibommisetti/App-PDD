@@ -18,13 +18,14 @@ export default function LoginScreen() {
 
     setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.trim(),
       password,
     });
 
     setLoading(false);
 
     if (error) {
+      console.error('Login error:', error);
       if (error.message.includes("Invalid login credentials")) {
         Alert.alert('Login Failed', 'The email or password you entered is incorrect. Please try again.');
       } else {
