@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
@@ -50,7 +50,7 @@ export default function LoginScreen() {
 
   return (
     <PhoneShell showNav={false}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+      <View style={{ flex: 1 }}>
         <View style={styles.container}>
           <Text style={styles.title}>Welcome back</Text>
           
@@ -105,7 +105,7 @@ export default function LoginScreen() {
             <Text style={styles.link}>Don't have an account? Sign up</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </PhoneShell>
   );
 }
