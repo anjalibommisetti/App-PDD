@@ -5,7 +5,7 @@ import { PhoneShell } from "../components/PhoneShell";
 import { supabase } from "../lib/supabase";
 import { Feather } from "@expo/vector-icons";
 
-export default function LoginScreen({ onBypass }: { onBypass?: () => void }) {
+export default function LoginScreen() {
   const navigation = useNavigation<any>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,6 +40,7 @@ export default function LoginScreen({ onBypass }: { onBypass?: () => void }) {
         errorTitle = 'Email Not Verified';
         errorMsg = 'Please verify your email address before logging in. Check your inbox (and spam) for the verification link.';
       }
+
       setErrorMessage(errorMsg);
       Alert.alert(errorTitle, errorMsg);
     } else {
@@ -98,15 +99,6 @@ export default function LoginScreen({ onBypass }: { onBypass?: () => void }) {
             <Text style={styles.buttonText}>Login</Text>
           )}
         </TouchableOpacity>
-
-        {onBypass && (
-          <TouchableOpacity 
-            style={[styles.button, { backgroundColor: '#F1F5F9', marginTop: 0 }]}
-            onPress={onBypass}
-          >
-            <Text style={[styles.buttonText, { color: '#64748B' }]}>Bypass Login (Dev only)</Text>
-          </TouchableOpacity>
-        )}
         
         <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
           <Text style={styles.link}>Don't have an account? Sign up</Text>

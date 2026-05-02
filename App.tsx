@@ -28,31 +28,49 @@ const Stack = createStackNavigator();
 
 export default function App() {
   const [session, setSession] = useState<any>(null);
-  const [bypassAuth, setBypassAuth] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check initial session
-    supabase.auth.getSession()
-      .then(({ data: { session } }) => {
-        console.log('Session checked:', session ? 'User logged in' : 'No session');
-        setSession(session);
-      })
-      .catch((err) => {
-        console.error('Supabase getSession error:', err);
-      })
-      .finally(() => {
+    // 1. Initial session check
+    const checkSession = async () => {
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (currentSession) {
+          console.log('Session found on mount');
+          setSession(currentSession);
+        }
+      } catch (err) {
+        console.error('Initial check error:', err);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+    checkSession();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log('Auth state changed:', _event, session ? 'User logged in' : 'No session');
-      setSession(session);
+    // 2. Live "Auto-Login" background logic
+    // We poll the session every 3 seconds ONLY if no session is active.
+    let interval: any;
+    if (!session) {
+      interval = setInterval(async () => {
+        const { data: { session: newSession } } = await supabase.auth.getSession();
+        if (newSession) {
+          console.log('Live background auto-login detected!');
+          setSession(newSession);
+        }
+      }, 3000);
+    }
+
+    // 3. Listen for real-time auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      console.log('Auth event:', _event, newSession ? 'Session Active' : 'No Session');
+      setSession(newSession);
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      if (interval) clearInterval(interval);
+      subscription.unsubscribe();
+    };
+  }, [session]);
 
   if (loading) {
     return (
@@ -72,7 +90,7 @@ export default function App() {
           detachPreviousScreen: Platform.OS !== 'web',
         }}
       >
-        {(session || bypassAuth) ? (
+        {session ? (
           // Protected Screens
           <>
             <Stack.Screen name="Dashboard" component={DashboardScreen} />
@@ -89,9 +107,7 @@ export default function App() {
           <>
             <Stack.Screen name="Index" component={IndexScreen} />
             <Stack.Screen name="Signup" component={SignupScreen} />
-            <Stack.Screen name="Login">
-              {(props) => <LoginScreen {...props} onBypass={() => setBypassAuth(true)} />}
-            </Stack.Screen>
+            <Stack.Screen name="Login" component={LoginScreen} />
           </>
         )}
       </Stack.Navigator>
