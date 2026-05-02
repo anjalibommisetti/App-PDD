@@ -13,6 +13,7 @@ export default function ResultsScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const params = route.params as any;
+  const assessmentId = params?.id;
 
   // Use params passed directly from assessment first (always available immediately)
   const [score, setScore] = useState<number>(params?.score ?? 0);
@@ -32,8 +33,6 @@ export default function ResultsScreen() {
   const fetchResults = async () => {
     try {
       let query: any = supabase.from('assessments').select('*');
-      const assessmentId = params?.id;
-
       if (assessmentId) {
         query = query.eq('id', assessmentId).single();
       } else {
