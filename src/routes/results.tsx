@@ -153,7 +153,7 @@ export default function ResultsScreen() {
           <TouchableOpacity 
             style={styles.btnSecondary} 
             activeOpacity={0.8}
-            onPress={() => navigation.navigate("Report", { id: assessmentId })}
+            onPress={() => navigation.navigate("Report", { id: assessmentId, score })}
           >
             <Feather name="file-text" size={16} color="#0F172A" />
             <Text style={styles.btnSecondaryText}>Full Report</Text>

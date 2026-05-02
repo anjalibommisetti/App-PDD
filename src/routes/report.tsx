@@ -349,5 +349,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#0D4B42',
-  }
+  },
+  emptyTrend: {
+    paddingVertical: 24,
+    alignItems: 'center',
+    gap: 10,
+  },
+  emptyTrendText: {
+    fontSize: 13,
+    color: '#94A3B8',
+    textAlign: 'center',
+    lineHeight: 20,
+    paddingHorizontal: 16,
+  },
 });
