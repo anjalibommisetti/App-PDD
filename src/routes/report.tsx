@@ -63,6 +63,15 @@ export default function ReportScreen() {
 
   const fullName = user?.user_metadata?.full_name || "User";
   const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase();
+  const answers = assessment?.answers || {};
+  const patientAge = answers.q1 || '—';
+  const patientGender = answers.q2 || '—';
+  const patientArea = answers.q3 || '—';
+  const assessmentDate = assessment?.created_at
+    ? new Date(assessment.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    : new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  const riskLevel = assessment?.level || params?.level || 'Low';
+  const riskColor = riskLevel === 'High' ? '#EF4444' : riskLevel === 'Medium' ? '#F59E0B' : '#10B981';
   // Use DB trend if available, otherwise show just the current score
   const displayTrend = trend.length > 0 ? trend : (currentScore > 0 ? [currentScore] : []);
   const CHART_HEIGHT = 100; // px
@@ -74,14 +83,35 @@ export default function ReportScreen() {
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
-          <Text style={styles.cardLabel}>Patient</Text>
+          <Text style={styles.cardLabel}>PATIENT DETAILS</Text>
           <View style={styles.patientRow}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>{initials}</Text>
             </View>
-            <View>
+            <View style={{ flex: 1 }}>
               <Text style={styles.patientName}>{fullName}</Text>
-              <Text style={styles.patientMeta}>Patient ID: {user?.id?.slice(0, 8) || "N/A"}</Text>
+              <Text style={styles.patientMeta}>Patient ID: {user?.id?.slice(0, 8) || 'N/A'}</Text>
+            </View>
+            <View style={[styles.riskBadge, { backgroundColor: riskColor + '20', borderColor: riskColor }]}>
+              <Text style={[styles.riskBadgeText, { color: riskColor }]}>{riskLevel} Risk</Text>
+            </View>
+          </View>
+          <View style={styles.detailsGrid}>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailLabel}>Age</Text>
+              <Text style={styles.detailValue}>{patientAge} yrs</Text>
+            </View>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailLabel}>Gender</Text>
+              <Text style={styles.detailValue}>{patientGender}</Text>
+            </View>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailLabel}>Area</Text>
+              <Text style={styles.detailValue}>{patientArea}</Text>
+            </View>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailLabel}>Date</Text>
+              <Text style={styles.detailValue}>{assessmentDate}</Text>
             </View>
           </View>
         </View>
@@ -361,5 +391,40 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
     paddingHorizontal: 16,
+  },
+  riskBadge: {
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  riskBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  detailsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 14,
+    gap: 10,
+  },
+  detailItem: {
+    width: '47%',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    padding: 12,
+  },
+  detailLabel: {
+    fontSize: 11,
+    color: '#94A3B8',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  detailValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0F172A',
   },
 });
