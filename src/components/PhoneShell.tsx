@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, SafeAreaView, Platform, StatusBar, ScrollView } from 'react-native';
+import { View, StyleSheet, SafeAreaView, Platform, StatusBar, ScrollView, Dimensions } from 'react-native';
 import { BottomNav } from './BottomNav';
 
 interface PhoneShellProps {
@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Platform.OS === 'web' ? '#E2E8F0' : '#F8FAFC',
     alignItems: Platform.OS === 'web' ? 'center' : 'stretch',
-    height: Platform.OS === 'web' ? '100vh' : 'auto',
+    height: Platform.OS === 'web' ? Dimensions.get('window').height : undefined,
   },
   safeArea: {
     flex: 1,
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   webSafeArea: {
     width: '100%',
     maxWidth: 480,
-    height: Platform.OS === 'web' ? '100vh' : '100%', // Critical for web visibility
+    height: Platform.OS === 'web' ? Dimensions.get('window').height : '100%', // Critical for web visibility
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
