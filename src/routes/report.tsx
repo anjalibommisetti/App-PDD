@@ -67,6 +67,8 @@ export default function ReportScreen() {
   const patientAge = answers.q1 || '—';
   const patientGender = answers.q2 || '—';
   const patientArea = answers.q3 || '—';
+  const patientEducation = answers.q4 || '—';
+  const tobaccoUse = answers.q23 || '—';
   const assessmentDate = assessment?.created_at
     ? new Date(assessment.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
     : new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -112,6 +114,14 @@ export default function ReportScreen() {
             <View style={styles.detailItem}>
               <Text style={styles.detailLabel}>Date</Text>
               <Text style={styles.detailValue}>{assessmentDate}</Text>
+            </View>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailLabel}>Education</Text>
+              <Text style={styles.detailValue}>{patientEducation}</Text>
+            </View>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailLabel}>Tobacco</Text>
+              <Text style={styles.detailValue}>{tobaccoUse}</Text>
             </View>
           </View>
         </View>
