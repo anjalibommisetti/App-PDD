@@ -12,7 +12,9 @@ import { useRoute } from "@react-navigation/native";
 export default function ReportScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const assessmentId = route.params?.id;
+  const params = route.params as any;
+  const assessmentId = params?.id;
+  const currentScore: number = params?.score ?? 0;
 
   const [user, setUser] = useState<any>(null);
   const [assessment, setAssessment] = useState<any>(null);
@@ -61,8 +63,10 @@ export default function ReportScreen() {
 
   const fullName = user?.user_metadata?.full_name || "User";
   const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase();
-  const displayTrend = trend.length > 0 ? trend : [0, 0, 0, 0, 0, 0, 0];
-  const max = Math.max(...displayTrend, 100);
+  // Use DB trend if available, otherwise show just the current score
+  const displayTrend = trend.length > 0 ? trend : (currentScore > 0 ? [currentScore] : []);
+  const CHART_HEIGHT = 100; // px
+  const max = Math.max(...displayTrend, 1);
 
   return (
     <PhoneShell showNav={false}>
@@ -98,16 +102,28 @@ export default function ReportScreen() {
               </View>
             )}
           </View>
-          <View style={styles.chart}>
-            {displayTrend.map((v, idx) => (
-              <View key={idx} style={styles.barCol}>
-                <View 
-                  style={[styles.barFill, { height: `${(v / max) * 100}%` }]} 
-                />
-                <Text style={styles.barLabel}>T{idx + 1}</Text>
+          {displayTrend.length === 0 ? (
+            <View style={styles.emptyTrend}>
+              <Feather name="bar-chart-2" size={32} color="#CBD5E1" />
+              <Text style={styles.emptyTrendText}>Complete more assessments to see your risk trend over time.</Text>
+            </View>
+          ) : (
+            <View style={[styles.chart, { height: CHART_HEIGHT + 24 }]}>
+              <View style={{ flexDirection: 'row', alignItems: 'flex-end', height: CHART_HEIGHT, gap: 6, flex: 1 }}>
+                {displayTrend.map((v, idx) => {
+                  const barH = Math.max(4, Math.round((v / max) * CHART_HEIGHT));
+                  const color = v >= 60 ? '#EF4444' : v >= 30 ? '#F59E0B' : '#10B981';
+                  return (
+                    <View key={idx} style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-end', height: CHART_HEIGHT }}>
+                      <Text style={{ fontSize: 9, color: '#64748B', marginBottom: 2 }}>{v}</Text>
+                      <View style={{ width: '70%', height: barH, backgroundColor: color, borderRadius: 4 }} />
+                      <Text style={styles.barLabel}>T{idx + 1}</Text>
+                    </View>
+                  );
+                })}
               </View>
-            ))}
-          </View>
+            </View>
+          )}
         </View>
 
         <View style={styles.cardBeige}>
