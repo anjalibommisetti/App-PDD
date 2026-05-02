@@ -12,23 +12,28 @@ import { useRoute } from "@react-navigation/native";
 export default function ResultsScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const assessmentId = route.params?.id;
+  const params = route.params as any;
 
-  const [score, setScore] = useState(0);
-  const [level, setLevel] = useState('Low');
-  const [breakdown, setBreakdown] = useState<any[]>([]);
-  const [insight, setInsight] = useState('');
-  const [recommendations, setRecommendations] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Use params passed directly from assessment first (always available immediately)
+  const [score, setScore] = useState<number>(params?.score ?? 0);
+  const [level, setLevel] = useState<string>(params?.level ?? 'Low');
+  const [breakdown, setBreakdown] = useState<any[]>(params?.breakdown ?? []);
+  const [insight, setInsight] = useState<string>(params?.insight ?? '');
+  const [recommendations, setRecommendations] = useState<string[]>(params?.recommendations ?? []);
+  const [loading, setLoading] = useState(!params?.score); // skip loading if params exist
 
   useEffect(() => {
-    fetchResults();
-  }, [assessmentId]);
+    // Only fetch from DB if we have no params (e.g. navigated from History)
+    if (!params?.score) {
+      fetchResults();
+    }
+  }, []);
 
   const fetchResults = async () => {
     try {
       let query: any = supabase.from('assessments').select('*');
-      
+      const assessmentId = params?.id;
+
       if (assessmentId) {
         query = query.eq('id', assessmentId).single();
       } else {
@@ -41,14 +46,13 @@ export default function ResultsScreen() {
         }
       }
 
-      const { data, error } = await query;
-
+      const { data } = await query;
       if (data) {
-        setScore(data.score || 0);
-        setLevel(data.level || 'Low');
-        setBreakdown(data.breakdown || []);
-        setInsight(data.insight || 'No insight available for this assessment.');
-        setRecommendations(data.recommendations || []);
+        setScore(data.score ?? 0);
+        setLevel(data.level ?? 'Low');
+        setBreakdown(data.breakdown ?? []);
+        setInsight(data.insight ?? 'No insight available.');
+        setRecommendations(data.recommendations ?? []);
       }
     } catch (err) {
       console.error('Error fetching results:', err);
