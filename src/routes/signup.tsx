@@ -10,18 +10,26 @@ export default function SignupScreen() {
   const navigation = useNavigation<any>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSignup = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+    setErrorMessage('');
+    if (!email || !password || !fullName) {
+      setErrorMessage('Please fill in all fields');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMessage('Passwords do not match');
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Weak Password', 'Password must be at least 6 characters long.');
+      setErrorMessage('Password must be at least 6 characters');
       return;
     }
 
@@ -41,10 +49,14 @@ export default function SignupScreen() {
 
     if (error) {
       console.error('Signup error:', error);
-      Alert.alert('Signup Error', error.message);
+      setErrorMessage(error.message);
+      Alert.alert('Signup Problem', `We encountered an issue during signup:\n\n${error.message}`);
     } else {
       console.log('Signup successful:', data);
-      Alert.alert('Success', 'Registration successful! Please check your email for a verification link.');
+      Alert.alert(
+        'Success', 
+        'Registration successful! Please check your email for a verification link before logging in.'
+      );
       navigation.navigate("Login");
     }
   };
@@ -54,11 +66,21 @@ export default function SignupScreen() {
       <View style={styles.container}>
         <Text style={styles.title}>Create Account</Text>
         
+        {errorMessage ? (
+          <View style={styles.errorContainer}>
+            <Feather name="alert-circle" size={16} color="#EF4444" />
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          </View>
+        ) : null}
+        
         <TextInput 
           style={styles.input} 
           placeholder="Full Name" 
           value={fullName}
-          onChangeText={setFullName}
+          onChangeText={(val) => {
+            setFullName(val);
+            setErrorMessage('');
+          }}
         />
         
         <TextInput 
@@ -85,6 +107,14 @@ export default function SignupScreen() {
             <Feather name={showPassword ? "eye" : "eye-off"} size={20} color="#64748B" />
           </TouchableOpacity>
         </View>
+
+        <TextInput 
+          style={styles.input} 
+          placeholder="Confirm Password" 
+          secureTextEntry={!showPassword}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+        />
         
         <TouchableOpacity 
           style={styles.button}
@@ -159,5 +189,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 16,
     color: '#64748B',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#FEF2F2',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#FEE2E2',
+    marginBottom: 8,
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 14,
+    fontWeight: '500',
+    flex: 1,
   }
 });

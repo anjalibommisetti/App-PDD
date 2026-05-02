@@ -5,16 +5,18 @@ import { PhoneShell } from "../components/PhoneShell";
 import { supabase } from "../lib/supabase";
 import { Feather } from "@expo/vector-icons";
 
-export default function LoginScreen() {
+export default function LoginScreen({ onBypass }: { onBypass?: () => void }) {
   const navigation = useNavigation<any>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleLogin = async () => {
+    setErrorMessage('');
     if (!email || !password) {
-      Alert.alert('Error', 'Please enter your email and password');
+      setErrorMessage('Please enter your email and password');
       return;
     }
 
@@ -28,11 +30,18 @@ export default function LoginScreen() {
 
     if (error) {
       console.error('Login error:', error);
+      let errorTitle = 'Login Problem';
+      let errorMsg = error.message;
+
       if (error.message.includes("Invalid login credentials")) {
-        Alert.alert('Login Failed', 'The email or password you entered is incorrect. Please try again.');
-      } else {
-        Alert.alert('Login Error', error.message);
+        errorTitle = 'Invalid Credentials';
+        errorMsg = 'The email or password you entered is incorrect. \n\nNote: If you just signed up, you may need to check your email and verify your account first.';
+      } else if (error.message.includes("Email not confirmed")) {
+        errorTitle = 'Email Not Verified';
+        errorMsg = 'Please verify your email address before logging in. Check your inbox (and spam) for the verification link.';
       }
+      setErrorMessage(errorMsg);
+      Alert.alert(errorTitle, errorMsg);
     } else {
       navigation.navigate("Dashboard");
     }
@@ -43,13 +52,23 @@ export default function LoginScreen() {
       <View style={styles.container}>
         <Text style={styles.title}>Welcome back</Text>
         
+        {errorMessage ? (
+          <View style={styles.errorContainer}>
+            <Feather name="alert-circle" size={16} color="#EF4444" />
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          </View>
+        ) : null}
+        
         <TextInput 
           style={styles.input} 
           placeholder="Email" 
           keyboardType="email-address" 
           autoCapitalize="none"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={(val) => {
+            setEmail(val);
+            setErrorMessage('');
+          }}
         />
         
         <View style={styles.passwordContainer}>
@@ -79,6 +98,15 @@ export default function LoginScreen() {
             <Text style={styles.buttonText}>Login</Text>
           )}
         </TouchableOpacity>
+
+        {onBypass && (
+          <TouchableOpacity 
+            style={[styles.button, { backgroundColor: '#F1F5F9', marginTop: 0 }]}
+            onPress={onBypass}
+          >
+            <Text style={[styles.buttonText, { color: '#64748B' }]}>Bypass Login (Dev only)</Text>
+          </TouchableOpacity>
+        )}
         
         <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
           <Text style={styles.link}>Don't have an account? Sign up</Text>
@@ -141,5 +169,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 16,
     color: '#64748B',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#FEF2F2',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#FEE2E2',
+    marginBottom: 8,
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 14,
+    fontWeight: '500',
+    flex: 1,
   }
 });

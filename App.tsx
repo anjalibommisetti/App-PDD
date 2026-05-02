@@ -69,7 +69,7 @@ export default function App() {
         screenOptions={{
           headerShown: false,
           cardStyle: { backgroundColor: '#F8FBFB' },
-          detachPreviousScreen: Platform.OS !== 'web'
+          detachPreviousScreen: Platform.OS !== 'web',
         }}
       >
         {(session || bypassAuth) ? (
@@ -89,7 +89,9 @@ export default function App() {
           <>
             <Stack.Screen name="Index" component={IndexScreen} />
             <Stack.Screen name="Signup" component={SignupScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Login">
+              {(props) => <LoginScreen {...props} onBypass={() => setBypassAuth(true)} />}
+            </Stack.Screen>
           </>
         )}
       </Stack.Navigator>
