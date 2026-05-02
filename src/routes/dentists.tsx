@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image, Alert } from 'react-native';
 import React from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
@@ -41,7 +41,7 @@ export default function DentistsScreen() {
                 </View>
               </View>
             </View>
-            <TouchableOpacity style={styles.bookBtn} activeOpacity={0.8} onPress={() => alert("Appointment Booked!")}>
+            <TouchableOpacity style={styles.bookBtn} activeOpacity={0.8} onPress={() => Alert.alert("Appointment Booked!")}>
               <Text style={styles.bookBtnText}>Book Appointment</Text>
             </TouchableOpacity>
           </View>

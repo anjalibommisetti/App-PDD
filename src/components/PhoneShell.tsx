@@ -3,9 +3,10 @@ import { View, StyleSheet, SafeAreaView, Platform, StatusBar } from 'react-nativ
 
 interface PhoneShellProps {
   children: React.ReactNode;
+  showNav?: boolean;
 }
 
-export const PhoneShell = ({ children }: PhoneShellProps) => {
+export const PhoneShell = ({ children, showNav }: PhoneShellProps) => {
   return (
     <View style={styles.root}>
       <SafeAreaView style={[styles.safeArea, Platform.OS === 'web' && styles.webSafeArea]}>
