@@ -49,7 +49,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <PhoneShell>
+    <PhoneShell showNav={false}>
       <View style={styles.container}>
         <Text style={styles.title}>Welcome back</Text>
         

@@ -3,11 +3,13 @@ import React from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
 
+import { PhoneShell } from "../components/PhoneShell";
+
 export default function IndexScreen() {
   const navigation = useNavigation<any>();
 
   return (
-    <View style={styles.container}>
+    <PhoneShell showNav={false}>
       <View style={styles.innerContainer}>
         <View style={styles.content}>
           <View style={styles.badge}>
@@ -55,7 +57,7 @@ export default function IndexScreen() {
           </View>
         </View>
       </View>
-    </View>
+    </PhoneShell>
   );
 }
 

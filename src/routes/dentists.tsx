@@ -5,30 +5,50 @@ import { PhoneShell } from "../components/PhoneShell";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
 
-const dentists = [
-  { name: "Dr. Sarah Chen", rating: 4.9, exp: "12 yrs", loc: "Downtown · 1.2 km", spec: "Periodontist", initials: "SC" },
-  { name: "Dr. Michael Patel", rating: 4.8, exp: "8 yrs", loc: "Westside · 2.4 km", spec: "Cosmetic", initials: "MP" },
-  { name: "Dr. Aisha Rahman", rating: 4.7, exp: "15 yrs", loc: "North · 3.8 km", spec: "Orthodontist", initials: "AR" },
-  { name: "Dr. Lucas Reyes", rating: 4.9, exp: "10 yrs", loc: "Central · 0.9 km", spec: "General", initials: "LR" },
-];
+import { supabase } from "../lib/supabase";
+import { useEffect, useState } from 'react';
 
 export default function DentistsScreen() {
+  const [dentists, setDentists] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDentists();
+  }, []);
+
+  const fetchDentists = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('dentists')
+        .select('*')
+        .order('rating', { ascending: false });
+
+      if (data) {
+        setDentists(data);
+      }
+    } catch (err) {
+      console.error('Error fetching dentists:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <PhoneShell>
       <ScreenHeader title="Find a Dentist" subtitle="Verified specialists near you" back="Dashboard" />
 
-      <View style={styles.list}>
-        {dentists.map((d) => (
-          <View key={d.name} style={styles.card}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
+        {dentists.length > 0 ? dentists.map((d) => (
+          <View key={d.id || d.name} style={styles.card}>
             <View style={styles.cardTop}>
               <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{d.initials}</Text>
+                <Text style={styles.avatarText}>{d.initials || d.name.split(' ').map((n: string) => n[0]).join('')}</Text>
               </View>
               <View style={styles.cardBody}>
                 <View style={styles.cardHeader}>
                   <View>
                     <Text style={styles.name}>{d.name}</Text>
-                    <Text style={styles.spec}>{d.spec} · {d.exp}</Text>
+                    <Text style={styles.spec}>{d.specialty || d.spec} · {d.experience || d.exp}</Text>
                   </View>
                   <View style={styles.ratingBadge}>
                     <Feather name="star" size={12} color="#7C3AED" />
@@ -37,16 +57,20 @@ export default function DentistsScreen() {
                 </View>
                 <View style={styles.locWrap}>
                   <Feather name="map-pin" size={12} color="#64748B" />
-                  <Text style={styles.locText}>{d.loc}</Text>
+                  <Text style={styles.locText}>{d.location || d.loc}</Text>
                 </View>
               </View>
             </View>
-            <TouchableOpacity style={styles.bookBtn} activeOpacity={0.8} onPress={() => Alert.alert("Appointment Booked!")}>
+            <TouchableOpacity style={styles.bookBtn} activeOpacity={0.8} onPress={() => Alert.alert("Appointment Booked!", `You have requested an appointment with ${d.name}.`)}>
               <Text style={styles.bookBtnText}>Book Appointment</Text>
             </TouchableOpacity>
           </View>
-        ))}
-      </View>
+        )) : (
+          <View style={{ padding: 40, alignItems: 'center' }}>
+            <Text style={{ color: '#64748B' }}>{loading ? 'Searching for dentists...' : 'No dentists found near you.'}</Text>
+          </View>
+        )}
+      </ScrollView>
     </PhoneShell>
   );
 }

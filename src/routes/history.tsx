@@ -1,27 +1,56 @@
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
 
-const items = [
-  { date: "Apr 22, 2026", score: 78, status: "High", tone: "alert" },
-  { date: "Mar 15, 2026", score: 72, status: "Medium", tone: "warning" },
-  { date: "Feb 10, 2026", score: 65, status: "Medium", tone: "warning" },
-  { date: "Jan 05, 2026", score: 48, status: "Low", tone: "success" },
-  { date: "Dec 02, 2025", score: 42, status: "Low", tone: "success" },
-];
+import { supabase } from "../lib/supabase";
 
 export default function HistoryScreen() {
   const navigation = useNavigation<any>();
   const [tab, setTab] = useState<"assessments" | "reports">("assessments");
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchHistory();
+  }, [tab]);
+
+  const fetchHistory = async () => {
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        let query = supabase
+          .from(tab === 'assessments' ? 'assessments' : 'reports')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        const { data } = await query;
+        if (data) {
+          setItems(data.map(it => ({
+            ...it,
+            date: new Date(it.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+            score: it.score || 0,
+            status: it.level || "Unknown",
+            tone: (it.level || "").toLowerCase() === "high" ? "alert" : (it.level || "").toLowerCase() === "medium" ? "warning" : "success"
+          })));
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching history:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <PhoneShell>
       <ScreenHeader title="History" subtitle="Your past activity" />
 
-      <View style={styles.content}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.tabsWrap}>
           {(["assessments", "reports"] as const).map((t) => (
             <TouchableOpacity
@@ -37,18 +66,18 @@ export default function HistoryScreen() {
         </View>
 
         <View style={styles.list}>
-          {items.map((it) => {
+          {items.length > 0 ? items.map((it) => {
             const bgTone = it.tone === "alert" ? "rgba(239, 68, 68, 0.15)" :
               it.tone === "warning" ? "rgba(255, 205, 178, 0.4)" :
               "rgba(134, 241, 212, 0.4)";
             const fgTone = it.tone === "alert" ? "#EF4444" :
-              it.tone === "warning" ? "#7C3AED" : // Peach fg
+              it.tone === "warning" ? "#7C3AED" :
               "#0D4B42";
 
             return (
               <TouchableOpacity
-                key={it.date}
-                onPress={() => navigation.navigate("Results")}
+                key={it.id || it.date}
+                onPress={() => navigation.navigate("Results", { id: it.id })}
                 style={styles.itemCard}
                 activeOpacity={0.8}
               >
@@ -69,9 +98,13 @@ export default function HistoryScreen() {
                 <Feather name="chevron-right" size={20} color="#94A3B8" />
               </TouchableOpacity>
             );
-          })}
+          }) : (
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <Text style={{ color: '#64748B' }}>{loading ? 'Fetching history...' : `No ${tab} found.`}</Text>
+            </View>
+          )}
         </View>
-      </View>
+      </ScrollView>
     </PhoneShell>
   );
 }

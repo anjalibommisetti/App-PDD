@@ -9,14 +9,52 @@ import { useEffect, useState } from 'react';
 export default function DashboardScreen() {
   const navigation = useNavigation<any>();
   const [user, setUser] = useState<any>(null);
+  const [riskLevel, setRiskLevel] = useState('Low');
+  const [riskScore, setRiskScore] = useState(0);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchUser();
+    fetchDashboardData();
   }, []);
 
-  const fetchUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
+  const fetchDashboardData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+
+      if (user) {
+        // Fetch latest assessment for risk score
+        const { data: assessment } = await supabase
+          .from('assessments')
+          .select('score, level')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (assessment) {
+          setRiskScore(assessment.score);
+          setRiskLevel(assessment.level);
+        }
+
+        // Fetch recent activity
+        const { data: activityLogs } = await supabase
+          .from('activity_logs')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        if (activityLogs) {
+          setActivities(activityLogs);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fullName = user?.user_metadata?.full_name || "User";
@@ -37,18 +75,18 @@ export default function DashboardScreen() {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.content}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Risk Card */}
-        <View style={styles.riskCard}>
+        <View style={[styles.riskCard, { backgroundColor: riskLevel === 'High' ? '#EF4444' : riskLevel === 'Medium' ? '#F59E0B' : '#10B981' }]}>
           <View style={styles.riskTop}>
             <Text style={styles.riskLabel}>Current Risk Level</Text>
             <View style={styles.riskBadge}>
-              <Text style={styles.riskBadgeText}>High</Text>
+              <Text style={styles.riskBadgeText}>{riskLevel}</Text>
             </View>
           </View>
           <View style={styles.riskMiddle}>
-            <Text style={styles.riskScore}>78</Text>
-            <Text style={styles.riskDesc}>Needs attention</Text>
+            <Text style={styles.riskScore}>{riskScore}</Text>
+            <Text style={styles.riskDesc}>{riskLevel === 'Low' ? 'Doing great' : 'Needs attention'}</Text>
           </View>
           <TouchableOpacity 
             style={styles.riskBtn}
@@ -98,27 +136,20 @@ export default function DashboardScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recent Activity</Text>
           <View style={styles.activityList}>
-            <ActivityItem 
-              icon="check-circle" 
-              title="Brushed teeth" 
-              time="Today, 8:00 AM" 
-              color="#10B981" 
-            />
-            <ActivityItem 
-              icon="alert-triangle" 
-              title="Gum bleeding reported" 
-              time="Yesterday" 
-              color="#EF4444" 
-            />
-            <ActivityItem 
-              icon="shield" 
-              title="Risk assessment completed" 
-              time="3 days ago" 
-              color="#3B82F6" 
-            />
+            {activities.length > 0 ? activities.map((act, idx) => (
+              <ActivityItem 
+                key={idx}
+                icon={act.icon || "check-circle"} 
+                title={act.title} 
+                time={act.time_display || "Recently"} 
+                color={act.color || "#10B981"} 
+              />
+            )) : (
+              <Text style={{ textAlign: 'center', color: '#64748B', padding: 20 }}>No recent activity</Text>
+            )}
           </View>
         </View>
-      </View>
+      </ScrollView>
     </PhoneShell>
   );
 }

@@ -66,45 +66,47 @@ export default function AssessmentScreen() {
         }}
       />
       
-      <View style={styles.container}>
-        <View style={styles.progressContainer}>
-          <View style={[styles.progressBar, { width: `${((currentStep + 1) / questions.length) * 100}%` }]} />
-        </View>
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+        <View style={styles.container}>
+          <View style={styles.progressContainer}>
+            <View style={[styles.progressBar, { width: `${((currentStep + 1) / questions.length) * 100}%` }]} />
+          </View>
 
-        <Text style={styles.questionText}>{question.title}</Text>
+          <Text style={styles.questionText}>{question.title}</Text>
 
-        <View style={styles.optionsList}>
-          {question.options.map((option) => (
-            <TouchableOpacity
-              key={option}
-              style={[
-                styles.optionBtn,
-                answers[question.id] === option && styles.optionBtnActive
-              ]}
-              onPress={() => handleSelect(option)}
+          <View style={styles.optionsList}>
+            {question.options.map((option) => (
+              <TouchableOpacity
+                key={option}
+                style={[
+                  styles.optionBtn,
+                  answers[question.id] === option && styles.optionBtnActive
+                ]}
+                onPress={() => handleSelect(option)}
+              >
+                <Text style={[
+                  styles.optionText,
+                  answers[question.id] === option && styles.optionTextActive
+                ]}>
+                  {option}
+                </Text>
+                {answers[question.id] === option && (
+                  <Feather name="check-circle" size={20} color="#157A6E" />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {currentStep > 0 && (
+            <TouchableOpacity 
+              style={styles.backBtn}
+              onPress={() => setCurrentStep(currentStep - 1)}
             >
-              <Text style={[
-                styles.optionText,
-                answers[question.id] === option && styles.optionTextActive
-              ]}>
-                {option}
-              </Text>
-              {answers[question.id] === option && (
-                <Feather name="check-circle" size={20} color="#157A6E" />
-              )}
+              <Text style={styles.backBtnText}>Previous Question</Text>
             </TouchableOpacity>
-          ))}
+          )}
         </View>
-
-        {currentStep > 0 && (
-          <TouchableOpacity 
-            style={styles.backBtn}
-            onPress={() => setCurrentStep(currentStep - 1)}
-          >
-            <Text style={styles.backBtnText}>Previous Question</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      </ScrollView>
     </PhoneShell>
   );
 }

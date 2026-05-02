@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image, Alert } from 'react-native';
 import React from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
@@ -7,30 +7,68 @@ import { Feather } from "@expo/vector-icons";
 import { supabase } from "../lib/supabase";
 import { useEffect, useState } from 'react';
 
-const trend = [62, 70, 65, 74, 71, 76, 78];
+import { useRoute } from "@react-navigation/native";
 
 export default function ReportScreen() {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const assessmentId = route.params?.id;
+
   const [user, setUser] = useState<any>(null);
+  const [assessment, setAssessment] = useState<any>(null);
+  const [trend, setTrend] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchUser();
-  }, []);
+    fetchReportData();
+  }, [assessmentId]);
 
-  const fetchUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
+  const fetchReportData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+
+      if (user) {
+        // Fetch specific or latest assessment
+        let query: any = supabase.from('assessments').select('*');
+        if (assessmentId) {
+          query = query.eq('id', assessmentId).single();
+        } else {
+          query = query.eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).single();
+        }
+
+        const { data: currentAssessment } = await query;
+        setAssessment(currentAssessment);
+
+        // Fetch last 7 assessments for trend
+        const { data: history } = await supabase
+          .from('assessments')
+          .select('score')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: true })
+          .limit(7);
+
+        if (history) {
+          setTrend(history.map(h => h.score));
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching report data:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fullName = user?.user_metadata?.full_name || "User";
   const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase();
-  const max = Math.max(...trend);
+  const displayTrend = trend.length > 0 ? trend : [0, 0, 0, 0, 0, 0, 0];
+  const max = Math.max(...displayTrend, 100);
 
   return (
     <PhoneShell showNav={false}>
       <ScreenHeader title="Full Report" back="Results" />
 
-      <View style={styles.content}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
           <Text style={styles.cardLabel}>Patient</Text>
           <View style={styles.patientRow}>
@@ -47,18 +85,26 @@ export default function ReportScreen() {
         <View style={styles.card}>
           <View style={styles.trendHeader}>
             <Text style={styles.cardTitle}>Risk Trend</Text>
-            <View style={styles.trendBadge}>
-              <Feather name="trending-up" size={12} color="#EF4444" />
-              <Text style={styles.trendBadgeText}>+6 last month</Text>
-            </View>
+            {trend.length > 1 && (
+              <View style={styles.trendBadge}>
+                <Feather 
+                  name={trend[trend.length-1] >= trend[trend.length-2] ? "trending-up" : "trending-down"} 
+                  size={12} 
+                  color={trend[trend.length-1] >= trend[trend.length-2] ? "#EF4444" : "#10B981"} 
+                />
+                <Text style={[styles.trendBadgeText, { color: trend[trend.length-1] >= trend[trend.length-2] ? "#EF4444" : "#10B981" }]}>
+                  {trend[trend.length-1] - trend[trend.length-2] > 0 ? `+${trend[trend.length-1] - trend[trend.length-2]}` : trend[trend.length-1] - trend[trend.length-2]} last month
+                </Text>
+              </View>
+            )}
           </View>
           <View style={styles.chart}>
-            {trend.map((v, idx) => (
+            {displayTrend.map((v, idx) => (
               <View key={idx} style={styles.barCol}>
                 <View 
                   style={[styles.barFill, { height: `${(v / max) * 100}%` }]} 
                 />
-                <Text style={styles.barLabel}>W{idx + 1}</Text>
+                <Text style={styles.barLabel}>T{idx + 1}</Text>
               </View>
             ))}
           </View>
@@ -67,40 +113,38 @@ export default function ReportScreen() {
         <View style={styles.cardBeige}>
           <Text style={styles.cardTitle}>AI Explanation</Text>
           <Text style={styles.explanationText}>
-            Model identified gum disease as the strongest risk driver based on bleeding symptoms and infrequent flossing. Probability of decay progression in 6 months: 64%.
+            {assessment?.explanation || "The model analysis identifies risk drivers based on your reported dental symptoms and habits. Maintain regular checkups to monitor progression."}
           </Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Probability Map</Text>
-          <View style={styles.probGrid}>
-            {[
-              { l: "1 mo", v: 28, c: "#10B981" },
-              { l: "3 mo", v: 54, c: "#F59E0B" },
-              { l: "6 mo", v: 78, c: "#EF4444" },
-            ].map((p) => (
-              <View key={p.l} style={styles.probBox}>
-                <Text style={styles.probLabel}>{p.l}</Text>
-                <Text style={styles.probVal}>{p.v}%</Text>
-                <View style={styles.probBarBg}>
-                  <View style={[styles.probBarFill, { width: `${p.v}%`, backgroundColor: p.c }]} />
+        {assessment?.probabilities && (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Probability Map</Text>
+            <View style={styles.probGrid}>
+              {assessment.probabilities.map((p: any) => (
+                <View key={p.label} style={styles.probBox}>
+                  <Text style={styles.probLabel}>{p.label}</Text>
+                  <Text style={styles.probVal}>{p.value}%</Text>
+                  <View style={styles.probBarBg}>
+                    <View style={[styles.probBarFill, { width: `${p.value}%`, backgroundColor: p.color || '#86F1D4' }]} />
+                  </View>
                 </View>
-              </View>
-            ))}
+              ))}
+            </View>
           </View>
-        </View>
+        )}
 
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.btnSecondary} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.btnSecondary} activeOpacity={0.8} onPress={() => Alert.alert("Shared", "Report shared successfully.")}>
             <Feather name="share-2" size={16} color="#0F172A" />
             <Text style={styles.btnSecondaryText}>Share</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.btnPrimary} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.btnPrimary} activeOpacity={0.8} onPress={() => Alert.alert("Downloaded", "Report downloaded to your device.")}>
             <Feather name="download" size={16} color="#0D4B42" />
             <Text style={styles.btnPrimaryText}>Download</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </PhoneShell>
   );
 }

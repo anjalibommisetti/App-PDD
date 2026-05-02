@@ -1,30 +1,84 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image, ActivityIndicator } from 'react-native';
 import React from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
 
+import { supabase } from "../lib/supabase";
+import { useEffect, useState } from 'react';
+import { useRoute } from "@react-navigation/native";
+
 export default function ResultsScreen() {
   const navigation = useNavigation<any>();
-  const score = 78;
-  const breakdown = [
-    { label: "Cavities", value: 72, color: "#F59E0B" },
-    { label: "Gum Disease", value: 84, color: "#EF4444" },
-    { label: "Infection", value: 41, color: "#10B981" },
-  ];
+  const route = useRoute<any>();
+  const assessmentId = route.params?.id;
+
+  const [score, setScore] = useState(0);
+  const [level, setLevel] = useState('Low');
+  const [breakdown, setBreakdown] = useState<any[]>([]);
+  const [insight, setInsight] = useState('');
+  const [recommendations, setRecommendations] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchResults();
+  }, [assessmentId]);
+
+  const fetchResults = async () => {
+    try {
+      let query: any = supabase.from('assessments').select('*');
+      
+      if (assessmentId) {
+        query = query.eq('id', assessmentId).single();
+      } else {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          query = query.eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).single();
+        } else {
+          setLoading(false);
+          return;
+        }
+      }
+
+      const { data, error } = await query;
+
+      if (data) {
+        setScore(data.score || 0);
+        setLevel(data.level || 'Low');
+        setBreakdown(data.breakdown || []);
+        setInsight(data.insight || 'No insight available for this assessment.');
+        setRecommendations(data.recommendations || []);
+      }
+    } catch (err) {
+      console.error('Error fetching results:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <PhoneShell showNav={false}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#157A6E" />
+          <Text style={{ marginTop: 12, color: '#64748B' }}>Analyzing results...</Text>
+        </View>
+      </PhoneShell>
+    );
+  }
 
   return (
     <PhoneShell showNav={false}>
       <ScreenHeader title="Risk Results" subtitle="AI analysis complete" back="Dashboard" />
 
-      <View style={styles.content}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Risk hero */}
-        <View style={styles.heroCard}>
+        <View style={[styles.heroCard, { backgroundColor: level === 'High' ? '#EF4444' : level === 'Medium' ? '#F59E0B' : '#10B981' }]}>
           <View style={styles.heroTop}>
             <Text style={styles.heroLabel}>Risk Score</Text>
             <View style={styles.heroBadge}>
-              <Text style={styles.heroBadgeText}>High</Text>
+              <Text style={styles.heroBadgeText}>{level}</Text>
             </View>
           </View>
           <View style={styles.scoreWrap}>
@@ -35,28 +89,32 @@ export default function ResultsScreen() {
             <View style={[styles.scoreBarFill, { width: `${score}%` }]} />
           </View>
           <View style={styles.heroWarning}>
-            <Feather name="alert-triangle" size={20} color="#FFFFFF" />
-            <Text style={styles.heroWarningText}>Immediate Attention Required</Text>
+            <Feather name={level === 'Low' ? "check-circle" : "alert-triangle"} size={20} color="#FFFFFF" />
+            <Text style={styles.heroWarningText}>
+              {level === 'High' ? 'Immediate Attention Required' : level === 'Medium' ? 'Precautionary Measures Needed' : 'Maintain Good Hygiene'}
+            </Text>
           </View>
         </View>
 
         {/* Breakdown */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Risk Breakdown</Text>
-          <View style={styles.breakdownList}>
-            {breakdown.map((b) => (
-              <View key={b.label} style={styles.breakdownItem}>
-                <View style={styles.bdTop}>
-                  <Text style={styles.bdLabel}>{b.label}</Text>
-                  <Text style={styles.bdVal}>{b.value}%</Text>
+        {breakdown.length > 0 && (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Risk Breakdown</Text>
+            <View style={styles.breakdownList}>
+              {breakdown.map((b) => (
+                <View key={b.label} style={styles.breakdownItem}>
+                  <View style={styles.bdTop}>
+                    <Text style={styles.bdLabel}>{b.label}</Text>
+                    <Text style={styles.bdVal}>{b.value}%</Text>
+                  </View>
+                  <View style={styles.bdBarBg}>
+                    <View style={[styles.bdBarFill, { width: `${b.value}%`, backgroundColor: b.color || '#86F1D4' }]} />
+                  </View>
                 </View>
-                <View style={styles.bdBarBg}>
-                  <View style={[styles.bdBarFill, { width: `${b.value}%`, backgroundColor: b.color }]} />
-                </View>
-              </View>
-            ))}
+              ))}
+            </View>
           </View>
-        </View>
+        )}
 
         {/* AI Insight */}
         <View style={styles.cardBeige}>
@@ -69,35 +127,30 @@ export default function ResultsScreen() {
               <Text style={styles.confText}>92% confidence</Text>
             </View>
           </View>
-          <Text style={styles.insightText}>
-            Your reported bleeding gums combined with infrequent flossing and high sugar intake significantly elevate your gum disease risk. Early intervention can reduce this score by up to 40%.
-          </Text>
+          <Text style={styles.insightText}>{insight}</Text>
         </View>
 
         {/* Recommendations */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Recommendations</Text>
-          <View style={styles.recList}>
-            {[
-              "Brush twice daily with fluoride toothpaste",
-              "Floss at least once per day",
-              "Reduce sugar intake — especially before sleep",
-              "Schedule a dental visit within 2 weeks",
-            ].map((r) => (
-              <View key={r} style={styles.recItem}>
-                <Feather name="check-circle" size={16} color="#10B981" />
-                <Text style={styles.recText}>{r}</Text>
-              </View>
-            ))}
+        {recommendations.length > 0 && (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Recommendations</Text>
+            <View style={styles.recList}>
+              {recommendations.map((r) => (
+                <View key={r} style={styles.recItem}>
+                  <Feather name="check-circle" size={16} color="#10B981" />
+                  <Text style={styles.recText}>{r}</Text>
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
+        )}
 
         {/* Actions */}
         <View style={styles.actions}>
           <TouchableOpacity 
             style={styles.btnSecondary} 
             activeOpacity={0.8}
-            onPress={() => navigation.navigate("Report")}
+            onPress={() => navigation.navigate("Report", { id: assessmentId })}
           >
             <Feather name="file-text" size={16} color="#0F172A" />
             <Text style={styles.btnSecondaryText}>Full Report</Text>
@@ -111,7 +164,7 @@ export default function ResultsScreen() {
             <Text style={styles.btnPrimaryText}>Book Visit</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </PhoneShell>
   );
 }

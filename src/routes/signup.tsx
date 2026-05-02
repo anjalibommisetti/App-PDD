@@ -62,7 +62,7 @@ export default function SignupScreen() {
   };
 
   return (
-    <PhoneShell>
+    <PhoneShell showNav={false}>
       <View style={styles.container}>
         <Text style={styles.title}>Create Account</Text>
         
