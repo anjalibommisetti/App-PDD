@@ -53,7 +53,7 @@ export default function ProfileScreen() {
     <PhoneShell>
       <ScreenHeader title="Profile" />
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.userCard}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{initials}</Text>
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
-    paddingBottom: 96,
+    paddingBottom: 30,
     gap: 20,
   },
   userCard: {

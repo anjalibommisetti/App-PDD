@@ -42,18 +42,15 @@ export const BottomNav = () => {
 const styles = StyleSheet.create({
   navContainer: {
     flexDirection: 'row',
-    height: 80,
+    height: 70,
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
-    paddingBottom: 20,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 10,
     paddingHorizontal: 10,
     justifyContent: 'space-around',
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    width: '100%',
   },
   navItem: {
     alignItems: 'center',

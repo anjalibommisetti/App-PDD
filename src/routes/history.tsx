@@ -112,7 +112,7 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
-    paddingBottom: 96,
+    paddingBottom: 30,
   },
   tabsWrap: {
     flexDirection: 'row',

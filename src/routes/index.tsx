@@ -10,53 +10,55 @@ export default function IndexScreen() {
 
   return (
     <PhoneShell showNav={false}>
-      <View style={styles.innerContainer}>
-        <View style={styles.content}>
-          <View style={styles.badge}>
-            <Feather name="star" size={14} color="#157A6E" />
-            <Text style={styles.badgeText}>AI-Powered Dental Care</Text>
-          </View>
-          
-          <Text style={styles.title}>
-            Your Personal <Text style={styles.titleHighlight}>Dental</Text> Assistant
-          </Text>
-          
-          <Text style={styles.subtitle}>
-            Detect risks early, track your brushing habits, and get personalized advice for a perfect smile.
-          </Text>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+        <View style={styles.innerContainer}>
+          <View style={styles.content}>
+            <View style={styles.badge}>
+              <Feather name="star" size={14} color="#157A6E" />
+              <Text style={styles.badgeText}>AI-Powered Dental Care</Text>
+            </View>
+            
+            <Text style={styles.title}>
+              Your Personal <Text style={styles.titleHighlight}>Dental</Text> Assistant
+            </Text>
+            
+            <Text style={styles.subtitle}>
+              Detect risks early, track your brushing habits, and get personalized advice for a perfect smile.
+            </Text>
 
-          <View style={styles.features}>
-            <FeatureRow icon="shield" text="Instant Risk Assessment" />
-            <FeatureRow icon="activity" text="Track Daily Habits" />
-            <FeatureRow icon="star" text="Earn Health Badges" />
-          </View>
+            <View style={styles.features}>
+              <FeatureRow icon="shield" text="Instant Risk Assessment" />
+              <FeatureRow icon="activity" text="Track Daily Habits" />
+              <FeatureRow icon="star" text="Earn Health Badges" />
+            </View>
 
-          <View style={styles.actions}>
-            <TouchableOpacity 
-              style={styles.btnPrimary}
-              activeOpacity={0.8}
-              onPress={() => {
-                console.log('Navigating to Signup');
-                navigation.navigate("Signup");
-              }}
-            >
-              <Text style={styles.btnPrimaryText}>Get Started</Text>
-              <Feather name="arrow-right" size={18} color="#0D4B42" />
-            </TouchableOpacity>
+            <View style={styles.actions}>
+              <TouchableOpacity 
+                style={styles.btnPrimary}
+                activeOpacity={0.8}
+                onPress={() => {
+                  console.log('Navigating to Signup');
+                  navigation.navigate("Signup");
+                }}
+              >
+                <Text style={styles.btnPrimaryText}>Get Started</Text>
+                <Feather name="arrow-right" size={18} color="#0D4B42" />
+              </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={styles.btnSecondary}
-              activeOpacity={0.8}
-              onPress={() => {
-                console.log('Navigating to Login');
-                navigation.navigate("Login");
-              }}
-            >
-              <Text style={styles.btnSecondaryText}>I already have an account</Text>
-            </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.btnSecondary}
+                activeOpacity={0.8}
+                onPress={() => {
+                  console.log('Navigating to Login');
+                  navigation.navigate("Login");
+                }}
+              >
+                <Text style={styles.btnSecondaryText}>I already have an account</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </PhoneShell>
   );
 }

@@ -18,31 +18,33 @@ export default function AlertsScreen() {
     <PhoneShell>
       <ScreenHeader title="Alerts" subtitle="Stay on top of your care" />
 
-      <View style={styles.list}>
-        {alerts.map((a, idx) => {
-          const bgTone = a.tone === "alert" ? "rgba(239, 68, 68, 0.15)" :
-            a.tone === "warning" ? "rgba(255, 205, 178, 0.4)" :
-            "rgba(134, 241, 212, 0.4)";
-          const fgTone = a.tone === "alert" ? "#EF4444" :
-            a.tone === "warning" ? "#7C3AED" : // Peach fg
-            "#0D4B42";
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+        <View style={styles.list}>
+          {alerts.map((a, idx) => {
+            const bgTone = a.tone === "alert" ? "rgba(239, 68, 68, 0.15)" :
+              a.tone === "warning" ? "rgba(255, 205, 178, 0.4)" :
+              "rgba(134, 241, 212, 0.4)";
+            const fgTone = a.tone === "alert" ? "#EF4444" :
+              a.tone === "warning" ? "#7C3AED" :
+              "#0D4B42";
 
-          return (
-            <View key={idx} style={styles.card}>
-              <View style={[styles.iconBox, { backgroundColor: bgTone }]}>
-                <Feather name={a.icon as any} size={20} color={fgTone} />
-              </View>
-              <View style={styles.body}>
-                <View style={styles.header}>
-                  <Text style={styles.title}>{a.title}</Text>
-                  <Text style={styles.time}>{a.time}</Text>
+            return (
+              <View key={idx} style={styles.card}>
+                <View style={[styles.iconBox, { backgroundColor: bgTone }]}>
+                  <Feather name={a.icon as any} size={20} color={fgTone} />
                 </View>
-                <Text style={styles.desc}>{a.desc}</Text>
+                <View style={styles.body}>
+                  <View style={styles.header}>
+                    <Text style={styles.title}>{a.title}</Text>
+                    <Text style={styles.time}>{a.time}</Text>
+                  </View>
+                  <Text style={styles.desc}>{a.desc}</Text>
+                </View>
               </View>
-            </View>
-          );
-        })}
-      </View>
+            );
+          })}
+        </View>
+      </ScrollView>
     </PhoneShell>
   );
 }
@@ -50,7 +52,7 @@ export default function AlertsScreen() {
 const styles = StyleSheet.create({
   list: {
     paddingHorizontal: 20,
-    paddingBottom: 96,
+    paddingBottom: 30,
     gap: 12,
   },
   card: {

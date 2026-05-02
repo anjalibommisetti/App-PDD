@@ -63,75 +63,77 @@ export default function SignupScreen() {
 
   return (
     <PhoneShell showNav={false}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Create Account</Text>
-        
-        {errorMessage ? (
-          <View style={styles.errorContainer}>
-            <Feather name="alert-circle" size={16} color="#EF4444" />
-            <Text style={styles.errorText}>{errorMessage}</Text>
-          </View>
-        ) : null}
-        
-        <TextInput 
-          style={styles.input} 
-          placeholder="Full Name" 
-          value={fullName}
-          onChangeText={(val) => {
-            setFullName(val);
-            setErrorMessage('');
-          }}
-        />
-        
-        <TextInput 
-          style={styles.input} 
-          placeholder="Email" 
-          keyboardType="email-address" 
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-        />
-        
-        <View style={styles.passwordContainer}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Create Account</Text>
+          
+          {errorMessage ? (
+            <View style={styles.errorContainer}>
+              <Feather name="alert-circle" size={16} color="#EF4444" />
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            </View>
+          ) : null}
+          
           <TextInput 
-            style={styles.passwordInput} 
-            placeholder="Password" 
-            secureTextEntry={!showPassword}
-            value={password}
-            onChangeText={setPassword}
+            style={styles.input} 
+            placeholder="Full Name" 
+            value={fullName}
+            onChangeText={(val) => {
+              setFullName(val);
+              setErrorMessage('');
+            }}
           />
+          
+          <TextInput 
+            style={styles.input} 
+            placeholder="Email" 
+            keyboardType="email-address" 
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+          />
+          
+          <View style={styles.passwordContainer}>
+            <TextInput 
+              style={styles.passwordInput} 
+              placeholder="Password" 
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TouchableOpacity 
+              style={styles.eyeIcon} 
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              <Feather name={showPassword ? "eye" : "eye-off"} size={20} color="#64748B" />
+            </TouchableOpacity>
+          </View>
+
+          <TextInput 
+            style={styles.input} 
+            placeholder="Confirm Password" 
+            secureTextEntry={!showPassword}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
+          
           <TouchableOpacity 
-            style={styles.eyeIcon} 
-            onPress={() => setShowPassword(!showPassword)}
+            style={styles.button}
+            onPress={handleSignup}
+            disabled={loading}
           >
-            <Feather name={showPassword ? "eye" : "eye-off"} size={20} color="#64748B" />
+            {loading ? (
+              <ActivityIndicator color="#0D4B42" />
+            ) : (
+              <Text style={styles.buttonText}>Sign Up</Text>
+            )}
+          </TouchableOpacity>
+          
+          <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+            <Text style={styles.link}>Already have an account? Login</Text>
           </TouchableOpacity>
         </View>
-
-        <TextInput 
-          style={styles.input} 
-          placeholder="Confirm Password" 
-          secureTextEntry={!showPassword}
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-        />
-        
-        <TouchableOpacity 
-          style={styles.button}
-          onPress={handleSignup}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#0D4B42" />
-          ) : (
-            <Text style={styles.buttonText}>Sign Up</Text>
-          )}
-        </TouchableOpacity>
-        
-        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-          <Text style={styles.link}>Already have an account? Login</Text>
-        </TouchableOpacity>
-      </View>
+      </ScrollView>
     </PhoneShell>
   );
 }

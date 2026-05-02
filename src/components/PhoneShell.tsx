@@ -11,7 +11,7 @@ export const PhoneShell = ({ children, showNav = true }: PhoneShellProps) => {
   return (
     <View style={styles.root}>
       <SafeAreaView style={[styles.safeArea, Platform.OS === 'web' && styles.webSafeArea]}>
-        <View style={[styles.container, showNav && styles.containerWithNav]}>
+        <View style={styles.container}>
           {children}
         </View>
         {showNav && <BottomNav />}
@@ -25,28 +25,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Platform.OS === 'web' ? '#E2E8F0' : '#F8FAFC',
     alignItems: Platform.OS === 'web' ? 'center' : 'stretch',
+    height: Platform.OS === 'web' ? '100vh' : 'auto',
   },
   safeArea: {
     flex: 1,
     backgroundColor: '#F8FAFC',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-    position: 'relative', // Ensure absolute positioned children like BottomNav stay within safe area
+    width: '100%',
   },
   webSafeArea: {
     width: '100%',
     maxWidth: 480,
+    height: Platform.OS === 'web' ? '100vh' : '100%', // Critical for web visibility
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
-    overflow: 'hidden', // Keep the phone frame clean
+    overflow: 'hidden',
   },
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
-  },
-  containerWithNav: {
-    paddingBottom: 80, // Space for the fixed BottomNav
   },
 });

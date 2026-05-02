@@ -78,7 +78,7 @@ export default function DentistsScreen() {
 const styles = StyleSheet.create({
   list: {
     paddingHorizontal: 20,
-    paddingBottom: 96,
+    paddingBottom: 30,
     gap: 12,
   },
   card: {

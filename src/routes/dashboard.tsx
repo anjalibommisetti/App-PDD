@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingBottom: 30,
     gap: 24,
   },
   riskCard: {
