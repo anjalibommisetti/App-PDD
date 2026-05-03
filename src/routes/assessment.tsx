@@ -11,6 +11,7 @@ const sections = [
   {
     id: 'A', title: 'Basic Information',
     questions: [
+      { id: 'q0', text: 'Patient Name', type: 'text' },
       { id: 'q1', text: 'Age (in years)', type: 'number' },
       { id: 'q2', text: 'Gender', type: 'single', options: ['Male', 'Female', 'Other'] },
       { id: 'q3', text: 'Do you live in an urban or rural area?', type: 'single', options: ['Urban', 'Rural'] },
@@ -185,6 +186,7 @@ export default function AssessmentScreen() {
 
   const isSectionComplete = () => {
     return section.questions.every(q => {
+      if (q.type === 'text') return (answers[q.id] || '').trim().length > 0;
       if (q.type === 'number') return !!answers[q.id];
       if (q.type === 'multi') return (answers[q.id] || []).length > 0;
       return !!answers[q.id];
@@ -201,6 +203,7 @@ export default function AssessmentScreen() {
         if (user) {
           const { data } = await supabase.from('assessments').insert({
             user_id: user.id,
+            patient_name: answers.q0 || null,
             score,
             level,
             breakdown,
@@ -255,11 +258,24 @@ export default function AssessmentScreen() {
             <Text style={styles.qNum}>Q{sections.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0) + qi + 1}</Text>
             <Text style={styles.qText}>{q.text}</Text>
 
+            {q.type === 'text' && (
+              <TextInput
+                style={styles.textInput}
+                placeholder="Enter patient name"
+                placeholderTextColor="#94A3B8"
+                value={answers[q.id] || ''}
+                onChangeText={v => setAnswer(q.id, v)}
+                autoCapitalize="words"
+                maxLength={80}
+              />
+            )}
+
             {q.type === 'number' && (
               <TextInput
                 style={styles.numInput}
                 keyboardType="numeric"
                 placeholder="Enter value"
+                placeholderTextColor="#94A3B8"
                 value={answers[q.id] || ''}
                 onChangeText={v => setAnswer(q.id, v)}
                 maxLength={3}
@@ -356,7 +372,8 @@ const styles = StyleSheet.create({
   questionBlock: { backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4 },
   qNum: { fontSize: 10, fontWeight: '700', color: '#157A6E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 },
   qText: { fontSize: 14, fontWeight: '600', color: '#0F172A', lineHeight: 20, marginBottom: 14 },
-  numInput: { borderWidth: 1.5, borderColor: '#E2E8F0', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, fontWeight: '600', color: '#0F172A', backgroundColor: '#F8FAFC' },
+  textInput: { borderWidth: 1.5, borderColor: '#E2E8F0', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, fontWeight: '500', color: '#0F172A', backgroundColor: '#F8FAFC', outlineStyle: 'none' } as any,
+  numInput: { borderWidth: 1.5, borderColor: '#E2E8F0', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, fontWeight: '600', color: '#0F172A', backgroundColor: '#F8FAFC', outlineStyle: 'none' } as any,
   yesnoRow: { flexDirection: 'row', gap: 10 },
   yesnoBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12, borderRadius: 14, borderWidth: 1.5, borderColor: '#E2E8F0', backgroundColor: '#F8FAFC' },
   yesnoBtnYes: { backgroundColor: '#10B981', borderColor: '#10B981' },
