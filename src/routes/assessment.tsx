@@ -133,7 +133,8 @@ function computeRisk(answers: Record<string, any>) {
   // Section J – Self-perceived
   score += ({ 'Very good': 0, 'Good': 2, 'Fair': 8, 'Poor': 15 } as any)[answers.q30] ?? 0;
 
-  const clipped = Math.min(score, 100);
+  const MAX_RAW = 198; // sum of all worst-case individual scores
+  const clipped = Math.round((score / MAX_RAW) * 100);
   const level = clipped >= 60 ? 'High' : clipped >= 30 ? 'Medium' : 'Low';
   const breakdown = [
     { label: 'Hygiene', value: Math.min(100, Math.round(((({ 'Twice': 0, 'More than twice': 0, 'Once': 8, 'Irregular': 15 } as any)[answers.q5] ?? 0) + (q7.includes('None') ? 6 : 0)) / 21 * 100)), color: '#86F1D4' },
