@@ -31,32 +31,45 @@ const Stack = createStackNavigator();
 function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
   const scale = React.useRef(new Animated.Value(0.7)).current;
   const opacity = React.useRef(new Animated.Value(0)).current;
+  const btnOpacity = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
-    Animated.parallel([
-      Animated.spring(scale, { toValue: 1, useNativeDriver: true, tension: 50, friction: 7 }),
-      Animated.timing(opacity, { toValue: 1, duration: 600, useNativeDriver: true }),
+    Animated.sequence([
+      Animated.parallel([
+        Animated.spring(scale, { toValue: 1, useNativeDriver: true, tension: 50, friction: 7 }),
+        Animated.timing(opacity, { toValue: 1, duration: 600, useNativeDriver: true }),
+      ]),
+      // Button fades in after logo animates
+      Animated.timing(btnOpacity, { toValue: 1, duration: 500, useNativeDriver: true, delay: 200 }),
     ]).start();
   }, []);
 
   return (
-    <TouchableOpacity
-      style={splash.container}
-      activeOpacity={1}
-      onPress={onDismiss}
-    >
+    <View style={splash.container}>
       <Animated.View style={[splash.logoBox, { transform: [{ scale }], opacity }]}>
         <Text style={splash.tooth}>🦷</Text>
         <Text style={splash.appName}>SmileGuard</Text>
         <Text style={splash.tagline}>AI Dental Care</Text>
       </Animated.View>
+
       <View style={splash.dotsRow}>
         {[0, 1, 2].map((i) => (
           <View key={i} style={[splash.dot, { opacity: 0.3 + i * 0.3 }]} />
         ))}
       </View>
-      <Text style={splash.tapHint}>Tap anywhere to continue →</Text>
-    </TouchableOpacity>
+
+      {/* Next Button — only way to proceed */}
+      <Animated.View style={[splash.nextBtnWrap, { opacity: btnOpacity }]}>
+        <TouchableOpacity
+          style={splash.nextBtn}
+          onPress={onDismiss}
+          activeOpacity={0.85}
+        >
+          <Text style={splash.nextBtnText}>Get Started</Text>
+          <Text style={splash.nextArrow}>→</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    </View>
   );
 }
 
@@ -83,19 +96,33 @@ const splash = StyleSheet.create({
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
-  tapHint: {
-    position: 'absolute',
-    bottom: 40,
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.5)',
-    letterSpacing: 1,
-  },
   dotsRow: { flexDirection: 'row', gap: 8 },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#86F1D4' },
+  nextBtnWrap: { position: 'absolute', bottom: 60 },
+  nextBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
     backgroundColor: '#86F1D4',
+    paddingVertical: 16,
+    paddingHorizontal: 40,
+    borderRadius: 50,
+    elevation: 8,
+    shadowColor: '#86F1D4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
+  },
+  nextBtnText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0D4B42',
+    letterSpacing: 0.5,
+  },
+  nextArrow: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#0D4B42',
   },
 });
 
@@ -105,9 +132,7 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    // Auto-dismiss splash after 3 seconds
-    const splashTimer = setTimeout(() => setShowSplash(false), 3000);
-    return () => clearTimeout(splashTimer);
+    // NO auto-dismiss — user must click "Get Started" button
   }, []);
 
   useEffect(() => {
