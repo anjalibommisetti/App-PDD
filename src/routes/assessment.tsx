@@ -199,25 +199,36 @@ export default function AssessmentScreen() {
       setSaving(true);
       try {
         const { score, level, breakdown, insight, recommendations } = computeRisk(answers);
-        const { data: { user } } = await supabase.auth.getUser();
+        // Use getSession() — reads from localStorage, no network hang
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id ?? null;
+        const userName = answers.q0 ||
+          session?.user?.user_metadata?.full_name ||
+          session?.user?.email?.split('@')[0] ||
+          null;
+
         let assessmentId: string | undefined;
-        if (user) {
-          const { data } = await supabase.from('assessments').insert({
-            user_id: user.id,
-            patient_name: answers.q0 || null,
-            score,
-            level,
-            breakdown,
-            insight,
-            recommendations,
-            answers,
-            created_at: new Date().toISOString(),
-          }).select('id').single();
+        const { data, error: insertError } = await supabase.from('assessments').insert({
+          user_id: userId,
+          patient_name: userName,
+          score,
+          level,
+          breakdown,
+          insight,
+          recommendations,
+          answers,
+          created_at: new Date().toISOString(),
+        }).select('id').single();
+
+        if (insertError) {
+          console.error('Assessment save error:', insertError.message);
+        } else {
           assessmentId = data?.id;
         }
+
         navigation.navigate('Results', { id: assessmentId, score, level, breakdown, insight, recommendations });
       } catch (e) {
-        console.error(e);
+        console.error('Submit error:', e);
         const { score, level, breakdown, insight, recommendations } = computeRisk(answers);
         navigation.navigate('Results', { score, level, breakdown, insight, recommendations });
       } finally {

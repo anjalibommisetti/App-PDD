@@ -22,18 +22,22 @@ export default function ProfileScreen() {
   }, []);
 
   const fetchUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
-    setLoading(false);
+    try {
+      // getSession() reads from localStorage — no network hang
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+    } catch (err) {
+      console.error('Profile load error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      Alert.alert('Error', error.message);
-    } else {
-      navigation.navigate("Index");
-    }
+    try {
+      await supabase.auth.signOut();
+    } catch (_) {}
+    navigation.navigate('Index');
   };
 
   if (loading) {
@@ -119,9 +123,20 @@ export default function ProfileScreen() {
 
         {/* Menu */}
         <View style={styles.menuCard}>
-          <MenuRow icon="settings" label="Settings" />
+          <MenuRow
+            icon="settings"
+            label="Settings"
+            onPress={() => Alert.alert('Settings', 'Notification preferences, language, and theme settings coming soon.')}
+          />
           <View style={styles.divider} />
-          <MenuRow icon="shield" label="Privacy & data sharing" />
+          <MenuRow
+            icon="shield"
+            label="Privacy & data sharing"
+            onPress={() => Alert.alert(
+              'Privacy & Data Sharing',
+              'Your data is stored securely in Supabase.\n\n• Assessment data is linked to your account\n• We do not share data with third parties\n• You can delete your account at any time\n\nFor questions, contact support.'
+            )}
+          />
           <View style={styles.divider} />
           <TouchableOpacity 
             style={styles.menuRow}
@@ -139,9 +154,9 @@ export default function ProfileScreen() {
   );
 }
 
-function MenuRow({ icon, label }: { icon: any; label: string }) {
+function MenuRow({ icon, label, onPress }: { icon: any; label: string; onPress?: () => void }) {
   return (
-    <TouchableOpacity style={styles.menuRow}>
+    <TouchableOpacity style={styles.menuRow} onPress={onPress} activeOpacity={onPress ? 0.7 : 1}>
       <View style={styles.menuRowLeft}>
         <Feather name={icon} size={16} color="#0F172A" />
         <Text style={styles.menuLabel}>{label}</Text>
