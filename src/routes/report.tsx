@@ -158,18 +158,24 @@ export default function ReportScreen() {
         <View style={styles.card}>
           <View style={styles.trendHeader}>
             <Text style={styles.cardTitle}>Risk Trend</Text>
-            {trend.length > 1 && (
-              <View style={styles.trendBadge}>
-                <Feather 
-                  name={trend[trend.length-1] >= trend[trend.length-2] ? "trending-up" : "trending-down"} 
-                  size={12} 
-                  color={trend[trend.length-1] >= trend[trend.length-2] ? "#EF4444" : "#10B981"} 
-                />
-                <Text style={[styles.trendBadgeText, { color: trend[trend.length-1] >= trend[trend.length-2] ? "#EF4444" : "#10B981" }]}>
-                  {trend[trend.length-1] - trend[trend.length-2] > 0 ? `+${trend[trend.length-1] - trend[trend.length-2]}` : trend[trend.length-1] - trend[trend.length-2]} last month
-                </Text>
-              </View>
-            )}
+            {hasTrend && (() => {
+              const last = trend[trend.length - 1]?.score ?? 0;
+              const prev = trend[trend.length - 2]?.score ?? 0;
+              const diff = last - prev;
+              const isUp = diff >= 0;
+              return (
+                <View style={[styles.trendBadge, { backgroundColor: isUp ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)' }]}>
+                  <Feather
+                    name={isUp ? 'trending-up' : 'trending-down'}
+                    size={12}
+                    color={isUp ? '#EF4444' : '#10B981'}
+                  />
+                  <Text style={[styles.trendBadgeText, { color: isUp ? '#EF4444' : '#10B981' }]}>
+                    {diff > 0 ? `+${diff}` : diff === 0 ? 'No change' : `${diff}`} since last
+                  </Text>
+                </View>
+              );
+            })()}
           </View>
           {!hasTrend ? (
             <View style={styles.emptyTrend}>

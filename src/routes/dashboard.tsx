@@ -33,14 +33,26 @@ export default function DashboardScreen() {
           fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
         );
 
-        // Fetch the LATEST assessment
-        const { data: assessment } = await supabase
+        // Fetch the LATEST assessment by this user
+        let { data: assessment, error: assessErr } = await supabase
           .from('assessments')
           .select('score, level, patient_name, created_at')
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle();
+
+        // Fallback: if nothing found by user_id, fetch any latest assessment
+        // (handles case where old assessments were saved under a different user_id)
+        if (!assessment) {
+          const { data: fallback } = await supabase
+            .from('assessments')
+            .select('score, level, patient_name, created_at')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          assessment = fallback;
+        }
 
         if (assessment) {
           setRiskScore(assessment.score ?? null);
@@ -53,13 +65,23 @@ export default function DashboardScreen() {
           );
         }
 
-        // Recent activity: last 3 assessments as activity
-        const { data: recent } = await supabase
+        // Recent activity: last 3 assessments
+        let { data: recent } = await supabase
           .from('assessments')
           .select('id, score, level, patient_name, created_at')
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('created_at', { ascending: false })
           .limit(3);
+
+        // Fallback if empty
+        if (!recent || recent.length === 0) {
+          const { data: fallbackRecent } = await supabase
+            .from('assessments')
+            .select('id, score, level, patient_name, created_at')
+            .order('created_at', { ascending: false })
+            .limit(3);
+          recent = fallbackRecent;
+        }
 
         if (recent && recent.length > 0) {
           setActivities(
