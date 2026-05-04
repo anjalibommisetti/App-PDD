@@ -174,7 +174,7 @@ export default function ScanScreen() {
                 onPress={() => {
                   setImageUri(null);
                   setResult(null);
-                  setSaved(false);
+                  setAutoSaved(false);
                 }}
               >
                 <Feather name="refresh-cw" size={14} color="#64748B" />
