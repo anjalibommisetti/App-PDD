@@ -31,46 +31,43 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Initial session check
+    let didFinish = false;
+
+    // Safety timeout — if session check takes >5s, stop loading anyway
+    const safetyTimer = setTimeout(() => {
+      if (!didFinish) {
+        didFinish = true;
+        setLoading(false);
+      }
+    }, 5000);
+
+    // 1. Read session from localStorage (no network call needed)
     const checkSession = async () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
-        if (currentSession) {
-          console.log('Session found on mount');
-          setSession(currentSession);
-        }
+        setSession(currentSession ?? null);
       } catch (err) {
-        console.error('Initial check error:', err);
+        console.error('Session check error:', err);
       } finally {
-        setLoading(false);
+        if (!didFinish) {
+          didFinish = true;
+          clearTimeout(safetyTimer);
+          setLoading(false);
+        }
       }
     };
     checkSession();
 
-    // 2. Live "Auto-Login" background logic
-    // We poll the session every 3 seconds ONLY if no session is active.
-    let interval: any;
-    if (!session) {
-      interval = setInterval(async () => {
-        const { data: { session: newSession } } = await supabase.auth.getSession();
-        if (newSession) {
-          console.log('Live background auto-login detected!');
-          setSession(newSession);
-        }
-      }, 3000);
-    }
-
-    // 3. Listen for real-time auth state changes
+    // 2. Listen for auth state changes (login / logout events)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      console.log('Auth event:', _event, newSession ? 'Session Active' : 'No Session');
-      setSession(newSession);
+      setSession(newSession ?? null);
     });
 
     return () => {
-      if (interval) clearInterval(interval);
+      clearTimeout(safetyTimer);
       subscription.unsubscribe();
     };
-  }, [session]);
+  }, []);
 
   if (loading) {
     return (

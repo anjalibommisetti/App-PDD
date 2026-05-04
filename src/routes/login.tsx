@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
@@ -16,35 +16,49 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     setErrorMessage('');
     if (!email || !password) {
-      setErrorMessage('Please enter your email and password');
+      setErrorMessage('Please enter your email and password.');
       return;
     }
 
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
 
-    setLoading(false);
-
-    if (error) {
-      console.error('Login error:', error);
-      let errorTitle = 'Login Problem';
-      let errorMsg = error.message;
-
-      if (error.message.includes("Invalid login credentials")) {
-        errorTitle = 'Invalid Credentials';
-        errorMsg = 'The email or password you entered is incorrect. \n\nNote: If you just signed up, you may need to check your email and verify your account first.';
-      } else if (error.message.includes("Email not confirmed")) {
-        errorTitle = 'Email Not Verified';
-        errorMsg = 'Please verify your email address before logging in. Check your inbox (and spam) for the verification link.';
+      if (error) {
+        const msg = error.message || '';
+        if (
+          msg.includes('Failed to fetch') ||
+          msg.includes('fetch') ||
+          msg.includes('Network') ||
+          msg.includes('ERR_CONNECTION')
+        ) {
+          setErrorMessage(
+            '⚠ No internet connection. Please check your network and try again.'
+          );
+        } else if (msg.includes('Invalid login credentials')) {
+          setErrorMessage(
+            'Incorrect email or password. Please try again.'
+          );
+        } else if (msg.includes('Email not confirmed')) {
+          setErrorMessage(
+            'Please verify your email first. Check your inbox for the verification link.'
+          );
+        } else {
+          setErrorMessage(msg || 'Login failed. Please try again.');
+        }
+      } else if (data?.session) {
+        navigation.navigate('Dashboard');
       }
-
-      setErrorMessage(errorMsg);
-      Alert.alert(errorTitle, errorMsg);
-    } else {
-      navigation.navigate("Dashboard");
+    } catch (err: any) {
+      // Catches fetch/network errors that Supabase doesn't wrap
+      setErrorMessage(
+        '⚠ No internet connection. Please check your network and try again.'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
