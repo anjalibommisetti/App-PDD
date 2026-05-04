@@ -94,6 +94,9 @@ function BookingModal({
   const [booked, setBooked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  // Min date = today in YYYY-MM-DD format
+  const today = new Date().toISOString().split('T')[0];
+
   const handleBook = async () => {
     if (!date || !time) return;
     setSubmitting(true);
@@ -184,13 +187,38 @@ function BookingModal({
               <View style={modal.divider} />
 
               <Text style={modal.label}>Select Date</Text>
-              <TextInput
-                style={modal.input}
-                placeholder="e.g. 2026-05-10"
-                placeholderTextColor="#94A3B8"
-                value={date}
-                onChangeText={setDate}
-              />
+              {Platform.OS === 'web' ? (
+                // Native browser date picker (calendar UI)
+                <input
+                  type="date"
+                  value={date}
+                  min={today}
+                  onChange={(e: any) => setDate(e.target.value)}
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#F8FAFC',
+                    border: '1.5px solid #E2E8F0',
+                    borderRadius: 14,
+                    padding: '11px 14px',
+                    fontSize: 14,
+                    color: date ? '#0F172A' : '#94A3B8',
+                    marginBottom: 16,
+                    outline: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    boxSizing: 'border-box',
+                  } as any}
+                />
+              ) : (
+                <TextInput
+                  style={modal.input}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor="#94A3B8"
+                  value={date}
+                  onChangeText={setDate}
+                  keyboardType="numbers-and-punctuation"
+                />
+              )}
 
               <Text style={modal.label}>Preferred Time</Text>
               <View style={modal.timeRow}>
