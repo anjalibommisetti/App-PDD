@@ -114,14 +114,14 @@ export default function ScanScreen() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         const userId = session?.user?.id ?? null;
+        const userName = session?.user?.user_metadata?.full_name ||
+          session?.user?.email?.split('@')[0] || 'User';
         await supabase.from('assessments').insert({
           user_id: userId,
           score: analysis.score,
           level: analysis.level,
-          patient_name: session?.user?.user_metadata?.full_name ||
-            session?.user?.email?.split('@')[0] || 'Scan User',
-          source: 'scan',
-          explanation: `Teeth scan: ${analysis.findings
+          patient_name: `[Scan] ${userName}`,
+          insight: `Teeth scan: ${analysis.findings
             .filter((f) => f.detected).map((f) => f.label).join(', ') || 'No issues detected'}. Risk: ${analysis.level}.`,
           answers: {},
           created_at: new Date().toISOString(),

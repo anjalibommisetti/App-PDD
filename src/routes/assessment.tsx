@@ -221,7 +221,6 @@ export default function AssessmentScreen() {
               insight,
               recommendations,
               answers,
-              status: 'complete',
             })
             .eq('id', draftId);
           if (error) console.error('Update error:', error.message);
@@ -236,7 +235,6 @@ export default function AssessmentScreen() {
             insight,
             recommendations,
             answers,
-            status: 'complete',
             created_at: new Date().toISOString(),
           }).select('id').single();
           if (error) console.error('Insert error:', error.message);
@@ -272,7 +270,6 @@ export default function AssessmentScreen() {
             score: 0,
             level: 'In Progress',
             answers,
-            status: 'in_progress',
             created_at: new Date().toISOString(),
           }).select('id').single();
 
