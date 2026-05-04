@@ -80,8 +80,7 @@ export default function ScanScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<ReturnType<typeof simulateAIAnalysis> | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [autoSaved, setAutoSaved] = useState(false);
   const progressAnim = useRef(new Animated.Value(0)).current;
 
   const handleImagePick = (e: any) => {
@@ -97,49 +96,41 @@ export default function ScanScreen() {
     if (!imageUri) return;
     setAnalyzing(true);
     setResult(null);
+    setAutoSaved(false);
     progressAnim.setValue(0);
 
-    // Animate progress bar
     Animated.timing(progressAnim, {
       toValue: 1,
       duration: 2800,
       useNativeDriver: false,
     }).start();
 
-    // Simulate AI processing time
-    setTimeout(() => {
+    setTimeout(async () => {
       const analysis = simulateAIAnalysis();
       setResult(analysis);
       setAnalyzing(false);
+
+      // Auto-save to history immediately
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id ?? null;
+        await supabase.from('assessments').insert({
+          user_id: userId,
+          score: analysis.score,
+          level: analysis.level,
+          patient_name: session?.user?.user_metadata?.full_name ||
+            session?.user?.email?.split('@')[0] || 'Scan User',
+          source: 'scan',
+          explanation: `Teeth scan: ${analysis.findings
+            .filter((f) => f.detected).map((f) => f.label).join(', ') || 'No issues detected'}. Risk: ${analysis.level}.`,
+          answers: {},
+          created_at: new Date().toISOString(),
+        });
+        setAutoSaved(true);
+      } catch (err) {
+        console.error('Auto-save error:', err);
+      }
     }, 3000);
-  };
-
-  const saveToHistory = async () => {
-    if (!result) return;
-    setSaving(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const userId = session?.user?.id ?? null;
-
-      await supabase.from('assessments').insert({
-        user_id: userId,
-        score: result.score,
-        level: result.level,
-        patient_name: session?.user?.user_metadata?.full_name || 'User',
-        source: 'scan',
-        explanation: `Teeth scan analysis detected: ${result.findings
-          .filter((f) => f.detected)
-          .map((f) => f.label)
-          .join(', ') || 'No major issues'}. Risk level: ${result.level}.`,
-        answers: {},
-        created_at: new Date().toISOString(),
-      });
-      setSaved(true);
-    } catch (err) {
-      console.error('Save error:', err);
-    } finally {
-      setSaving(false);
-    }
   };
 
   const riskColor =
@@ -338,24 +329,27 @@ export default function ScanScreen() {
               </View>
             </View>
 
+            {/* Auto-saved indicator */}
+            {autoSaved && (
+              <View style={styles.autoSavedBanner}>
+                <Feather name="check-circle" size={14} color="#10B981" />
+                <Text style={styles.autoSavedText}>Automatically saved to your history</Text>
+              </View>
+            )}
+
             {/* Action Buttons */}
             <View style={styles.actions}>
               <TouchableOpacity
-                style={[styles.saveBtn, saved && { backgroundColor: '#DCFCE7' }]}
-                onPress={saveToHistory}
-                disabled={saving || saved}
+                style={styles.scanAgainBtn}
+                onPress={() => {
+                  setImageUri(null);
+                  setResult(null);
+                  setAutoSaved(false);
+                }}
                 activeOpacity={0.8}
               >
-                {saving ? (
-                  <ActivityIndicator color="#0D4B42" size="small" />
-                ) : (
-                  <>
-                    <Feather name={saved ? 'check' : 'save'} size={16} color={saved ? '#10B981' : '#0D4B42'} />
-                    <Text style={[styles.saveBtnText, saved && { color: '#10B981' }]}>
-                      {saved ? 'Saved to History!' : 'Save to History'}
-                    </Text>
-                  </>
-                )}
+                <Feather name="refresh-cw" size={16} color="#157A6E" />
+                <Text style={styles.scanAgainText}>Scan Again</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.dentistBtn}
@@ -537,17 +531,32 @@ const styles = StyleSheet.create({
 
   // Actions
   actions: { flexDirection: 'row', gap: 12 },
-  saveBtn: {
+  autoSavedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#DCFCE7',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+  },
+  autoSavedText: { fontSize: 13, fontWeight: '600', color: '#10B981' },
+  scanAgainBtn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#86F1D4',
+    backgroundColor: '#DCFCE7',
     paddingVertical: 16,
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#86F1D4',
   },
-  saveBtnText: { fontSize: 14, fontWeight: '700', color: '#0D4B42' },
+  scanAgainText: { fontSize: 14, fontWeight: '700', color: '#157A6E' },
   dentistBtn: {
     flex: 1,
     flexDirection: 'row',
