@@ -27,31 +27,44 @@ export default function ReportScreen() {
 
   const fetchReportData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+      // getSession() reads from localStorage — no network hang
+      const { data: { session } } = await supabase.auth.getSession();
+      const currentUser = session?.user;
+      setUser(currentUser);
 
-      if (user) {
+      if (currentUser) {
         // Fetch specific or latest assessment
         let query: any = supabase.from('assessments').select('*');
         if (assessmentId) {
           query = query.eq('id', assessmentId).single();
         } else {
-          query = query.eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).single();
+          query = query
+            .eq('user_id', currentUser.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
         }
 
         const { data: currentAssessment } = await query;
         setAssessment(currentAssessment);
 
-        // Fetch last 7 assessments for trend
+        // Fetch last 7 assessments for trend (oldest → newest)
         const { data: history } = await supabase
           .from('assessments')
-          .select('score')
-          .eq('user_id', user.id)
+          .select('score, created_at')
+          .eq('user_id', currentUser.id)
           .order('created_at', { ascending: true })
           .limit(7);
 
-        if (history) {
-          setTrend(history.map(h => h.score));
+        if (history && history.length > 0) {
+          setTrend(
+            history.map((h: any) => ({
+              score: h.score ?? 0,
+              date: new Date(h.created_at).toLocaleDateString('en-IN', {
+                day: '2-digit', month: 'short',
+              }),
+            }))
+          );
         }
       }
     } catch (err) {
@@ -61,23 +74,39 @@ export default function ReportScreen() {
     }
   };
 
-  const fullName = user?.user_metadata?.full_name || "User";
-  const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase();
+  const fullName =
+    user?.user_metadata?.full_name ||
+    user?.email?.split('@')[0] ||
+    'User';
+  const initials = fullName
+    .split(' ')
+    .map((n: string) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
   const answers = assessment?.answers || {};
+  const patientName = assessment?.patient_name || fullName;
   const patientAge = answers.q1 || '—';
   const patientGender = answers.q2 || '—';
   const patientArea = answers.q3 || '—';
   const patientEducation = answers.q4 || '—';
   const tobaccoUse = answers.q23 || '—';
   const assessmentDate = assessment?.created_at
-    ? new Date(assessment.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-    : new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    ? new Date(assessment.created_at).toLocaleDateString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric',
+      })
+    : new Date().toLocaleDateString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric',
+      });
   const riskLevel = assessment?.level || params?.level || 'Low';
-  const riskColor = riskLevel === 'High' ? '#EF4444' : riskLevel === 'Medium' ? '#F59E0B' : '#10B981';
-  // Use DB trend if available, otherwise show just the current score
-  const displayTrend = trend.length > 0 ? trend : (currentScore > 0 ? [currentScore] : []);
-  const CHART_HEIGHT = 100; // px
-  const max = Math.max(...displayTrend, 1);
+  const riskColor =
+    riskLevel === 'High' ? '#EF4444' :
+    riskLevel === 'Medium' ? '#F59E0B' : '#10B981';
+
+  const CHART_HEIGHT = 110;
+  // trend is now [{score, date}]
+  const hasTrend = trend.length >= 2;
+  const maxScore = hasTrend ? Math.max(...trend.map((t: any) => t.score), 1) : 100;
 
   return (
     <PhoneShell showNav={false}>
@@ -91,7 +120,7 @@ export default function ReportScreen() {
               <Text style={styles.avatarText}>{initials}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.patientName}>{fullName}</Text>
+              <Text style={styles.patientName}>{patientName}</Text>
               <Text style={styles.patientMeta}>Patient ID: {user?.id?.slice(0, 8) || 'N/A'}</Text>
             </View>
             <View style={[styles.riskBadge, { backgroundColor: riskColor + '20', borderColor: riskColor }]}>
@@ -142,25 +171,72 @@ export default function ReportScreen() {
               </View>
             )}
           </View>
-          {displayTrend.length === 0 ? (
+          {!hasTrend ? (
             <View style={styles.emptyTrend}>
               <Feather name="bar-chart-2" size={32} color="#CBD5E1" />
-              <Text style={styles.emptyTrendText}>Complete more assessments to see your risk trend over time.</Text>
+              <Text style={styles.emptyTrendText}>
+                {trend.length === 1
+                  ? 'Only 1 assessment found. Complete more assessments to see your risk trend over time.'
+                  : 'No assessments found. Complete your first assessment to start tracking.'}
+              </Text>
             </View>
           ) : (
-            <View style={[styles.chart, { height: CHART_HEIGHT + 24 }]}>
-              <View style={{ flexDirection: 'row', alignItems: 'flex-end', height: CHART_HEIGHT, gap: 6, flex: 1 }}>
-                {displayTrend.map((v, idx) => {
-                  const barH = Math.max(4, Math.round((v / max) * CHART_HEIGHT));
-                  const color = v >= 60 ? '#EF4444' : v >= 30 ? '#F59E0B' : '#10B981';
+            <View style={{ marginTop: 16 }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'flex-end',
+                  height: CHART_HEIGHT,
+                  gap: 6,
+                }}
+              >
+                {trend.map((item: any, idx: number) => {
+                  const v = item.score;
+                  const barH = Math.max(6, Math.round((v / maxScore) * CHART_HEIGHT));
+                  const barColor =
+                    v >= 60 ? '#EF4444' : v >= 30 ? '#F59E0B' : '#10B981';
                   return (
-                    <View key={idx} style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-end', height: CHART_HEIGHT }}>
-                      <Text style={{ fontSize: 9, color: '#64748B', marginBottom: 2 }}>{v}</Text>
-                      <View style={{ width: '70%', height: barH, backgroundColor: color, borderRadius: 4 }} />
-                      <Text style={styles.barLabel}>T{idx + 1}</Text>
+                    <View
+                      key={idx}
+                      style={{
+                        flex: 1,
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        height: CHART_HEIGHT,
+                      }}
+                    >
+                      <Text style={{ fontSize: 9, color: '#64748B', marginBottom: 3, fontWeight: '600' }}>
+                        {v}%
+                      </Text>
+                      <View
+                        style={{
+                          width: '75%',
+                          height: barH,
+                          backgroundColor: barColor,
+                          borderTopLeftRadius: 6,
+                          borderTopRightRadius: 6,
+                        }}
+                      />
                     </View>
                   );
                 })}
+              </View>
+              {/* X-axis date labels */}
+              <View style={{ flexDirection: 'row', gap: 6, marginTop: 6 }}>
+                {trend.map((item: any, idx: number) => (
+                  <Text
+                    key={idx}
+                    style={{
+                      flex: 1,
+                      fontSize: 8,
+                      color: '#94A3B8',
+                      textAlign: 'center',
+                    }}
+                    numberOfLines={1}
+                  >
+                    {item.date}
+                  </Text>
+                ))}
               </View>
             </View>
           )}
