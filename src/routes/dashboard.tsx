@@ -1,16 +1,18 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
-import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { Feather } from "@expo/vector-icons";
 import { supabase } from "../lib/supabase";
-import { useEffect, useState } from 'react';
 
 export default function DashboardScreen() {
   const navigation = useNavigation<any>();
-  const [user, setUser] = useState<any>(null);
-  const [riskLevel, setRiskLevel] = useState('Low');
-  const [riskScore, setRiskScore] = useState(0);
+  const [userName, setUserName] = useState('User');
+  const [initials, setInitials] = useState('U');
+  const [riskLevel, setRiskLevel] = useState('');
+  const [riskScore, setRiskScore] = useState<number | null>(null);
+  const [patientName, setPatientName] = useState('');
+  const [assessedAt, setAssessedAt] = useState('');
   const [activities, setActivities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,114 +22,190 @@ export default function DashboardScreen() {
 
   const fetchDashboardData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+      // getSession reads from localStorage — no network hang
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
 
       if (user) {
-        // Fetch latest assessment for risk score
+        const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+        setUserName(fullName);
+        setInitials(
+          fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+        );
+
+        // Fetch the LATEST assessment
         const { data: assessment } = await supabase
           .from('assessments')
-          .select('score, level')
+          .select('score, level, patient_name, created_at')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
 
         if (assessment) {
-          setRiskScore(assessment.score);
-          setRiskLevel(assessment.level);
+          setRiskScore(assessment.score ?? null);
+          setRiskLevel(assessment.level ?? '');
+          setPatientName(assessment.patient_name || '');
+          setAssessedAt(
+            new Date(assessment.created_at).toLocaleDateString('en-IN', {
+              day: '2-digit', month: 'short', year: 'numeric',
+            })
+          );
         }
 
-        // Fetch recent activity
-        const { data: activityLogs } = await supabase
-          .from('activity_logs')
-          .select('*')
+        // Recent activity: last 3 assessments as activity
+        const { data: recent } = await supabase
+          .from('assessments')
+          .select('id, score, level, patient_name, created_at')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(3);
 
-        if (activityLogs) {
-          setActivities(activityLogs);
+        if (recent && recent.length > 0) {
+          setActivities(
+            recent.map((r: any) => ({
+              id: r.id,
+              icon: r.level === 'High' ? 'alert-triangle' : r.level === 'Medium' ? 'alert-circle' : 'check-circle',
+              color: r.level === 'High' ? '#EF4444' : r.level === 'Medium' ? '#F59E0B' : '#10B981',
+              title: `Risk Assessment — ${r.level ?? 'Unknown'} (${r.score ?? 0}%)`,
+              subtitle: r.patient_name || 'Anonymous',
+              time: new Date(r.created_at).toLocaleDateString('en-IN', {
+                day: '2-digit', month: 'short',
+              }),
+            }))
+          );
         }
       }
     } catch (err) {
-      console.error('Error fetching dashboard data:', err);
+      console.error('Dashboard error:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const fullName = user?.user_metadata?.full_name || "User";
-  const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase();
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+  const riskColor =
+    riskLevel === 'High' ? '#EF4444' :
+    riskLevel === 'Medium' ? '#F59E0B' :
+    riskScore !== null ? '#10B981' : '#157A6E';
 
   return (
     <PhoneShell>
+      {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>Good morning,</Text>
-          <Text style={styles.name}>{fullName}</Text>
+          <Text style={styles.greeting}>{greeting},</Text>
+          <Text style={styles.name}>{userName}</Text>
         </View>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.avatar}
-          onPress={() => navigation.navigate("Profile")}
+          onPress={() => navigation.navigate('Profile')}
         >
           <Text style={styles.avatarText}>{initials}</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Risk Card */}
-        <View style={[styles.riskCard, { backgroundColor: riskLevel === 'High' ? '#EF4444' : riskLevel === 'Medium' ? '#F59E0B' : '#10B981' }]}>
-          <View style={styles.riskTop}>
-            <Text style={styles.riskLabel}>Current Risk Level</Text>
-            <View style={styles.riskBadge}>
-              <Text style={styles.riskBadgeText}>{riskLevel}</Text>
+        {riskScore !== null ? (
+          <View style={[styles.riskCard, { backgroundColor: riskColor }]}>
+            <View style={styles.riskTop}>
+              <Text style={styles.riskLabel}>Current Risk Level</Text>
+              <View style={styles.riskBadge}>
+                <Text style={styles.riskBadgeText}>{riskLevel}</Text>
+              </View>
             </View>
+
+            <View style={styles.riskMiddle}>
+              <View style={styles.scoreRow}>
+                <Text style={styles.riskScore}>{riskScore}</Text>
+                <Text style={styles.riskScoreUnit}>%</Text>
+              </View>
+              {patientName ? (
+                <Text style={styles.riskPatient}>Patient: {patientName}</Text>
+              ) : null}
+              <Text style={styles.riskDesc}>
+                {riskLevel === 'Low'
+                  ? '✓ Doing great — keep it up!'
+                  : riskLevel === 'Medium'
+                  ? '⚠ Moderate risk — take action'
+                  : '🚨 Needs immediate attention'}
+              </Text>
+              {assessedAt ? (
+                <Text style={styles.riskDate}>Last assessed: {assessedAt}</Text>
+              ) : null}
+            </View>
+
+            {/* Progress bar */}
+            <View style={styles.progressBg}>
+              <View style={[styles.progressFill, { width: `${riskScore}%` as any }]} />
+            </View>
+
+            <TouchableOpacity
+              style={styles.riskBtn}
+              onPress={() => navigation.navigate('Assessment')}
+            >
+              <Text style={styles.riskBtnText}>Re-assess now</Text>
+              <Feather name="arrow-right" size={16} color="#0D4B42" />
+            </TouchableOpacity>
           </View>
-          <View style={styles.riskMiddle}>
-            <Text style={styles.riskScore}>{riskScore}</Text>
-            <Text style={styles.riskDesc}>{riskLevel === 'Low' ? 'Doing great' : 'Needs attention'}</Text>
+        ) : (
+          /* No assessment yet */
+          <View style={styles.noAssessCard}>
+            <View style={styles.noAssessIcon}>
+              <Feather name="clipboard" size={28} color="#157A6E" />
+            </View>
+            <Text style={styles.noAssessTitle}>No Assessment Yet</Text>
+            <Text style={styles.noAssessSub}>
+              Take a 30-question assessment to get your personalized oral health risk score.
+            </Text>
+            <TouchableOpacity
+              style={styles.startBtn}
+              onPress={() => navigation.navigate('Assessment')}
+            >
+              <Feather name="play" size={16} color="#0D4B42" />
+              <Text style={styles.startBtnText}>Start Assessment</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity 
-            style={styles.riskBtn}
-            onPress={() => navigation.navigate("Assessment")}
-          >
-            <Text style={styles.riskBtnText}>Re-assess now</Text>
-            <Feather name="arrow-right" size={16} color="#0D4B42" />
-          </TouchableOpacity>
-        </View>
+        )}
 
         {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.grid}>
-            <ActionCard 
-              icon="calendar" 
-              title="Book Visit" 
-              color="#E0E7FF" 
-              iconColor="#4F46E5" 
-              onPress={() => navigation.navigate("Dentists")}
+            <ActionCard
+              icon="clipboard"
+              title="Assessment"
+              color="#DCFCE7"
+              iconColor="#157A6E"
+              onPress={() => navigation.navigate('Assessment')}
             />
-            <ActionCard 
-              icon="activity" 
-              title="History" 
-              color="#DCFCE7" 
-              iconColor="#16A34A" 
-              onPress={() => navigation.navigate("History")}
+            <ActionCard
+              icon="calendar"
+              title="Book Visit"
+              color="#E0E7FF"
+              iconColor="#4F46E5"
+              onPress={() => navigation.navigate('Dentists')}
             />
-            <ActionCard 
-              icon="file-text" 
-              title="Reports" 
-              color="#FEF9C3" 
-              iconColor="#CA8A04" 
-              onPress={() => navigation.navigate("Report")}
+            <ActionCard
+              icon="activity"
+              title="History"
+              color="#FEF3C7"
+              iconColor="#D97706"
+              onPress={() => navigation.navigate('History')}
             />
-            <ActionCard 
-              icon="bell" 
-              title="Alerts" 
-              color="#FCE7F3" 
-              iconColor="#DB2777" 
-              onPress={() => navigation.navigate("Alerts")}
+            <ActionCard
+              icon="bell"
+              title="Alerts"
+              color="#FCE7F3"
+              iconColor="#DB2777"
+              onPress={() => navigation.navigate('Alerts')}
             />
           </View>
         </View>
@@ -136,16 +214,30 @@ export default function DashboardScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recent Activity</Text>
           <View style={styles.activityList}>
-            {activities.length > 0 ? activities.map((act, idx) => (
-              <ActivityItem 
-                key={idx}
-                icon={act.icon || "check-circle"} 
-                title={act.title} 
-                time={act.time_display || "Recently"} 
-                color={act.color || "#10B981"} 
-              />
-            )) : (
-              <Text style={{ textAlign: 'center', color: '#64748B', padding: 20 }}>No recent activity</Text>
+            {activities.length > 0 ? (
+              activities.map((act, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  style={styles.activityItem}
+                  onPress={() => act.id && navigation.navigate('Results', { id: act.id })}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.activityIconBox, { backgroundColor: act.color + '20' }]}>
+                    <Feather name={act.icon} size={16} color={act.color} />
+                  </View>
+                  <View style={styles.activityBody}>
+                    <Text style={styles.activityTitle}>{act.title}</Text>
+                    <Text style={styles.activityTime}>{act.subtitle} · {act.time}</Text>
+                  </View>
+                  <Feather name="chevron-right" size={16} color="#CBD5E1" />
+                </TouchableOpacity>
+              ))
+            ) : (
+              <View style={styles.emptyActivity}>
+                <Feather name="inbox" size={28} color="#CBD5E1" />
+                <Text style={styles.emptyActivityText}>No recent activity</Text>
+                <Text style={styles.emptyActivitySub}>Complete an assessment to start tracking</Text>
+              </View>
             )}
           </View>
         </View>
@@ -156,26 +248,12 @@ export default function DashboardScreen() {
 
 function ActionCard({ icon, title, color, iconColor, onPress }: any) {
   return (
-    <TouchableOpacity style={styles.actionCard} onPress={onPress}>
+    <TouchableOpacity style={styles.actionCard} onPress={onPress} activeOpacity={0.8}>
       <View style={[styles.actionIconBox, { backgroundColor: color }]}>
         <Feather name={icon} size={20} color={iconColor} />
       </View>
       <Text style={styles.actionTitle}>{title}</Text>
     </TouchableOpacity>
-  );
-}
-
-function ActivityItem({ icon, title, time, color }: any) {
-  return (
-    <View style={styles.activityItem}>
-      <View style={[styles.activityIconBox, { backgroundColor: color + '20' }]}>
-        <Feather name={icon} size={16} color={color} />
-      </View>
-      <View style={styles.activityBody}>
-        <Text style={styles.activityTitle}>{title}</Text>
-        <Text style={styles.activityTime}>{time}</Text>
-      </View>
-    </View>
   );
 }
 
@@ -188,42 +266,27 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 10,
   },
-  greeting: {
-    fontSize: 14,
-    color: '#64748B',
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#0F172A',
-  },
+  greeting: { fontSize: 13, color: '#64748B' },
+  name: { fontSize: 22, fontWeight: '800', color: '#0F172A' },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: '#86F1D4',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0D4B42',
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingBottom: 30,
-    gap: 24,
-  },
+  avatarText: { fontSize: 15, fontWeight: '800', color: '#0D4B42' },
+  content: { paddingHorizontal: 20, paddingBottom: 30, gap: 24 },
+
+  // ─── Risk Card ───────────────────────────────────────────
   riskCard: {
-    backgroundColor: '#EF4444',
-    borderRadius: 24,
+    borderRadius: 28,
     padding: 24,
     elevation: 8,
-    shadowColor: '#EF4444',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowRadius: 12,
   },
   riskTop: {
     flexDirection: 'row',
@@ -231,63 +294,94 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   riskLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 11,
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.85)',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
   riskBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(255,255,255,0.3)',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
   },
-  riskBadgeText: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+  riskBadgeText: { fontSize: 11, fontWeight: '800', color: '#FFF' },
+  riskMiddle: { marginTop: 14 },
+  scoreRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 4 },
+  riskScore: { fontSize: 56, fontWeight: '900', color: '#FFF', lineHeight: 60 },
+  riskScoreUnit: { fontSize: 22, fontWeight: '700', color: 'rgba(255,255,255,0.8)', marginBottom: 8 },
+  riskPatient: { fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 2 },
+  riskDesc: { fontSize: 13, color: 'rgba(255,255,255,0.9)', marginTop: 6, fontWeight: '500' },
+  riskDate: { fontSize: 11, color: 'rgba(255,255,255,0.65)', marginTop: 4 },
+  progressBg: {
+    height: 6,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderRadius: 3,
+    marginTop: 18,
+    overflow: 'hidden',
   },
-  riskMiddle: {
-    marginTop: 16,
-  },
-  riskScore: {
-    fontSize: 48,
-    fontWeight: '900',
-    color: '#FFFFFF',
-  },
-  riskDesc: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginTop: 4,
-  },
+  progressFill: { height: '100%', backgroundColor: '#FFF', borderRadius: 3 },
   riskBtn: {
-    marginTop: 20,
+    marginTop: 18,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
     backgroundColor: '#FFFFFF',
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: 14,
   },
-  riskBtnText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#0F172A',
+  riskBtnText: { fontSize: 14, fontWeight: '700', color: '#0D4B42' },
+
+  // ─── No Assessment Card ───────────────────────────────────
+  noAssessCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 28,
+    padding: 28,
+    alignItems: 'center',
+    gap: 10,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
+    borderWidth: 2,
+    borderColor: '#86F1D4',
+    borderStyle: 'dashed',
   },
-  section: {},
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0F172A',
-    marginBottom: 12,
+  noAssessIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 20,
+    backgroundColor: 'rgba(21,122,110,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
   },
-  grid: {
+  noAssessTitle: { fontSize: 18, fontWeight: '800', color: '#0F172A' },
+  noAssessSub: {
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  startBtn: {
+    marginTop: 8,
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#86F1D4',
+    paddingHorizontal: 28,
+    paddingVertical: 14,
+    borderRadius: 16,
   },
+  startBtnText: { fontSize: 15, fontWeight: '700', color: '#0D4B42' },
+
+  // ─── Quick Actions ────────────────────────────────────────
+  section: {},
+  sectionTitle: { fontSize: 16, fontWeight: '800', color: '#0F172A', marginBottom: 12 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   actionCard: {
     width: '48%',
     backgroundColor: '#FFFFFF',
@@ -300,23 +394,21 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   actionIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 42,
+    height: 42,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
   },
-  actionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#0F172A',
-  },
+  actionTitle: { fontSize: 13, fontWeight: '700', color: '#0F172A' },
+
+  // ─── Activity ─────────────────────────────────────────────
   activityList: {
     backgroundColor: '#FFFFFF',
     borderRadius: 24,
     padding: 16,
-    gap: 16,
+    gap: 14,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -329,23 +421,20 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   activityIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: 38,
+    height: 38,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  activityBody: {
-    flex: 1,
+  activityBody: { flex: 1 },
+  activityTitle: { fontSize: 13, fontWeight: '600', color: '#0F172A' },
+  activityTime: { fontSize: 11, color: '#64748B', marginTop: 2 },
+  emptyActivity: {
+    alignItems: 'center',
+    paddingVertical: 20,
+    gap: 6,
   },
-  activityTitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#0F172A',
-  },
-  activityTime: {
-    fontSize: 12,
-    color: '#64748B',
-    marginTop: 2,
-  }
+  emptyActivityText: { fontSize: 14, fontWeight: '500', color: '#94A3B8' },
+  emptyActivitySub: { fontSize: 12, color: '#CBD5E1', textAlign: 'center' },
 });
