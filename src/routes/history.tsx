@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import React, { useState, useEffect } from 'react';
-import { useNavigation } from "@react-navigation/native";
+import React, { useState, useCallback } from 'react';
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
@@ -13,7 +13,10 @@ export default function HistoryScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => { fetchHistory(); }, [tab]);
+  // Refresh every time this screen is focused (navigated to)
+  useFocusEffect(
+    useCallback(() => { fetchHistory(); }, [tab])
+  );
 
   const fetchHistory = async () => {
     setLoading(true);

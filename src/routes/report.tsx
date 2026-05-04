@@ -18,7 +18,7 @@ export default function ReportScreen() {
 
   const [user, setUser] = useState<any>(null);
   const [assessment, setAssessment] = useState<any>(null);
-  const [trend, setTrend] = useState<number[]>([]);
+  const [trend, setTrend] = useState<{score: number; date: string}[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,45 +27,61 @@ export default function ReportScreen() {
 
   const fetchReportData = async () => {
     try {
-      // getSession() reads from localStorage — no network hang
       const { data: { session } } = await supabase.auth.getSession();
       const currentUser = session?.user;
       setUser(currentUser);
 
-      if (currentUser) {
-        // Fetch specific or latest assessment
-        let query: any = supabase.from('assessments').select('*');
-        if (assessmentId) {
-          query = query.eq('id', assessmentId).single();
-        } else {
-          query = query
-            .eq('user_id', currentUser.id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-        }
-
-        const { data: currentAssessment } = await query;
-        setAssessment(currentAssessment);
-
-        // Fetch last 7 assessments for trend (oldest → newest)
-        const { data: history } = await supabase
-          .from('assessments')
-          .select('score, created_at')
+      // Fetch specific assessment by ID, or latest
+      let currentAssessment: any = null;
+      if (assessmentId) {
+        const { data } = await supabase
+          .from('assessments').select('*').eq('id', assessmentId).single();
+        currentAssessment = data;
+      } else if (currentUser) {
+        // Try by user_id first
+        const { data } = await supabase
+          .from('assessments').select('*')
           .eq('user_id', currentUser.id)
-          .order('created_at', { ascending: true })
-          .limit(7);
-
-        if (history && history.length > 0) {
-          setTrend(
-            history.map((h: any) => ({
-              score: h.score ?? 0,
-              date: new Date(h.created_at).toLocaleDateString('en-IN', {
-                day: '2-digit', month: 'short',
-              }),
-            }))
-          );
+          .order('created_at', { ascending: false })
+          .limit(1).maybeSingle();
+        currentAssessment = data;
+        // Fallback: latest from whole table
+        if (!currentAssessment) {
+          const { data: fb } = await supabase
+            .from('assessments').select('*')
+            .order('created_at', { ascending: false })
+            .limit(1).maybeSingle();
+          currentAssessment = fb;
         }
+      }
+      setAssessment(currentAssessment);
+
+      // Fetch trend — try user_id first, then fallback
+      let historyData: any[] | null = null;
+      if (currentUser) {
+        const { data } = await supabase
+          .from('assessments').select('score, created_at')
+          .eq('user_id', currentUser.id)
+          .neq('level', 'In Progress')
+          .order('created_at', { ascending: true }).limit(7);
+        historyData = data;
+      }
+      if (!historyData || historyData.length === 0) {
+        const { data } = await supabase
+          .from('assessments').select('score, created_at')
+          .neq('level', 'In Progress')
+          .order('created_at', { ascending: true }).limit(7);
+        historyData = data;
+      }
+      if (historyData && historyData.length > 0) {
+        setTrend(
+          historyData.map((h: any) => ({
+            score: h.score ?? 0,
+            date: new Date(h.created_at).toLocaleDateString('en-IN', {
+              day: '2-digit', month: 'short',
+            }),
+          }))
+        );
       }
     } catch (err) {
       console.error('Error fetching report data:', err);
