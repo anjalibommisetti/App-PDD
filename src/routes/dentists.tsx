@@ -5,8 +5,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
-  TextInput,
-  Platform,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { PhoneShell } from '../components/PhoneShell';
@@ -187,38 +185,29 @@ function BookingModal({
               <View style={modal.divider} />
 
               <Text style={modal.label}>Select Date</Text>
-              {Platform.OS === 'web' ? (
-                // Native browser date picker (calendar UI)
-                <input
-                  type="date"
-                  value={date}
-                  min={today}
-                  onChange={(e: any) => setDate(e.target.value)}
-                  style={{
-                    width: '100%',
-                    backgroundColor: '#F8FAFC',
-                    border: '1.5px solid #E2E8F0',
-                    borderRadius: 14,
-                    padding: '11px 14px',
-                    fontSize: 14,
-                    color: date ? '#0F172A' : '#94A3B8',
-                    marginBottom: 16,
-                    outline: 'none',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    boxSizing: 'border-box',
-                  } as any}
-                />
-              ) : (
-                <TextInput
-                  style={modal.input}
-                  placeholder="YYYY-MM-DD"
-                  placeholderTextColor="#94A3B8"
-                  value={date}
-                  onChangeText={setDate}
-                  keyboardType="numbers-and-punctuation"
-                />
-              )}
+              {/* HTML date input renders native calendar picker on web/Expo web */}
+              <input
+                type="date"
+                value={date}
+                min={today}
+                onChange={(e: any) => setDate(e.target.value)}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  backgroundColor: '#F8FAFC',
+                  border: '1.5px solid #E2E8F0',
+                  borderRadius: 14,
+                  padding: '12px 14px',
+                  fontSize: 15,
+                  color: date ? '#0F172A' : '#94A3B8',
+                  marginBottom: 16,
+                  outline: 'none',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  boxSizing: 'border-box',
+                  WebkitAppearance: 'none',
+                } as any}
+              />
 
               <Text style={modal.label}>Preferred Time</Text>
               <View style={modal.timeRow}>

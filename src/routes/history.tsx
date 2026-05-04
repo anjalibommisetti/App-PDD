@@ -1,10 +1,9 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
-
 import { supabase } from "../lib/supabase";
 
 export default function HistoryScreen() {
@@ -12,6 +11,7 @@ export default function HistoryScreen() {
   const [tab, setTab] = useState<"assessments" | "reports">("assessments");
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchHistory();
@@ -19,28 +19,56 @@ export default function HistoryScreen() {
 
   const fetchHistory = async () => {
     setLoading(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        let query = supabase
-          .from(tab === 'assessments' ? 'assessments' : 'reports')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
+    setError('');
+    setItems([]);
 
-        const { data } = await query;
-        if (data) {
-          setItems(data.map(it => ({
-            ...it,
-            date: new Date(it.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-            score: it.score || 0,
-            status: it.level || "Unknown",
-            tone: (it.level || "").toLowerCase() === "high" ? "alert" : (it.level || "").toLowerCase() === "medium" ? "warning" : "success"
-          })));
-        }
+    try {
+      // Use getSession() — reads from localStorage, doesn't require network
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session?.user) {
+        // Not logged in — show empty state gracefully
+        setLoading(false);
+        setError('Please log in to view your history.');
+        return;
       }
-    } catch (err) {
+
+      const userId = session.user.id;
+
+      // Only assessments table exists; reports tab shows assessments too
+      const tableName = tab === 'assessments' ? 'assessments' : 'assessments';
+
+      const { data, error: fetchError } = await supabase
+        .from(tableName)
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (fetchError) throw fetchError;
+
+      if (data && data.length > 0) {
+        setItems(
+          data.map((it: any) => ({
+            ...it,
+            date: new Date(it.created_at).toLocaleDateString('en-IN', {
+              month: 'short',
+              day: '2-digit',
+              year: 'numeric',
+            }),
+            score: it.score ?? 0,
+            status: it.level || 'Unknown',
+            tone:
+              (it.level || '').toLowerCase() === 'high'
+                ? 'alert'
+                : (it.level || '').toLowerCase() === 'medium'
+                ? 'warning'
+                : 'success',
+          }))
+        );
+      }
+    } catch (err: any) {
       console.error('Error fetching history:', err);
+      setError('Could not load history. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -50,59 +78,105 @@ export default function HistoryScreen() {
     <PhoneShell>
       <ScreenHeader title="History" subtitle="Your past activity" />
 
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Tabs */}
         <View style={styles.tabsWrap}>
-          {(["assessments", "reports"] as const).map((t) => (
+          {(['assessments', 'reports'] as const).map((t) => (
             <TouchableOpacity
               key={t}
               onPress={() => setTab(t)}
               style={[styles.tabBtn, tab === t && styles.tabBtnActive]}
             >
               <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-                {t}
+                {t === 'assessments' ? 'Assessments' : 'Reports'}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
 
         <View style={styles.list}>
-          {items.length > 0 ? items.map((it) => {
-            const bgTone = it.tone === "alert" ? "rgba(239, 68, 68, 0.15)" :
-              it.tone === "warning" ? "rgba(255, 205, 178, 0.4)" :
-              "rgba(134, 241, 212, 0.4)";
-            const fgTone = it.tone === "alert" ? "#EF4444" :
-              it.tone === "warning" ? "#7C3AED" :
-              "#0D4B42";
-
-            return (
-              <TouchableOpacity
-                key={it.id || it.date}
-                onPress={() => navigation.navigate("Results", { id: it.id })}
-                style={styles.itemCard}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.scoreBox, { backgroundColor: bgTone }]}>
-                  <Text style={[styles.scoreText, { color: fgTone }]}>{it.score}</Text>
-                </View>
-                <View style={styles.itemBody}>
-                  <Text style={styles.itemTitle}>
-                    {tab === "assessments" ? "Risk Assessment" : "Report"}
-                  </Text>
-                  <Text style={styles.itemDate}>{it.date}</Text>
-                  <View style={[styles.statusBadge, { backgroundColor: bgTone }]}>
-                    <Text style={[styles.statusText, { color: fgTone }]}>
-                      {it.status} risk
-                    </Text>
-                  </View>
-                </View>
-                <Feather name="chevron-right" size={20} color="#94A3B8" />
-              </TouchableOpacity>
-            );
-          }) : (
-            <View style={{ padding: 40, alignItems: 'center' }}>
-              <Text style={{ color: '#64748B' }}>{loading ? 'Fetching history...' : `No ${tab} found.`}</Text>
+          {/* Loading state */}
+          {loading && (
+            <View style={styles.centerBox}>
+              <Feather name="loader" size={28} color="#86F1D4" />
+              <Text style={styles.centerText}>Loading history…</Text>
             </View>
           )}
+
+          {/* Error state */}
+          {!loading && error !== '' && (
+            <View style={styles.centerBox}>
+              <Feather name="alert-circle" size={28} color="#EF4444" />
+              <Text style={[styles.centerText, { color: '#EF4444' }]}>{error}</Text>
+              <TouchableOpacity style={styles.retryBtn} onPress={fetchHistory}>
+                <Text style={styles.retryText}>Retry</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Empty state */}
+          {!loading && error === '' && items.length === 0 && (
+            <View style={styles.centerBox}>
+              <Feather name="inbox" size={36} color="#CBD5E1" />
+              <Text style={styles.centerText}>No {tab} found.</Text>
+              <Text style={styles.centerSub}>
+                Complete an assessment to see your history here.
+              </Text>
+            </View>
+          )}
+
+          {/* Data list */}
+          {!loading &&
+            items.map((it) => {
+              const bgTone =
+                it.tone === 'alert'
+                  ? 'rgba(239, 68, 68, 0.12)'
+                  : it.tone === 'warning'
+                  ? 'rgba(245, 158, 11, 0.12)'
+                  : 'rgba(134, 241, 212, 0.3)';
+              const fgTone =
+                it.tone === 'alert'
+                  ? '#EF4444'
+                  : it.tone === 'warning'
+                  ? '#D97706'
+                  : '#0D4B42';
+
+              return (
+                <TouchableOpacity
+                  key={it.id || it.date}
+                  onPress={() => navigation.navigate('Results', { id: it.id })}
+                  style={styles.itemCard}
+                  activeOpacity={0.8}
+                >
+                  {/* Score bubble */}
+                  <View style={[styles.scoreBox, { backgroundColor: bgTone }]}>
+                    <Text style={[styles.scoreText, { color: fgTone }]}>
+                      {it.score}
+                    </Text>
+                    <Text style={[styles.scorePercent, { color: fgTone }]}>%</Text>
+                  </View>
+
+                  {/* Body */}
+                  <View style={styles.itemBody}>
+                    <Text style={styles.itemTitle}>
+                      {it.patient_name ? it.patient_name : 'Risk Assessment'}
+                    </Text>
+                    <Text style={styles.itemDate}>{it.date}</Text>
+                    <View style={[styles.statusBadge, { backgroundColor: bgTone }]}>
+                      <Text style={[styles.statusText, { color: fgTone }]}>
+                        {it.status} risk
+                      </Text>
+                    </View>
+                  </View>
+
+                  <Feather name="chevron-right" size={20} color="#94A3B8" />
+                </TouchableOpacity>
+              );
+            })}
         </View>
       </ScrollView>
     </PhoneShell>
@@ -120,6 +194,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F1F5F9',
     padding: 6,
     borderRadius: 16,
+    marginBottom: 4,
   },
   tabBtn: {
     flex: 1,
@@ -138,15 +213,42 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     fontWeight: '600',
-    textTransform: 'capitalize',
     color: '#64748B',
   },
   tabTextActive: {
     color: '#0F172A',
   },
   list: {
-    marginTop: 20,
+    marginTop: 16,
     gap: 12,
+  },
+  centerBox: {
+    alignItems: 'center',
+    paddingVertical: 50,
+    gap: 10,
+  },
+  centerText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#64748B',
+    textAlign: 'center',
+  },
+  centerSub: {
+    fontSize: 12,
+    color: '#94A3B8',
+    textAlign: 'center',
+  },
+  retryBtn: {
+    marginTop: 8,
+    backgroundColor: '#86F1D4',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  retryText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#0D4B42',
   },
   itemCard: {
     flexDirection: 'row',
@@ -162,22 +264,28 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   scoreBox: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
+    width: 60,
+    height: 60,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },
   scoreText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '900',
+    lineHeight: 20,
+  },
+  scorePercent: {
+    fontSize: 10,
+    fontWeight: '600',
   },
   itemBody: {
     flex: 1,
+    gap: 3,
   },
   itemTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#0F172A',
   },
   itemDate: {
@@ -185,14 +293,15 @@ const styles = StyleSheet.create({
     color: '#64748B',
   },
   statusBadge: {
-    marginTop: 4,
     alignSelf: 'flex-start',
     paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
+    paddingVertical: 3,
+    borderRadius: 10,
+    marginTop: 2,
   },
   statusText: {
     fontSize: 10,
-    fontWeight: 'bold',
-  }
+    fontWeight: '700',
+    textTransform: 'capitalize',
+  },
 });
