@@ -10,15 +10,15 @@ import { Feather } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 
 // Simulated AI analysis results based on image characteristics
-function simulateAIAnalysis(): {
+function simulateAIAnalysis(seed: number): {
   score: number;
   level: 'Low' | 'Medium' | 'High';
   findings: { label: string; detected: boolean; severity: string; color: string }[];
   suggestions: string[];
 } {
-  // Simulate randomized but realistic results
-  const rand = Math.random();
-  const score = Math.floor(20 + rand * 70);
+  // Use seed (image file size) for deterministic results — same image = same result
+  const normalised = (seed % 10000) / 10000; // 0–1 from file size
+  const score = Math.floor(20 + normalised * 70);
   const level: 'Low' | 'Medium' | 'High' =
     score < 40 ? 'Low' : score < 65 ? 'Medium' : 'High';
 
@@ -78,6 +78,7 @@ function simulateAIAnalysis(): {
 export default function ScanScreen() {
   const navigation = useNavigation<any>();
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [imageSeed, setImageSeed] = useState<number>(0); // file size used as deterministic seed
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<ReturnType<typeof simulateAIAnalysis> | null>(null);
   const [autoSaved, setAutoSaved] = useState(false);
@@ -88,8 +89,9 @@ export default function ScanScreen() {
     if (!file) return;
     const url = URL.createObjectURL(file);
     setImageUri(url);
+    setImageSeed(file.size); // same image → same size → same result
     setResult(null);
-    setSaved(false);
+    setAutoSaved(false);
   };
 
   const runAnalysis = () => {
@@ -106,7 +108,7 @@ export default function ScanScreen() {
     }).start();
 
     setTimeout(async () => {
-      const analysis = simulateAIAnalysis();
+      const analysis = simulateAIAnalysis(imageSeed);
       setResult(analysis);
       setAnalyzing(false);
 

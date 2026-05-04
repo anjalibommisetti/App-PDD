@@ -28,7 +28,7 @@ import ScanScreen from './src/routes/scan';
 const Stack = createStackNavigator();
 
 // ─── Splash Screen ────────────────────────────────────────────────────────────
-function SplashScreen() {
+function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
   const scale = React.useRef(new Animated.Value(0.7)).current;
   const opacity = React.useRef(new Animated.Value(0)).current;
 
@@ -40,7 +40,11 @@ function SplashScreen() {
   }, []);
 
   return (
-    <View style={splash.container}>
+    <TouchableOpacity
+      style={splash.container}
+      activeOpacity={1}
+      onPress={onDismiss}
+    >
       <Animated.View style={[splash.logoBox, { transform: [{ scale }], opacity }]}>
         <Text style={splash.tooth}>🦷</Text>
         <Text style={splash.appName}>SmileGuard</Text>
@@ -51,7 +55,8 @@ function SplashScreen() {
           <View key={i} style={[splash.dot, { opacity: 0.3 + i * 0.3 }]} />
         ))}
       </View>
-    </View>
+      <Text style={splash.tapHint}>Tap anywhere to continue →</Text>
+    </TouchableOpacity>
   );
 }
 
@@ -78,6 +83,13 @@ const splash = StyleSheet.create({
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
+  tapHint: {
+    position: 'absolute',
+    bottom: 40,
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.5)',
+    letterSpacing: 1,
+  },
   dotsRow: { flexDirection: 'row', gap: 8 },
   dot: {
     width: 8,
@@ -93,8 +105,8 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    // Show splash for 2.5 seconds
-    const splashTimer = setTimeout(() => setShowSplash(false), 2500);
+    // Auto-dismiss splash after 3 seconds
+    const splashTimer = setTimeout(() => setShowSplash(false), 3000);
     return () => clearTimeout(splashTimer);
   }, []);
 
@@ -137,7 +149,7 @@ export default function App() {
     };
   }, []);
 
-  if (showSplash) return <SplashScreen />;
+  if (showSplash) return <SplashScreen onDismiss={() => setShowSplash(false)} />;
 
   if (loading) {
     return (

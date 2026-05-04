@@ -214,14 +214,7 @@ export default function AssessmentScreen() {
           // Update the draft record created at section A
           const { error } = await supabase
             .from('assessments')
-            .update({
-              score,
-              level,
-              breakdown,
-              insight,
-              recommendations,
-              answers,
-            })
+            .update({ score, level, answers })
             .eq('id', draftId);
           if (error) console.error('Update error:', error.message);
         } else {
@@ -231,9 +224,6 @@ export default function AssessmentScreen() {
             patient_name: userName,
             score,
             level,
-            breakdown,
-            insight,
-            recommendations,
             answers,
             created_at: new Date().toISOString(),
           }).select('id').single();
