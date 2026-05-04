@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
+  TextInput,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { PhoneShell } from '../components/PhoneShell';
@@ -99,18 +100,18 @@ function BookingModal({
     if (!date || !time) return;
     setSubmitting(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from('appointments').insert({
-          user_id: user.id,
-          dentist_name: dentist?.name,
-          dentist_specialty: dentist?.specialty,
-          appointment_date: date,
-          appointment_time: time,
-          note,
-          status: 'pending',
-        });
-      }
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
+      await supabase.from('appointments').insert({
+        user_id: user?.id ?? null,
+        dentist_name: dentist?.name,
+        dentist_specialty: dentist?.specialty,
+        appointment_date: date,
+        appointment_time: time,
+        note,
+        status: 'pending',
+        created_at: new Date().toISOString(),
+      });
     } catch (_) {
       // Even if DB insert fails, show confirmation to user
     } finally {
