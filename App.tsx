@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, ActivityIndicator, Animated } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 import 'react-native-gesture-handler';
 import React from 'react';
@@ -23,12 +23,80 @@ import ProfileScreen from './src/routes/profile';
 import HistoryScreen from './src/routes/history';
 import DentistsScreen from './src/routes/dentists';
 import AlertsScreen from './src/routes/alerts';
+import ScanScreen from './src/routes/scan';
 
 const Stack = createStackNavigator();
+
+// ─── Splash Screen ────────────────────────────────────────────────────────────
+function SplashScreen() {
+  const scale = React.useRef(new Animated.Value(0.7)).current;
+  const opacity = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    Animated.parallel([
+      Animated.spring(scale, { toValue: 1, useNativeDriver: true, tension: 50, friction: 7 }),
+      Animated.timing(opacity, { toValue: 1, duration: 600, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
+  return (
+    <View style={splash.container}>
+      <Animated.View style={[splash.logoBox, { transform: [{ scale }], opacity }]}>
+        <Text style={splash.tooth}>🦷</Text>
+        <Text style={splash.appName}>SmileGuard</Text>
+        <Text style={splash.tagline}>AI Dental Care</Text>
+      </Animated.View>
+      <View style={splash.dotsRow}>
+        {[0, 1, 2].map((i) => (
+          <View key={i} style={[splash.dot, { opacity: 0.3 + i * 0.3 }]} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+const splash = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0D4B42',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 40,
+  },
+  logoBox: { alignItems: 'center', gap: 12 },
+  tooth: { fontSize: 72 },
+  appName: {
+    fontSize: 36,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: 1,
+  },
+  tagline: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.7)',
+    fontWeight: '500',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  dotsRow: { flexDirection: 'row', gap: 8 },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#86F1D4',
+  },
+});
 
 export default function App() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    // Show splash for 2.5 seconds
+    const splashTimer = setTimeout(() => setShowSplash(false), 2500);
+    return () => clearTimeout(splashTimer);
+  }, []);
 
   useEffect(() => {
     let didFinish = false;
@@ -69,6 +137,8 @@ export default function App() {
     };
   }, []);
 
+  if (showSplash) return <SplashScreen />;
+
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FBFB' }}>
@@ -92,6 +162,7 @@ export default function App() {
           <>
             <Stack.Screen name="Dashboard" component={DashboardScreen} />
             <Stack.Screen name="Assessment" component={AssessmentScreen} />
+            <Stack.Screen name="Scan" component={ScanScreen} />
             <Stack.Screen name="Results" component={ResultsScreen} />
             <Stack.Screen name="Report" component={ReportScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />

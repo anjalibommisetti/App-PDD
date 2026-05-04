@@ -202,6 +202,13 @@ export default function DashboardScreen() {
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.grid}>
             <ActionCard
+              icon="cpu"
+              title="Teeth Scan"
+              color="#FEF3C7"
+              iconColor="#D97706"
+              onPress={() => navigation.navigate('Scan')}
+            />
+            <ActionCard
               icon="clipboard"
               title="Assessment"
               color="#DCFCE7"
@@ -218,16 +225,9 @@ export default function DashboardScreen() {
             <ActionCard
               icon="activity"
               title="History"
-              color="#FEF3C7"
-              iconColor="#D97706"
-              onPress={() => navigation.navigate('History')}
-            />
-            <ActionCard
-              icon="bell"
-              title="Alerts"
               color="#FCE7F3"
               iconColor="#DB2777"
-              onPress={() => navigation.navigate('Alerts')}
+              onPress={() => navigation.navigate('History')}
             />
           </View>
         </View>

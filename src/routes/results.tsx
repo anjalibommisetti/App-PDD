@@ -138,12 +138,26 @@ export default function ResultsScreen() {
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Recommendations</Text>
             <View style={styles.recList}>
-              {recommendations.map((r) => (
-                <View key={r} style={styles.recItem}>
-                  <Feather name="check-circle" size={16} color="#10B981" />
-                  <Text style={styles.recText}>{r}</Text>
-                </View>
-              ))}
+              {recommendations.map((r, idx) => {
+                const isDentist = r.toLowerCase().includes('dentist') || r.toLowerCase().includes('visit');
+                const isBrush = r.toLowerCase().includes('brush') || r.toLowerCase().includes('floss');
+                const icon = isDentist ? 'calendar' : isBrush ? 'sun' : 'check-circle';
+                const dest = isDentist ? 'Dentists' : null;
+                return (
+                  <TouchableOpacity
+                    key={idx}
+                    style={styles.recItem}
+                    activeOpacity={dest ? 0.7 : 1}
+                    onPress={() => dest && navigation.navigate(dest)}
+                  >
+                    <View style={styles.recIconBox}>
+                      <Feather name={icon as any} size={16} color={isDentist ? '#4F46E5' : '#10B981'} />
+                    </View>
+                    <Text style={styles.recText}>{r}</Text>
+                    {dest && <Feather name="chevron-right" size={14} color="#CBD5E1" />}
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
         )}
@@ -343,11 +357,21 @@ const styles = StyleSheet.create({
   },
   recItem: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 12,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#F8FAFC',
     borderRadius: 16,
-    padding: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  recIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: 'rgba(16,185,129,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   recText: {
     flex: 1,
