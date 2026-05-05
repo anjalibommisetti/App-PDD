@@ -9,70 +9,100 @@ import { ScreenHeader } from '../components/ScreenHeader';
 import { Feather } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 
-// Simulated AI analysis results based on image characteristics
+// ─── Kaggle Oral Diseases Dataset Categories ─────────────────────────────────
+// Source: https://www.kaggle.com/datasets/salmansajid05/oral-diseases
+// Classes: Caries, Calculus, Gingivitis, Tooth Discoloration, Ulcers, Hypodontia
+const DISEASE_INFO: Record<string, { description: string; urgency: string }> = {
+  'Caries':             { description: 'Tooth decay / cavities from bacterial acid erosion',     urgency: 'Immediate' },
+  'Calculus':           { description: 'Hardened tartar/plaque buildup on tooth surfaces',       urgency: 'Soon'      },
+  'Gingivitis':         { description: 'Gum inflammation — early stage periodontal disease',     urgency: 'Soon'      },
+  'Tooth Discoloration':{ description: 'Staining or discolouration of tooth enamel/dentin',     urgency: 'Routine'   },
+  'Ulcers':             { description: 'Oral ulcers or canker sores inside the mouth',           urgency: 'Soon'      },
+  'Hypodontia':         { description: 'One or more congenitally missing teeth',                 urgency: 'Routine'   },
+};
+
 function simulateAIAnalysis(seed: number): {
   score: number;
   level: 'Low' | 'Medium' | 'High';
-  findings: { label: string; detected: boolean; severity: string; color: string }[];
+  findings: { label: string; detected: boolean; severity: string; color: string; description: string; urgency: string }[];
   suggestions: string[];
 } {
-  // Use seed (image file size) for deterministic results — same image = same result
-  const normalised = (seed % 10000) / 10000; // 0–1 from file size
-  const score = Math.floor(20 + normalised * 70);
+  // Deterministic seed from image file size — same image always = same result
+  const n = (seed % 10000) / 10000;
+  const score = Math.floor(20 + n * 70);
   const level: 'Low' | 'Medium' | 'High' =
     score < 40 ? 'Low' : score < 65 ? 'Medium' : 'High';
+  const s = seed;
 
+  // 6 disease categories from the Kaggle Oral Diseases dataset
   const findings = [
     {
-      label: 'Cavities',
-      detected: score > 50,
-      severity: score > 65 ? 'High' : 'Moderate',
-      color: score > 65 ? '#EF4444' : '#F59E0B',
+      label: 'Caries',
+      detected: score > 48,
+      severity: score > 70 ? 'Severe' : score > 55 ? 'Moderate' : 'Mild',
+      color: score > 70 ? '#EF4444' : score > 55 ? '#F59E0B' : '#10B981',
+      description: DISEASE_INFO['Caries'].description,
+      urgency: DISEASE_INFO['Caries'].urgency,
     },
     {
-      label: 'Gum Disease',
-      detected: score > 60,
+      label: 'Calculus',
+      detected: score > 38,
+      severity: score > 60 ? 'Heavy' : 'Mild',
+      color: score > 60 ? '#F59E0B' : '#10B981',
+      description: DISEASE_INFO['Calculus'].description,
+      urgency: DISEASE_INFO['Calculus'].urgency,
+    },
+    {
+      label: 'Gingivitis',
+      detected: score > 55,
+      severity: score > 72 ? 'Severe' : 'Moderate',
+      color: score > 72 ? '#EF4444' : '#F59E0B',
+      description: DISEASE_INFO['Gingivitis'].description,
+      urgency: DISEASE_INFO['Gingivitis'].urgency,
+    },
+    {
+      label: 'Tooth Discoloration',
+      detected: score > 28,
+      severity: score > 50 ? 'Moderate' : 'Mild',
+      color: score > 50 ? '#F59E0B' : '#10B981',
+      description: DISEASE_INFO['Tooth Discoloration'].description,
+      urgency: DISEASE_INFO['Tooth Discoloration'].urgency,
+    },
+    {
+      label: 'Ulcers',
+      detected: (s % 7) > 4 && score > 42,
       severity: 'Moderate',
       color: '#F59E0B',
+      description: DISEASE_INFO['Ulcers'].description,
+      urgency: DISEASE_INFO['Ulcers'].urgency,
     },
     {
-      label: 'Plaque Buildup',
-      detected: score > 35,
-      severity: score > 55 ? 'High' : 'Low',
-      color: score > 55 ? '#EF4444' : '#10B981',
-    },
-    {
-      label: 'Discoloration',
-      detected: score > 25,
-      severity: 'Low',
-      color: '#F59E0B',
+      label: 'Hypodontia',
+      detected: (s % 11) > 8,
+      severity: 'Detected',
+      color: '#6366F1',
+      description: DISEASE_INFO['Hypodontia'].description,
+      urgency: DISEASE_INFO['Hypodontia'].urgency,
     },
   ];
 
-  const suggestions =
-    level === 'High'
-      ? [
-          'Visit a dentist within 1–2 weeks',
-          'Brush twice daily with fluoride toothpaste',
-          'Use antiseptic mouthwash daily',
-          'Floss at least once daily',
-          'Reduce sugar and acidic food intake',
-        ]
-      : level === 'Medium'
-      ? [
-          'Schedule a dental check-up soon',
-          'Improve brushing technique (2 min, twice daily)',
-          'Start daily flossing',
-          'Limit sugary drinks and snacks',
-        ]
-      : [
-          'Keep up the great oral hygiene!',
-          'Continue brushing twice daily',
-          'Visit dentist for routine check-up',
-          'Maintain regular flossing habit',
-        ];
+  // Disease-specific recommendations
+  const suggestions: string[] = [];
+  if (level === 'High') suggestions.push('Book a dental appointment within 1–2 weeks');
+  else if (level === 'Medium') suggestions.push('Schedule a dental check-up soon');
+  else suggestions.push('Great oral health — keep it up!');
 
-  return { score, level, findings, suggestions };
+  const detected = findings.filter(f => f.detected).map(f => f.label);
+  if (detected.includes('Caries'))             suggestions.push('Cavities detected — prompt filling treatment needed');
+  if (detected.includes('Calculus'))           suggestions.push('Professional scaling required to remove hardened tartar');
+  if (detected.includes('Gingivitis'))         suggestions.push('Use antibacterial mouthwash; focus on gum care & flossing');
+  if (detected.includes('Tooth Discoloration'))suggestions.push('Consider whitening treatment; reduce coffee/tea/smoking');
+  if (detected.includes('Ulcers'))             suggestions.push('Apply oral gel; avoid spicy foods until ulcers heal');
+  if (detected.includes('Hypodontia'))         suggestions.push('Consult an orthodontist about implant or bridge options');
+  suggestions.push('Brush twice daily with fluoride toothpaste (2 min each)');
+  suggestions.push('Floss daily to remove interdental plaque buildup');
+
+  return { score, level, findings, suggestions: suggestions.slice(0, 6) };
 }
 
 export default function ScanScreen() {
@@ -281,26 +311,49 @@ export default function ScanScreen() {
               </Text>
             </View>
 
-            {/* Findings */}
+            {/* Findings — 6 categories from Kaggle Oral Diseases dataset */}
             <View style={styles.card}>
               <Text style={styles.cardTitle}>🔍 AI Findings</Text>
+              <Text style={styles.datasetTag}>📊 Kaggle Oral Diseases Dataset</Text>
               <View style={styles.findingsList}>
                 {result.findings.map((f, i) => (
-                  <View key={i} style={styles.findingRow}>
+                  <View key={i} style={[styles.findingRow, f.detected && { borderLeftWidth: 3, borderLeftColor: f.color }]}>
                     <Feather
                       name={f.detected ? 'alert-circle' : 'check-circle'}
                       size={16}
                       color={f.detected ? f.color : '#10B981'}
                     />
-                    <Text style={styles.findingLabel}>{f.label}</Text>
-                    <View style={[styles.findingBadge, {
-                      backgroundColor: f.detected ? f.color + '20' : '#DCFCE7',
-                    }]}>
-                      <Text style={[styles.findingBadgeText, {
-                        color: f.detected ? f.color : '#10B981',
-                      }]}>
-                        {f.detected ? f.severity : 'None'}
-                      </Text>
+                    <View style={{ flex: 1 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Text style={styles.findingLabel}>{f.label}</Text>
+                        <View style={[styles.findingBadge, {
+                          backgroundColor: f.detected ? f.color + '20' : '#DCFCE7',
+                        }]}>
+                          <Text style={[styles.findingBadgeText, {
+                            color: f.detected ? f.color : '#10B981',
+                          }]}>
+                            {f.detected ? f.severity : 'None'}
+                          </Text>
+                        </View>
+                      </View>
+                      {f.detected && (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                          <Text style={styles.findingDesc}>{f.description}</Text>
+                        </View>
+                      )}
+                      {f.detected && (
+                        <View style={[styles.urgencyBadge, {
+                          backgroundColor: f.urgency === 'Immediate' ? '#FEF2F2' :
+                                           f.urgency === 'Soon' ? '#FFFBEB' : '#F0FDF4',
+                        }]}>
+                          <Text style={[styles.urgencyText, {
+                            color: f.urgency === 'Immediate' ? '#EF4444' :
+                                   f.urgency === 'Soon' ? '#F59E0B' : '#10B981',
+                          }]}>
+                            ⏱ {f.urgency}
+                          </Text>
+                        </View>
+                      )}
                     </View>
                   </View>
                 ))}
@@ -497,18 +550,23 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   cardTitle: { fontSize: 15, fontWeight: '700', color: '#0F172A' },
+  datasetTag: { fontSize: 10, fontWeight: '600', color: '#94A3B8', letterSpacing: 0.5, marginTop: -4 },
   findingsList: { gap: 10 },
   findingRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 10,
     backgroundColor: '#F8FAFC',
     borderRadius: 12,
     padding: 12,
+    overflow: 'hidden',
   },
-  findingLabel: { flex: 1, fontSize: 13, fontWeight: '600', color: '#0F172A' },
+  findingLabel: { fontSize: 13, fontWeight: '700', color: '#0F172A' },
+  findingDesc: { fontSize: 11, color: '#64748B', flex: 1, lineHeight: 16 },
   findingBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
   findingBadgeText: { fontSize: 11, fontWeight: '700' },
+  urgencyBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, marginTop: 4, alignSelf: 'flex-start' },
+  urgencyText: { fontSize: 10, fontWeight: '700' },
 
   // Suggestions
   suggList: { gap: 10 },
