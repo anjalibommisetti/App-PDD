@@ -9,9 +9,12 @@ import { ScreenHeader } from '../components/ScreenHeader';
 import { Feather } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 
-// ─── Kaggle Oral Diseases Dataset Categories ─────────────────────────────────
-// Source: https://www.kaggle.com/datasets/salmansajid05/oral-diseases
-// Classes: Caries, Calculus, Gingivitis, Tooth Discoloration, Ulcers, Hypodontia
+// ─── Backend URL ──────────────────────────────────────────────────────────────
+const BACKEND_URL =
+  (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_BACKEND_URL) ||
+  'https://smileguard-api.onrender.com';
+
+// ─── Disease metadata ─────────────────────────────────────────────────────────
 const DISEASE_INFO: Record<string, { description: string; urgency: string }> = {
   'Caries':             { description: 'Tooth decay / cavities from bacterial acid erosion',     urgency: 'Immediate' },
   'Calculus':           { description: 'Hardened tartar/plaque buildup on tooth surfaces',       urgency: 'Soon'      },
@@ -21,97 +24,93 @@ const DISEASE_INFO: Record<string, { description: string; urgency: string }> = {
   'Hypodontia':         { description: 'One or more congenitally missing teeth',                 urgency: 'Routine'   },
 };
 
-function simulateAIAnalysis(seed: number): {
-  score: number;
-  level: 'Low' | 'Medium' | 'High';
-  findings: { label: string; detected: boolean; severity: string; color: string; description: string; urgency: string }[];
-  suggestions: string[];
-} {
-  // Deterministic seed from image file size — same image always = same result
+// ─── Offline fallback (used if backend is unreachable) ───────────────────────
+function simulateAIAnalysis(seed: number) {
   const n = (seed % 10000) / 10000;
   const score = Math.floor(20 + n * 70);
-  const level: 'Low' | 'Medium' | 'High' =
-    score < 40 ? 'Low' : score < 65 ? 'Medium' : 'High';
+  const level: 'Low' | 'Medium' | 'High' = score < 40 ? 'Low' : score < 65 ? 'Medium' : 'High';
   const s = seed;
-
-  // 6 disease categories from the Kaggle Oral Diseases dataset
   const findings = [
-    {
-      label: 'Caries',
-      detected: score > 48,
-      severity: score > 70 ? 'Severe' : score > 55 ? 'Moderate' : 'Mild',
-      color: score > 70 ? '#EF4444' : score > 55 ? '#F59E0B' : '#10B981',
-      description: DISEASE_INFO['Caries'].description,
-      urgency: DISEASE_INFO['Caries'].urgency,
-    },
-    {
-      label: 'Calculus',
-      detected: score > 38,
-      severity: score > 60 ? 'Heavy' : 'Mild',
-      color: score > 60 ? '#F59E0B' : '#10B981',
-      description: DISEASE_INFO['Calculus'].description,
-      urgency: DISEASE_INFO['Calculus'].urgency,
-    },
-    {
-      label: 'Gingivitis',
-      detected: score > 55,
-      severity: score > 72 ? 'Severe' : 'Moderate',
-      color: score > 72 ? '#EF4444' : '#F59E0B',
-      description: DISEASE_INFO['Gingivitis'].description,
-      urgency: DISEASE_INFO['Gingivitis'].urgency,
-    },
-    {
-      label: 'Tooth Discoloration',
-      detected: score > 28,
-      severity: score > 50 ? 'Moderate' : 'Mild',
-      color: score > 50 ? '#F59E0B' : '#10B981',
-      description: DISEASE_INFO['Tooth Discoloration'].description,
-      urgency: DISEASE_INFO['Tooth Discoloration'].urgency,
-    },
-    {
-      label: 'Ulcers',
-      detected: (s % 7) > 4 && score > 42,
-      severity: 'Moderate',
-      color: '#F59E0B',
-      description: DISEASE_INFO['Ulcers'].description,
-      urgency: DISEASE_INFO['Ulcers'].urgency,
-    },
-    {
-      label: 'Hypodontia',
-      detected: (s % 11) > 8,
-      severity: 'Detected',
-      color: '#6366F1',
-      description: DISEASE_INFO['Hypodontia'].description,
-      urgency: DISEASE_INFO['Hypodontia'].urgency,
-    },
+    { label: 'Caries',             detected: score > 48, severity: score > 70 ? 'Severe' : score > 55 ? 'Moderate' : 'Mild',  color: score > 70 ? '#EF4444' : score > 55 ? '#F59E0B' : '#10B981', description: DISEASE_INFO['Caries'].description,             urgency: DISEASE_INFO['Caries'].urgency },
+    { label: 'Calculus',           detected: score > 38, severity: score > 60 ? 'Heavy'  : 'Mild',                             color: score > 60 ? '#F59E0B' : '#10B981',                         description: DISEASE_INFO['Calculus'].description,           urgency: DISEASE_INFO['Calculus'].urgency },
+    { label: 'Gingivitis',         detected: score > 55, severity: score > 72 ? 'Severe' : 'Moderate',                         color: score > 72 ? '#EF4444' : '#F59E0B',                         description: DISEASE_INFO['Gingivitis'].description,         urgency: DISEASE_INFO['Gingivitis'].urgency },
+    { label: 'Tooth Discoloration',detected: score > 28, severity: score > 50 ? 'Moderate': 'Mild',                            color: score > 50 ? '#F59E0B' : '#10B981',                         description: DISEASE_INFO['Tooth Discoloration'].description, urgency: DISEASE_INFO['Tooth Discoloration'].urgency },
+    { label: 'Ulcers',             detected: (s % 7) > 4 && score > 42, severity: 'Moderate', color: '#F59E0B',               description: DISEASE_INFO['Ulcers'].description,             urgency: DISEASE_INFO['Ulcers'].urgency },
+    { label: 'Hypodontia',         detected: (s % 11) > 8,              severity: 'Detected', color: '#6366F1',               description: DISEASE_INFO['Hypodontia'].description,         urgency: DISEASE_INFO['Hypodontia'].urgency },
   ];
-
-  // Disease-specific recommendations
   const suggestions: string[] = [];
   if (level === 'High') suggestions.push('Book a dental appointment within 1–2 weeks');
   else if (level === 'Medium') suggestions.push('Schedule a dental check-up soon');
   else suggestions.push('Great oral health — keep it up!');
-
   const detected = findings.filter(f => f.detected).map(f => f.label);
-  if (detected.includes('Caries'))             suggestions.push('Cavities detected — prompt filling treatment needed');
-  if (detected.includes('Calculus'))           suggestions.push('Professional scaling required to remove hardened tartar');
-  if (detected.includes('Gingivitis'))         suggestions.push('Use antibacterial mouthwash; focus on gum care & flossing');
-  if (detected.includes('Tooth Discoloration'))suggestions.push('Consider whitening treatment; reduce coffee/tea/smoking');
-  if (detected.includes('Ulcers'))             suggestions.push('Apply oral gel; avoid spicy foods until ulcers heal');
-  if (detected.includes('Hypodontia'))         suggestions.push('Consult an orthodontist about implant or bridge options');
+  if (detected.includes('Caries'))              suggestions.push('Cavities detected — prompt filling treatment needed');
+  if (detected.includes('Calculus'))            suggestions.push('Professional scaling required to remove hardened tartar');
+  if (detected.includes('Gingivitis'))          suggestions.push('Use antibacterial mouthwash; focus on gum care & flossing');
+  if (detected.includes('Tooth Discoloration')) suggestions.push('Consider whitening treatment; reduce coffee/tea/smoking');
+  if (detected.includes('Ulcers'))              suggestions.push('Apply oral gel; avoid spicy foods until ulcers heal');
+  if (detected.includes('Hypodontia'))          suggestions.push('Consult an orthodontist about implant or bridge options');
   suggestions.push('Brush twice daily with fluoride toothpaste (2 min each)');
   suggestions.push('Floss daily to remove interdental plaque buildup');
-
-  return { score, level, findings, suggestions: suggestions.slice(0, 6) };
+  return { score, level, findings, suggestions: suggestions.slice(0, 6), predictedClass: detected[0] || 'Healthy', confidence: Math.round(40 + n * 55) };
 }
+
+// ─── Real API call ────────────────────────────────────────────────────────────
+async function callPredictAPI(imageFile: File): Promise<ReturnType<typeof simulateAIAnalysis> | null> {
+  try {
+    const form = new FormData();
+    form.append('file', imageFile);
+    const res  = await fetch(`${BACKEND_URL}/predict`, { method: 'POST', body: form });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.status !== 'success') return null;
+
+    // Map backend response → UI findings format
+    const findings = (data.all_classes || []).map((c: any) => ({
+      label:       c.label,
+      detected:    c.detected,
+      severity:    c.severity || (c.detected ? 'Detected' : 'None'),
+      color:       c.confidence >= 70 ? '#EF4444' : c.confidence >= 45 ? '#F59E0B' : '#10B981',
+      description: DISEASE_INFO[c.label]?.description || '',
+      urgency:     DISEASE_INFO[c.label]?.urgency     || 'Routine',
+    }));
+
+    const level: 'Low'|'Medium'|'High' = data.risk_level as any || 'Low';
+    const suggestions: string[] = [];
+    if (level === 'High')        suggestions.push('Book a dental appointment within 1–2 weeks');
+    else if (level === 'Medium') suggestions.push('Schedule a dental check-up soon');
+    else                         suggestions.push('Great oral health — keep it up!');
+    const detected = findings.filter((f:any) => f.detected).map((f:any) => f.label);
+    if (detected.includes('Caries'))              suggestions.push('Cavities detected — prompt filling treatment needed');
+    if (detected.includes('Calculus'))            suggestions.push('Professional scaling required to remove hardened tartar');
+    if (detected.includes('Gingivitis'))          suggestions.push('Use antibacterial mouthwash; focus on gum care & flossing');
+    if (detected.includes('Tooth Discoloration')) suggestions.push('Consider whitening treatment; reduce coffee/tea/smoking');
+    if (detected.includes('Ulcers'))              suggestions.push('Apply oral gel; avoid spicy foods until ulcers heal');
+    suggestions.push('Brush twice daily with fluoride toothpaste (2 min each)');
+    suggestions.push('Floss daily to remove interdental plaque buildup');
+
+    return {
+      score:          data.risk_score,
+      level,
+      findings,
+      suggestions:    suggestions.slice(0, 6),
+      predictedClass: data.predicted_class,
+      confidence:     data.confidence,
+    };
+  } catch {
+    return null;   // backend unreachable
+  }
+}
+
 
 export default function ScanScreen() {
   const navigation = useNavigation<any>();
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [imageSeed, setImageSeed] = useState<number>(0); // file size used as deterministic seed
-  const [analyzing, setAnalyzing] = useState(false);
-  const [result, setResult] = useState<ReturnType<typeof simulateAIAnalysis> | null>(null);
-  const [autoSaved, setAutoSaved] = useState(false);
+  const [imageUri,    setImageUri]    = useState<string | null>(null);
+  const [imageFile,   setImageFile]   = useState<File | null>(null);
+  const [imageSeed,   setImageSeed]   = useState<number>(0);
+  const [analyzing,   setAnalyzing]   = useState(false);
+  const [result,      setResult]      = useState<ReturnType<typeof simulateAIAnalysis> | null>(null);
+  const [autoSaved,   setAutoSaved]   = useState(false);
+  const [offlineMode, setOfflineMode] = useState(false);
   const progressAnim = useRef(new Animated.Value(0)).current;
 
   const handleImagePick = (e: any) => {
@@ -119,16 +118,19 @@ export default function ScanScreen() {
     if (!file) return;
     const url = URL.createObjectURL(file);
     setImageUri(url);
-    setImageSeed(file.size); // same image → same size → same result
+    setImageFile(file);
+    setImageSeed(file.size);
     setResult(null);
     setAutoSaved(false);
+    setOfflineMode(false);
   };
 
-  const runAnalysis = () => {
+  const runAnalysis = async () => {
     if (!imageUri) return;
     setAnalyzing(true);
     setResult(null);
     setAutoSaved(false);
+    setOfflineMode(false);
     progressAnim.setValue(0);
 
     Animated.timing(progressAnim, {
@@ -137,32 +139,47 @@ export default function ScanScreen() {
       useNativeDriver: false,
     }).start();
 
-    setTimeout(async () => {
-      const analysis = simulateAIAnalysis(imageSeed);
-      setResult(analysis);
-      setAnalyzing(false);
+    // Try real API first, fall back to simulation
+    let analysis: ReturnType<typeof simulateAIAnalysis>;
+    const apiResult = imageFile ? await callPredictAPI(imageFile) : null;
 
-      // Auto-save to history immediately
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const userId = session?.user?.id ?? null;
-        const userName = session?.user?.user_metadata?.full_name ||
-          session?.user?.email?.split('@')[0] || 'User';
-        await supabase.from('assessments').insert({
-          user_id: userId,
-          score: analysis.score,
-          level: analysis.level,
-          patient_name: `[Scan] ${userName}`,
-          insight: `Teeth scan: ${analysis.findings
-            .filter((f) => f.detected).map((f) => f.label).join(', ') || 'No issues detected'}. Risk: ${analysis.level}.`,
-          answers: {},
-          created_at: new Date().toISOString(),
-        });
-        setAutoSaved(true);
-      } catch (err) {
-        console.error('Auto-save error:', err);
-      }
-    }, 3000);
+    if (apiResult) {
+      analysis = apiResult;
+      setOfflineMode(false);
+    } else {
+      // Backend unreachable — use offline simulation
+      analysis = simulateAIAnalysis(imageSeed);
+      setOfflineMode(true);
+    }
+
+    // Wait for progress bar animation to complete
+    await new Promise(r => setTimeout(r, 3000));
+    setResult(analysis);
+    setAnalyzing(false);
+
+    // Auto-save to Supabase history
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId   = session?.user?.id ?? null;
+      const userName = session?.user?.user_metadata?.full_name ||
+        session?.user?.email?.split('@')[0] || 'User';
+      await supabase.from('assessments').insert({
+        user_id:          userId,
+        score:            analysis.score,
+        level:            analysis.level,
+        patient_name:     `[Scan] ${userName}`,
+        insight:          `Teeth scan: ${
+          analysis.findings.filter(f => f.detected).map(f => f.label).join(', ') || 'No issues detected'
+        }. Risk: ${analysis.level}. ${
+          (analysis as any).predictedClass ? `Primary: ${(analysis as any).predictedClass} (${(analysis as any).confidence}% confidence)` : ''
+        }`,
+        answers:          {},
+        created_at:       new Date().toISOString(),
+      });
+      setAutoSaved(true);
+    } catch (err) {
+      console.error('Auto-save error:', err);
+    }
   };
 
   const riskColor =
@@ -280,10 +297,30 @@ export default function ScanScreen() {
         {/* Progress Bar */}
         {analyzing && (
           <View style={styles.progressCard}>
-            <Text style={styles.progressLabel}>🤖 Scanning for cavities, gum disease, plaque…</Text>
+            <Text style={styles.progressLabel}>🤖 Sending to AI model for analysis…</Text>
             <View style={styles.progressBg}>
               <Animated.View style={[styles.progressFill, { width: progressWidth as any }]} />
             </View>
+          </View>
+        )}
+
+        {/* Offline mode warning */}
+        {result && offlineMode && (
+          <View style={styles.offlineBanner}>
+            <Feather name="wifi-off" size={14} color="#D97706" />
+            <Text style={styles.offlineText}>
+              Offline mode — AI backend unavailable. Showing simulated results.
+            </Text>
+          </View>
+        )}
+
+        {/* Real AI badge */}
+        {result && !offlineMode && (
+          <View style={styles.realAIBanner}>
+            <Feather name="cpu" size={14} color="#157A6E" />
+            <Text style={styles.realAIText}>
+              Real AI prediction · {(result as any).predictedClass} · {(result as any).confidence}% confidence
+            </Text>
           </View>
         )}
 
@@ -518,6 +555,32 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   progressFill: { height: '100%', backgroundColor: '#86F1D4', borderRadius: 4 },
+
+  // Offline / Real AI banners
+  offlineBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#FFFBEB',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  offlineText: { flex: 1, fontSize: 12, fontWeight: '600', color: '#D97706' },
+  realAIBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(21,122,110,0.08)',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(21,122,110,0.2)',
+  },
+  realAIText: { flex: 1, fontSize: 12, fontWeight: '600', color: '#157A6E' },
 
   // Score
   scoreCard: {
