@@ -2,7 +2,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity,
   ScrollView, ActivityIndicator, Animated,
 } from 'react-native';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { PhoneShell } from '../components/PhoneShell';
 import { ScreenHeader } from '../components/ScreenHeader';
@@ -111,6 +111,9 @@ export default function ScanScreen() {
   const [result,      setResult]      = useState<ReturnType<typeof simulateAIAnalysis> | null>(null);
   const [autoSaved,   setAutoSaved]   = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
+  const [showCamera,  setShowCamera]  = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
 
   const handleImagePick = (e: any) => {
@@ -124,6 +127,59 @@ export default function ScanScreen() {
     setAutoSaved(false);
     setOfflineMode(false);
   };
+
+  const startCamera = async () => {
+    setShowCamera(true);
+    setResult(null);
+    try {
+      const stream = await (navigator as any).mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' }
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        (videoRef.current as any).srcObject = stream;
+      }
+    } catch (err) {
+      console.error("Camera error:", err);
+      if (typeof window !== 'undefined') window.alert("Could not access camera. Please check permissions.");
+      setShowCamera(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      (streamRef.current as any).getTracks().forEach((track: any) => track.stop());
+      streamRef.current = null;
+    }
+    setShowCamera(false);
+  };
+
+  const capturePhoto = () => {
+    if (!videoRef.current) return;
+    const canvas = (document as any).createElement('canvas');
+    canvas.width = (videoRef.current as any).videoWidth;
+    canvas.height = (videoRef.current as any).videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.drawImage(videoRef.current as any, 0, 0);
+    
+    canvas.toBlob((blob: any) => {
+      if (!blob) return;
+      const file = new File([blob], "camera_capture.jpg", { type: "image/jpeg" });
+      const url = URL.createObjectURL(file);
+      setImageUri(url);
+      setImageFile(file);
+      setImageSeed(file.size);
+      setAutoSaved(false);
+      setOfflineMode(false);
+      stopCamera();
+    }, 'image/jpeg', 0.9);
+  };
+
+  // Cleanup camera on unmount
+  useEffect(() => {
+    return () => stopCamera();
+  }, []);
 
   const runAnalysis = async () => {
     if (!imageUri) return;
@@ -228,6 +284,31 @@ export default function ScanScreen() {
                 <Text style={styles.retakeText}>Choose different image</Text>
               </TouchableOpacity>
             </>
+          ) : showCamera ? (
+            <View style={{ alignItems: 'center', width: '100%' }}>
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                style={{
+                  width: '100%',
+                  height: 300,
+                  objectFit: 'cover',
+                  borderRadius: 16,
+                  backgroundColor: '#000',
+                  display: 'block'
+                } as any}
+              />
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
+                <TouchableOpacity style={styles.cancelCamBtn} onPress={stopCamera}>
+                  <Text style={styles.cancelCamText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.captureBtn} onPress={capturePhoto}>
+                  <Feather name="camera" size={16} color="#FFF" />
+                  <Text style={styles.captureBtnText}>Snap Photo</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           ) : (
             <View style={styles.uploadPlaceholder}>
               <View style={styles.uploadIcon}>
@@ -237,20 +318,28 @@ export default function ScanScreen() {
               <Text style={styles.uploadSub}>
                 Take a clear photo of your teeth in good lighting for best results
               </Text>
-              {/* HTML file input for web */}
-              <label style={{ cursor: 'pointer', marginTop: 16 } as any}>
-                <View style={styles.uploadBtn}>
-                  <Feather name="upload" size={16} color="#0D4B42" />
-                  <Text style={styles.uploadBtnText}>Choose Photo</Text>
-                </View>
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  style={{ display: 'none' } as any}
-                  onChange={handleImagePick}
-                />
-              </label>
+              
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
+                {/* HTML file input for normal file selection */}
+                <label style={{ cursor: 'pointer' } as any}>
+                  <View style={styles.uploadBtn}>
+                    <Feather name="upload" size={16} color="#0D4B42" />
+                    <Text style={styles.uploadBtnText}>Upload File</Text>
+                  </View>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' } as any}
+                    onChange={handleImagePick}
+                  />
+                </label>
+
+                {/* Button to open live camera */}
+                <TouchableOpacity style={styles.openCamBtn} onPress={startCamera}>
+                  <Feather name="camera" size={16} color="#0D4B42" />
+                  <Text style={styles.openCamText}>Take Photo</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
         </View>
@@ -489,12 +578,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#86F1D4',
-    paddingHorizontal: 28,
+    backgroundColor: '#E2E8F0',
+    paddingHorizontal: 20,
     paddingVertical: 14,
     borderRadius: 16,
   },
-  uploadBtnText: { fontSize: 15, fontWeight: '700', color: '#0D4B42' },
+  uploadBtnText: { fontSize: 14, fontWeight: '700', color: '#0F172A' },
+  openCamBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#86F1D4',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 16,
+  },
+  openCamText: { fontSize: 14, fontWeight: '700', color: '#0D4B42' },
+  cancelCamBtn: {
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 16,
+    backgroundColor: '#F1F5F9',
+  },
+  cancelCamText: { fontSize: 14, fontWeight: '600', color: '#64748B' },
+  captureBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#157A6E',
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 16,
+  },
+  captureBtnText: { fontSize: 14, fontWeight: '700', color: '#FFF' },
   retakeBtn: {
     flexDirection: 'row',
     alignItems: 'center',
