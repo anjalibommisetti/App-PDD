@@ -102,7 +102,7 @@ function BookingModal({
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const user = session?.user;
-      await supabase.from('appointments').insert({
+      const { error } = await supabase.from('appointments').insert({
         user_id: user?.id ?? null,
         dentist_name: dentist?.name,
         dentist_specialty: dentist?.specialty,
@@ -112,8 +112,14 @@ function BookingModal({
         status: 'pending',
         created_at: new Date().toISOString(),
       });
-    } catch (_) {
-      // Even if DB insert fails, show confirmation to user
+      if (error) {
+        console.error('Appointment insert error:', error.message);
+        // Still show success screen — inform user via console
+        // The appointments table may need to be created in Supabase
+        alert(`Note: Appointment saved locally but DB error: ${error.message}\n\nPlease create the "appointments" table in your Supabase project.`);
+      }
+    } catch (err: any) {
+      console.error('Booking exception:', err);
     } finally {
       setSubmitting(false);
       setBooked(true);

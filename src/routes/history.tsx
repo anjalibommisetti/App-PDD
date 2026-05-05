@@ -58,8 +58,8 @@ export default function HistoryScreen() {
               type: 'assessment',
               isScan,
               displayName: isScan
-                ? (it.patient_name || '').replace('[Scan] ', '') + ' (Teeth Scan)'
-                : (it.patient_name || 'Risk Assessment'),
+                ? (it.patient_name || it.answers?.q0 || '').replace('[Scan] ', '') + ' (Teeth Scan)'
+                : (it.patient_name || it.answers?.q0 || 'Risk Assessment'),
               displayDate: new Date(it.created_at).toLocaleDateString('en-IN', {
                 day: '2-digit', month: 'short', year: 'numeric',
               }),
@@ -80,6 +80,10 @@ export default function HistoryScreen() {
               .select('*')
               .eq('user_id', userId)
               .order('created_at', { ascending: false });
+            if (res.error) {
+              console.error('Appointments fetch error:', res.error.message);
+              setError('Appointments table not set up yet. Please create the appointments table in Supabase.');
+            }
             data = res.data;
           }
           if (!data || data.length === 0) {
@@ -88,6 +92,9 @@ export default function HistoryScreen() {
               .select('*')
               .order('created_at', { ascending: false })
               .limit(20);
+            if (res.error) {
+              console.error('Appointments fallback error:', res.error.message);
+            }
             data = res.data;
           }
         } catch (_) {

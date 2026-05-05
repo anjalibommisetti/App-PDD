@@ -211,12 +211,13 @@ export default function AssessmentScreen() {
         let assessmentId = draftId;
 
         if (draftId) {
-          // Update the draft record created at section A
+          // Update the draft record — include patient_name in case it was null in draft
           const { error } = await supabase
             .from('assessments')
-            .update({ score, level, answers })
+            .update({ score, level, answers, patient_name: userName, insight })
             .eq('id', draftId);
           if (error) console.error('Update error:', error.message);
+
         } else {
           // Fallback: insert fresh if draft was never created
           const { data, error } = await supabase.from('assessments').insert({
