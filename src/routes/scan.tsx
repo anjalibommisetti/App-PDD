@@ -246,6 +246,7 @@ export default function ScanScreen() {
                 <input
                   type="file"
                   accept="image/*"
+                  capture="environment"
                   style={{ display: 'none' } as any}
                   onChange={handleImagePick}
                 />
