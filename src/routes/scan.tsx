@@ -11,7 +11,7 @@ import { supabase } from '../lib/supabase';
 
 // ─── Backend URL ──────────────────────────────────────────────────────────────
 const BACKEND_URL =
-  (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_BACKEND_URL) ||
+  process.env.EXPO_PUBLIC_BACKEND_URL ||
   'https://smileguard-api.onrender.com';
 
 // ─── Disease metadata ─────────────────────────────────────────────────────────
