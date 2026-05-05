@@ -12,7 +12,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { supabase } from './src/lib/supabase';
 import { useEffect, useState } from 'react';
 
-import IndexScreen from './src/routes/index';
+// IndexScreen removed — app starts on Login
 import SignupScreen from './src/routes/signup';
 import LoginScreen from './src/routes/login';
 import DashboardScreen from './src/routes/dashboard';
@@ -130,7 +130,6 @@ export default function App() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
-
   useEffect(() => {
     // NO auto-dismiss — user must click "Get Started" button
   }, []);
@@ -174,7 +173,13 @@ export default function App() {
     };
   }, []);
 
-  if (showSplash) return <SplashScreen onDismiss={() => setShowSplash(false)} />;
+  if (showSplash) return (
+    <SplashScreen
+      onDismiss={() => {
+        setShowSplash(false);
+      }}
+    />
+  );
 
   if (loading) {
     return (
@@ -208,11 +213,10 @@ export default function App() {
             <Stack.Screen name="Alerts" component={AlertsScreen} />
           </>
         ) : (
-          // Auth Screens
+          // Auth Screens — Login is now the entry point
           <>
-            <Stack.Screen name="Index" component={IndexScreen} />
-            <Stack.Screen name="Signup" component={SignupScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Signup" component={SignupScreen} />
           </>
         )}
       </Stack.Navigator>
