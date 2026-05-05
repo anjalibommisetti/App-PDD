@@ -216,6 +216,7 @@ export default function HistoryScreen() {
           {/* Assessment + Scan Items */}
           {!loading && tab === 'assessments' && items.map((it) => {
             const c = toneColors[it.tone as keyof typeof toneColors] || toneColors.success;
+            const isCompleted = it.level !== 'In Progress';
             return (
               <View key={it.id} style={styles.itemCard}>
                 {/* Left color indicator */}
@@ -229,18 +230,18 @@ export default function HistoryScreen() {
                 {/* Body */}
                 <TouchableOpacity
                   style={styles.itemBody}
-                  onPress={() => !it.isScan && it.level !== 'In Progress' && navigation.navigate('Results', { id: it.id, score: it.score })}
-                  activeOpacity={it.isScan || it.level === 'In Progress' ? 1 : 0.7}
+                  onPress={() => isCompleted && navigation.navigate('Results', { id: it.id, score: it.score })}
+                  activeOpacity={isCompleted ? 0.7 : 1}
                 >
                   <Text style={styles.itemTitle} numberOfLines={1}>{it.displayName}</Text>
                   <Text style={styles.itemDate}>{it.displayDate} · {it.displayTime}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                    {it.level !== 'In Progress' && (
-                      <Text style={styles.scoreText}>{it.score}%</Text>
+                    {isCompleted && (
+                      <Text style={[styles.scoreText, { color: c.fg }]}>{it.score}%</Text>
                     )}
                     <View style={[styles.badge, { backgroundColor: c.bg }]}>
                       <Text style={[styles.badgeText, { color: c.fg }]}>
-                        {it.level === 'In Progress' ? '⏳ In Progress' : `${it.level} Risk`}
+                        {!isCompleted ? '⏳ In Progress' : `${it.level} Risk`}
                       </Text>
                     </View>
                   </View>

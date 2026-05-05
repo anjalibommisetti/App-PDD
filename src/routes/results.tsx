@@ -21,6 +21,7 @@ export default function ResultsScreen() {
   const [breakdown, setBreakdown] = useState<any[]>(params?.breakdown ?? []);
   const [insight, setInsight] = useState<string>(params?.insight ?? '');
   const [recommendations, setRecommendations] = useState<string[]>(params?.recommendations ?? []);
+  const [patientName, setPatientName] = useState<string>(params?.patientName ?? '');
   const [loading, setLoading] = useState(!params?.score); // skip loading if params exist
 
   useEffect(() => {
@@ -52,6 +53,7 @@ export default function ResultsScreen() {
         setBreakdown(data.breakdown ?? []);
         setInsight(data.insight ?? 'No insight available.');
         setRecommendations(data.recommendations ?? []);
+        setPatientName(data.patient_name ?? '');
       }
     } catch (err) {
       console.error('Error fetching results:', err);
@@ -76,6 +78,19 @@ export default function ResultsScreen() {
       <ScreenHeader title="Risk Results" subtitle="AI analysis complete" back="Dashboard" />
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Patient name above card */}
+        {patientName ? (
+          <View style={styles.patientRow}>
+            <View style={styles.patientAvatar}>
+              <Text style={styles.patientAvatarText}>{patientName.charAt(0).toUpperCase()}</Text>
+            </View>
+            <View>
+              <Text style={styles.patientLabel}>Assessment for</Text>
+              <Text style={styles.patientName}>{patientName}</Text>
+            </View>
+          </View>
+        ) : null}
+
         {/* Risk hero */}
         <View style={[styles.heroCard, { backgroundColor: level === 'High' ? '#EF4444' : level === 'Medium' ? '#F59E0B' : '#10B981' }]}>
           <View style={styles.heroTop}>
@@ -191,6 +206,42 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 40,
     gap: 16,
+  },
+  patientRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 14,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+  },
+  patientAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: '#86F1D4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  patientAvatarText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#0D4B42',
+  },
+  patientLabel: {
+    fontSize: 11,
+    color: '#94A3B8',
+    fontWeight: '500',
+  },
+  patientName: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#0F172A',
   },
   heroCard: {
     backgroundColor: '#EF4444', // Alert bg approx

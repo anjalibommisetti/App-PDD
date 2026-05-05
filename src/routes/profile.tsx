@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
@@ -16,16 +16,45 @@ export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [latestScore, setLatestScore] = useState<number | null>(null);
+  const [latestLevel, setLatestLevel] = useState<string | null>(null);
+  const [riskChange, setRiskChange] = useState<number | null>(null);
+  const [totalAssessments, setTotalAssessments] = useState(0);
 
-  useEffect(() => {
-    fetchUser();
-  }, []);
+  useFocusEffect(
+    useCallback(() => { fetchUser(); }, [])
+  );
 
   const fetchUser = async () => {
     try {
       // getSession() reads from localStorage — no network hang
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
+
+      // Fetch last 2 completed assessments for real stats
+      const userId = session?.user?.id;
+      if (userId) {
+        const { data } = await supabase
+          .from('assessments')
+          .select('score, level, created_at')
+          .eq('user_id', userId)
+          .neq('level', 'In Progress')
+          .order('created_at', { ascending: false })
+          .limit(2);
+        if (data && data.length > 0) {
+          setLatestScore(data[0].score);
+          setLatestLevel(data[0].level);
+          if (data.length >= 2) {
+            setRiskChange(data[0].score - data[1].score);
+          }
+        }
+        const { count } = await supabase
+          .from('assessments')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .neq('level', 'In Progress');
+        setTotalAssessments(count ?? 0);
+      }
     } catch (err) {
       console.error('Profile load error:', err);
     } finally {
@@ -50,8 +79,11 @@ export default function ProfileScreen() {
     );
   }
 
-  const fullName = user?.user_metadata?.full_name || "User";
-  const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase();
+  const fullName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User";
+  const initials = fullName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+
+  const riskColor = latestLevel === 'High' ? '#EF4444' : latestLevel === 'Medium' ? '#F59E0B' : '#10B981';
+  const riskBg   = latestLevel === 'High' ? 'rgba(239,68,68,0.1)' : latestLevel === 'Medium' ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)';
 
   return (
     <PhoneShell>
@@ -62,11 +94,20 @@ export default function ProfileScreen() {
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{initials}</Text>
           </View>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={styles.userName}>{fullName}</Text>
             <Text style={styles.userEmail}>{user?.email}</Text>
-            <View style={styles.roleBadge}>
-              <Text style={styles.roleText}>Patient</Text>
+            <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+              <View style={styles.roleBadge}>
+                <Text style={styles.roleText}>Patient</Text>
+              </View>
+              {latestLevel && (
+                <View style={[styles.roleBadge, { backgroundColor: riskBg }]}>
+                  <Text style={[styles.roleText, { color: riskColor }]}>
+                    {latestScore}% · {latestLevel} Risk
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
         </View>
@@ -93,14 +134,26 @@ export default function ProfileScreen() {
         {/* Stats */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Brushing</Text>
-            <Text style={styles.statVal}>86%</Text>
-            <Text style={styles.statDesc}>Consistent</Text>
+            <Text style={styles.statLabel}>Latest Risk</Text>
+            <Text style={[styles.statVal, { color: latestScore !== null ? riskColor : '#CBD5E1' }]}>
+              {latestScore !== null ? `${latestScore}%` : '—'}
+            </Text>
+            <Text style={[styles.statDesc, { color: latestScore !== null ? riskColor : '#94A3B8' }]}>
+              {latestLevel ?? 'No data yet'}
+            </Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>Risk change</Text>
-            <Text style={styles.statVal}>−12%</Text>
-            <Text style={styles.statDesc}>Improving</Text>
+            <Text style={[styles.statVal, {
+              color: riskChange === null ? '#CBD5E1' : riskChange > 0 ? '#EF4444' : '#10B981'
+            }]}>
+              {riskChange === null ? '—' : `${riskChange > 0 ? '+' : ''}${riskChange}%`}
+            </Text>
+            <Text style={[styles.statDesc, {
+              color: riskChange === null ? '#94A3B8' : riskChange > 0 ? '#EF4444' : '#10B981'
+            }]}>
+              {riskChange === null ? 'No data' : riskChange > 0 ? 'Worsening' : riskChange < 0 ? 'Improving' : 'Stable'}
+            </Text>
           </View>
         </View>
 

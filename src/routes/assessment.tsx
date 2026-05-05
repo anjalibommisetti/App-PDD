@@ -232,11 +232,11 @@ export default function AssessmentScreen() {
           assessmentId = data?.id ?? null;
         }
 
-        navigation.navigate('Results', { id: assessmentId, score, level, breakdown, insight, recommendations });
+        navigation.navigate('Results', { id: assessmentId, score, level, breakdown, insight, recommendations, patientName: userName });
       } catch (e) {
         console.error('Submit error:', e);
         const { score, level, breakdown, insight, recommendations } = computeRisk(answers);
-        navigation.navigate('Results', { score, level, breakdown, insight, recommendations });
+        navigation.navigate('Results', { score, level, breakdown, insight, recommendations, patientName: answers.q0 || '' });
       } finally {
         setSaving(false);
       }
