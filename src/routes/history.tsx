@@ -241,7 +241,7 @@ export default function HistoryScreen() {
                     )}
                     <View style={[styles.badge, { backgroundColor: c.bg }]}>
                       <Text style={[styles.badgeText, { color: c.fg }]}>
-                        {!isCompleted ? '⏳ In Progress' : `${it.level} Risk`}
+                        {!isCompleted ? '⏳ Prediction Risk' : `${it.level} Risk`}
                       </Text>
                     </View>
                   </View>
