@@ -214,7 +214,7 @@ export default function AssessmentScreen() {
           // Update the draft record — include patient_name in case it was null in draft
           const { error } = await supabase
             .from('assessments')
-            .update({ score, level, answers, patient_name: userName, insight })
+            .update({ score, level, answers, patient_name: userName })
             .eq('id', draftId);
           if (error) console.error('Update error:', error.message);
 
