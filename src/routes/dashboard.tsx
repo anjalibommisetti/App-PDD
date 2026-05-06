@@ -25,6 +25,7 @@ export default function DashboardScreen() {
       // getSession reads from localStorage — no network hang
       const { data: { session } } = await supabase.auth.getSession();
       const user = session?.user;
+      const userId = user?.id;
 
       if (user) {
         const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
