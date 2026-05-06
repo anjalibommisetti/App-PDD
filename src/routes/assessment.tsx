@@ -208,29 +208,17 @@ export default function AssessmentScreen() {
           session?.user?.email?.split('@')[0] ||
           null;
 
-        let assessmentId = draftId;
-
-        if (draftId) {
-          // Update the draft record — include patient_name in case it was null in draft
-          const { error } = await supabase
-            .from('assessments')
-            .update({ score, level, answers, patient_name: userName })
-            .eq('id', draftId);
-          if (error) console.error('Update error:', error.message);
-
-        } else {
-          // Fallback: insert fresh if draft was never created
-          const { data, error } = await supabase.from('assessments').insert({
-            user_id: userId,
-            patient_name: userName,
-            score,
-            level,
-            answers,
-            created_at: new Date().toISOString(),
-          }).select('id').single();
-          if (error) console.error('Insert error:', error.message);
-          assessmentId = data?.id ?? null;
-        }
+        const { data, error } = await supabase.from('assessments').insert({
+          user_id: userId,
+          patient_name: userName,
+          score,
+          level,
+          answers,
+          created_at: new Date().toISOString(),
+        }).select('id').single();
+        if (error) console.error('Insert error:', error.message);
+        
+        const assessmentId = data?.id ?? null;
 
         navigation.navigate('Results', { id: assessmentId, score, level, breakdown, insight, recommendations, patientName: userName });
       } catch (e) {
@@ -242,37 +230,8 @@ export default function AssessmentScreen() {
       }
 
     } else {
-      // ── Moving to next section ──
+      // Moving to next section
       const nextIndex = sectionIndex + 1;
-
-      // Auto-save draft to history when leaving Section A (index 0) for the first time
-      if (sectionIndex === 0 && !draftId) {
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          const userId = session?.user?.id ?? null;
-          const userName = answers.q0 ||
-            session?.user?.user_metadata?.full_name ||
-            session?.user?.email?.split('@')[0] ||
-            null;
-
-          const { data, error } = await supabase.from('assessments').insert({
-            user_id: userId,
-            patient_name: userName,
-            score: 0,
-            level: 'In Progress',
-            answers,
-            created_at: new Date().toISOString(),
-          }).select('id').single();
-
-          if (!error && data?.id) {
-            setDraftId(data.id);
-            console.log('Draft assessment saved:', data.id);
-          }
-        } catch (err) {
-          console.error('Draft save error:', err);
-        }
-      }
-
       setSectionIndex(nextIndex);
     }
   };
