@@ -236,12 +236,10 @@ export default function HistoryScreen() {
                   <Text style={styles.itemTitle} numberOfLines={1}>{it.displayName}</Text>
                   <Text style={styles.itemDate}>{it.displayDate} · {it.displayTime}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                    {isCompleted && (
-                      <Text style={[styles.scoreText, { color: c.fg }]}>{it.score}%</Text>
-                    )}
+                    <Text style={[styles.scoreText, { color: c.fg }]}>{it.score ?? 0}%</Text>
                     <View style={[styles.badge, { backgroundColor: c.bg }]}>
                       <Text style={[styles.badgeText, { color: c.fg }]}>
-                        {!isCompleted ? '⏳ Prediction Risk' : `${it.level} Risk`}
+                        {!isCompleted ? '⏳ Prediction Risk' : 'Prediction Risk'}
                       </Text>
                     </View>
                   </View>
