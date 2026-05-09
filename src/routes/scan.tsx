@@ -29,14 +29,18 @@ function simulateAIAnalysis(seed: number) {
   const n = (seed % 10000) / 10000;
   const score = Math.floor(20 + n * 70);
   const level: 'Low' | 'Medium' | 'High' = score < 40 ? 'Low' : score < 65 ? 'Medium' : 'High';
-  const s = seed;
+  // Clean, mutually exclusive simulation logic based on score brackets
+  const isCariesCase = score >= 55;
+  const isCalculusCase = score >= 45 && score < 55;
+  const isDiscolorationCase = score < 45;
+
   const findings = [
-    { label: 'Caries',             detected: score > 35, severity: score > 65 ? 'Severe' : score > 45 ? 'Moderate' : 'Mild',  color: score > 65 ? '#EF4444' : score > 45 ? '#F59E0B' : '#10B981', description: DISEASE_INFO['Caries'].description,             urgency: DISEASE_INFO['Caries'].urgency },
-    { label: 'Calculus',           detected: score > 25, severity: score > 55 ? 'Heavy'  : 'Mild',                             color: score > 55 ? '#F59E0B' : '#10B981',                         description: DISEASE_INFO['Calculus'].description,           urgency: DISEASE_INFO['Calculus'].urgency },
-    { label: 'Gingivitis',         detected: score > 50, severity: score > 72 ? 'Severe' : 'Moderate',                         color: score > 72 ? '#EF4444' : '#F59E0B',                         description: DISEASE_INFO['Gingivitis'].description,         urgency: DISEASE_INFO['Gingivitis'].urgency },
-    { label: 'Tooth Discoloration',detected: score > 15, severity: score > 50 ? 'Moderate': 'Mild',                            color: score > 50 ? '#F59E0B' : '#10B981',                         description: DISEASE_INFO['Tooth Discoloration'].description, urgency: DISEASE_INFO['Tooth Discoloration'].urgency },
-    { label: 'Ulcers',             detected: (s % 7) > 4 && score > 42, severity: 'Moderate', color: '#F59E0B',               description: DISEASE_INFO['Ulcers'].description,             urgency: DISEASE_INFO['Ulcers'].urgency },
-    { label: 'Hypodontia',         detected: (s % 11) > 8,              severity: 'Detected', color: '#6366F1',               description: DISEASE_INFO['Hypodontia'].description,         urgency: DISEASE_INFO['Hypodontia'].urgency },
+    { label: 'Caries',             detected: isCariesCase, severity: score >= 65 ? 'Severe' : 'Moderate',  color: score >= 65 ? '#EF4444' : '#F59E0B', description: DISEASE_INFO['Caries'].description, urgency: DISEASE_INFO['Caries'].urgency },
+    { label: 'Calculus',           detected: isCalculusCase, severity: 'Moderate', color: '#F59E0B', description: DISEASE_INFO['Calculus'].description, urgency: DISEASE_INFO['Calculus'].urgency },
+    { label: 'Gingivitis',         detected: isCariesCase || isCalculusCase, severity: 'Mild', color: '#10B981', description: DISEASE_INFO['Gingivitis'].description, urgency: DISEASE_INFO['Gingivitis'].urgency },
+    { label: 'Tooth Discoloration',detected: isDiscolorationCase, severity: 'Mild', color: '#10B981', description: DISEASE_INFO['Tooth Discoloration'].description, urgency: DISEASE_INFO['Tooth Discoloration'].urgency },
+    { label: 'Ulcers',             detected: false, severity: 'None', color: '#10B981', description: DISEASE_INFO['Ulcers'].description, urgency: DISEASE_INFO['Ulcers'].urgency },
+    { label: 'Hypodontia',         detected: false, severity: 'None', color: '#10B981', description: DISEASE_INFO['Hypodontia'].description, urgency: DISEASE_INFO['Hypodontia'].urgency },
   ];
   const suggestions: string[] = [];
   if (level === 'High') suggestions.push('Book a dental appointment within 1–2 weeks');
