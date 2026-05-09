@@ -262,6 +262,7 @@ export default function DashboardScreen() {
                 <Text style={styles.emptyActivitySub}>Complete an assessment to start tracking</Text>
               </View>
             )}
+          </View>
         </View>
 
         {/* Notifications & Reminders */}
