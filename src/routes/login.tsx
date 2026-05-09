@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, Keyboard } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
@@ -115,7 +115,7 @@ export default function LoginScreen() {
             )}
           </TouchableOpacity>
           
-          <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
+          <TouchableOpacity onPress={() => { Keyboard.dismiss(); navigation.navigate("Signup"); }}>
             <Text style={styles.link}>Don't have an account? Sign up</Text>
           </TouchableOpacity>
         </View>

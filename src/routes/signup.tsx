@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, ActivityIndicator, Keyboard } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
@@ -53,6 +53,7 @@ export default function SignupScreen() {
       Alert.alert('Signup Problem', `We encountered an issue during signup:\n\n${error.message}`);
     } else {
       console.log('Signup successful:', data);
+      Keyboard.dismiss();
       Alert.alert(
         'Success', 
         'Registration successful! Please check your email for a verification link before logging in.'
@@ -129,7 +130,7 @@ export default function SignupScreen() {
             )}
           </TouchableOpacity>
           
-          <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+          <TouchableOpacity onPress={() => { Keyboard.dismiss(); navigation.navigate("Login"); }}>
             <Text style={styles.link}>Already have an account? Login</Text>
           </TouchableOpacity>
         </View>
