@@ -115,6 +115,7 @@ export default function ScanScreen() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
+  const scanLineAnim = useRef(new Animated.Value(0)).current;
 
   const handleImagePick = (e: any) => {
     const file = e.target.files?.[0];
@@ -195,6 +196,21 @@ export default function ScanScreen() {
       useNativeDriver: false,
     }).start();
 
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scanLineAnim, {
+          toValue: 1,
+          duration: 1200,
+          useNativeDriver: false,
+        }),
+        Animated.timing(scanLineAnim, {
+          toValue: 0,
+          duration: 1200,
+          useNativeDriver: false,
+        })
+      ])
+    ).start();
+
     // Try real API first, fall back to simulation
     let analysis: ReturnType<typeof simulateAIAnalysis>;
     const apiResult = imageFile ? await callPredictAPI(imageFile) : null;
@@ -210,6 +226,8 @@ export default function ScanScreen() {
 
     // Wait for progress bar animation to complete
     await new Promise(r => setTimeout(r, 3000));
+    scanLineAnim.stopAnimation();
+    scanLineAnim.setValue(0);
     setResult(analysis);
     setAnalyzing(false);
 
@@ -261,17 +279,39 @@ export default function ScanScreen() {
           {imageUri ? (
             <>
               {/* Image Preview using HTML img */}
-              <img
-                src={imageUri}
-                alt="Teeth scan"
-                style={{
-                  width: '100%',
-                  height: 200,
-                  objectFit: 'cover',
-                  borderRadius: 16,
-                  display: 'block',
-                } as any}
-              />
+              <View style={{ position: 'relative', overflow: 'hidden', borderRadius: 16 }}>
+                <img
+                  src={imageUri}
+                  alt="Teeth scan"
+                  style={{
+                    width: '100%',
+                    height: 200,
+                    objectFit: 'cover',
+                    display: 'block',
+                  } as any}
+                />
+                {analyzing && (
+                  <Animated.View style={{
+                    position: 'absolute',
+                    top: scanLineAnim.interpolate({ inputRange: [0, 1], outputRange: ['0%', '98%'] }),
+                    left: 0, right: 0,
+                    height: 4,
+                    backgroundColor: '#86F1D4',
+                    shadowColor: '#86F1D4',
+                    shadowOffset: { width: 0, height: 0 },
+                    shadowOpacity: 1,
+                    shadowRadius: 10,
+                    elevation: 10,
+                  }} />
+                )}
+                {analyzing && (
+                  <View style={{
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(21, 122, 110, 0.15)',
+                  }} />
+                )}
+              </View>
               <TouchableOpacity
                 style={styles.retakeBtn}
                 onPress={() => {

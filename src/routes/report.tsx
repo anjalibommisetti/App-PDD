@@ -124,6 +124,14 @@ export default function ReportScreen() {
   const hasTrend = trend.length >= 2;
   const maxScore = hasTrend ? Math.max(...trend.map((t: any) => t.score), 1) : 100;
 
+  const recommendations = [
+    { icon: 'info', title: 'Brushing', text: 'Brush twice daily using fluoride toothpaste for 2 minutes.' },
+    { icon: 'star', title: 'Flossing', text: 'Floss daily to remove plaque from between teeth.' },
+    { icon: 'coffee', title: 'Diet', text: 'Reduce sugary snacks and acidic drinks to protect enamel.' },
+    { icon: 'droplet', title: 'Mouthwash', text: 'Use an antibacterial mouthwash after brushing to reduce bacteria.' },
+    { icon: 'alert-triangle', title: 'Urgency', text: riskLevel === 'High' ? 'Consult a dentist immediately within 1-2 weeks.' : 'Schedule your next routine dental check-up.' },
+  ];
+
   return (
     <PhoneShell showNav={false}>
       <ScreenHeader title="Full Report" back="Results" />
@@ -269,6 +277,24 @@ export default function ReportScreen() {
           <Text style={styles.explanationText}>
             {assessment?.explanation || "The model analysis identifies risk drivers based on your reported dental symptoms and habits. Maintain regular checkups to monitor progression."}
           </Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Early Intervention</Text>
+          <Text style={styles.datasetTag}>Personalized Recommendations</Text>
+          <View style={styles.recList}>
+            {recommendations.map((rec, idx) => (
+              <View key={idx} style={styles.recItem}>
+                <View style={[styles.recIconWrap, { backgroundColor: rec.title === 'Urgency' && riskLevel === 'High' ? '#FEE2E2' : '#E0F2FE' }]}>
+                  <Feather name={rec.icon as any} size={16} color={rec.title === 'Urgency' && riskLevel === 'High' ? '#EF4444' : '#0284C7'} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.recTitle}>{rec.title}</Text>
+                  <Text style={styles.recText}>{rec.text}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
         </View>
 
         {assessment?.probabilities && (
@@ -534,5 +560,42 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#0F172A',
+  },
+  datasetTag: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#94A3B8',
+    marginTop: 2,
+    marginBottom: 10,
+  },
+  recList: {
+    gap: 12,
+  },
+  recItem: {
+    flexDirection: 'row',
+    gap: 12,
+    backgroundColor: '#F8FAFC',
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  recIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  recTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  recText: {
+    fontSize: 12,
+    color: '#475569',
+    marginTop: 2,
+    lineHeight: 16,
   },
 });

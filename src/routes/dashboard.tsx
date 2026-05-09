@@ -262,8 +262,57 @@ export default function DashboardScreen() {
                 <Text style={styles.emptyActivitySub}>Complete an assessment to start tracking</Text>
               </View>
             )}
+        </View>
+
+        {/* Notifications & Reminders */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Reminders & Notifications</Text>
+          <View style={styles.notificationCard}>
+            <View style={styles.notifRow}>
+              <View style={[styles.notifIcon, { backgroundColor: '#FEE2E2' }]}>
+                <Feather name="bell" size={16} color="#EF4444" />
+              </View>
+              <View style={styles.notifBody}>
+                <Text style={styles.notifTitle}>Dental Checkup Overdue</Text>
+                <Text style={styles.notifTime}>It's been 6 months since your last visit.</Text>
+              </View>
+            </View>
+            <View style={[styles.notifRow, { borderTopWidth: 1, borderColor: '#F1F5F9', paddingTop: 12 }]}>
+              <View style={[styles.notifIcon, { backgroundColor: '#E0F2FE' }]}>
+                <Feather name="info" size={16} color="#0284C7" />
+              </View>
+              <View style={styles.notifBody}>
+                <Text style={styles.notifTitle}>Daily Tip</Text>
+                <Text style={styles.notifTime}>Drink water after coffee to reduce enamel staining.</Text>
+              </View>
+            </View>
           </View>
         </View>
+
+        {/* Admin/Doctor Dashboard Section */}
+        {userName === 'Admin' || userName.toLowerCase().includes('dr') ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Doctor / Admin Dashboard</Text>
+            <View style={styles.adminGrid}>
+              <View style={styles.adminStatCard}>
+                <Text style={styles.adminStatNum}>1,248</Text>
+                <Text style={styles.adminStatLabel}>Total Patients</Text>
+              </View>
+              <View style={styles.adminStatCard}>
+                <Text style={styles.adminStatNum}>3,402</Text>
+                <Text style={styles.adminStatLabel}>AI Scans</Text>
+              </View>
+              <View style={styles.adminStatCard}>
+                <Text style={styles.adminStatNum}>94%</Text>
+                <Text style={styles.adminStatLabel}>AI Accuracy</Text>
+              </View>
+              <View style={styles.adminStatCard}>
+                <Text style={styles.adminStatNum}>12</Text>
+                <Text style={styles.adminStatLabel}>Pending Appts</Text>
+              </View>
+            </View>
+          </View>
+        ) : null}
       </ScrollView>
     </PhoneShell>
   );
@@ -460,4 +509,55 @@ const styles = StyleSheet.create({
   },
   emptyActivityText: { fontSize: 14, fontWeight: '500', color: '#94A3B8' },
   emptyActivitySub: { fontSize: 12, color: '#CBD5E1', textAlign: 'center' },
+
+  // ─── Notifications & Admin ────────────────────────────────
+  notificationCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    gap: 12,
+  },
+  notifRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  notifIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  notifBody: { flex: 1 },
+  notifTitle: { fontSize: 14, fontWeight: '700', color: '#0F172A' },
+  notifTime: { fontSize: 12, color: '#64748B', marginTop: 2 },
+  adminGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  adminStatCard: {
+    width: '48%',
+    backgroundColor: '#0D4B42',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+  },
+  adminStatNum: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#86F1D4',
+  },
+  adminStatLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 4,
+  },
 });
