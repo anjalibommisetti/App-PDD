@@ -16,7 +16,7 @@ const BACKEND_URL =
 
 // ─── Disease metadata ─────────────────────────────────────────────────────────
 const DISEASE_INFO: Record<string, { description: string; urgency: string }> = {
-  'Caries':             { description: 'Tooth decay / cavities from bacterial acid erosion',     urgency: 'Immediate' },
+  'Early Childhood Caries': { description: 'Severe decay/cavities in primary teeth of young children', urgency: 'Immediate' },
   'Calculus':           { description: 'Hardened tartar/plaque buildup on tooth surfaces',       urgency: 'Soon'      },
   'Gingivitis':         { description: 'Gum inflammation — early stage periodontal disease',     urgency: 'Soon'      },
   'Tooth Discoloration':{ description: 'Staining or discolouration of tooth enamel/dentin',     urgency: 'Routine'   },
@@ -35,7 +35,7 @@ function simulateAIAnalysis(seed: number) {
   const isDiscolorationCase = score < 45;
 
   const findings = [
-    { label: 'Caries',             detected: isCariesCase, severity: score >= 65 ? 'Severe' : 'Moderate',  color: score >= 65 ? '#EF4444' : '#F59E0B', description: DISEASE_INFO['Caries'].description, urgency: DISEASE_INFO['Caries'].urgency },
+    { label: 'Early Childhood Caries',             detected: isCariesCase, severity: score >= 65 ? 'Severe' : 'Moderate',  color: score >= 65 ? '#EF4444' : '#F59E0B', description: DISEASE_INFO['Early Childhood Caries'].description, urgency: DISEASE_INFO['Early Childhood Caries'].urgency },
     { label: 'Calculus',           detected: isCalculusCase, severity: 'Moderate', color: '#F59E0B', description: DISEASE_INFO['Calculus'].description, urgency: DISEASE_INFO['Calculus'].urgency },
     { label: 'Gingivitis',         detected: isCariesCase || isCalculusCase, severity: 'Mild', color: '#10B981', description: DISEASE_INFO['Gingivitis'].description, urgency: DISEASE_INFO['Gingivitis'].urgency },
     { label: 'Tooth Discoloration',detected: isDiscolorationCase, severity: 'Mild', color: '#10B981', description: DISEASE_INFO['Tooth Discoloration'].description, urgency: DISEASE_INFO['Tooth Discoloration'].urgency },
@@ -47,7 +47,7 @@ function simulateAIAnalysis(seed: number) {
   else if (level === 'Medium') suggestions.push('Schedule a dental check-up soon');
   else suggestions.push('Great oral health — keep it up!');
   const detected = findings.filter(f => f.detected).map(f => f.label);
-  if (detected.includes('Caries'))              suggestions.push('Cavities detected — prompt filling treatment needed');
+  if (detected.includes('Early Childhood Caries'))              suggestions.push('Cavities detected — prompt filling treatment needed');
   if (detected.includes('Calculus'))            suggestions.push('Professional scaling required to remove hardened tartar');
   if (detected.includes('Gingivitis'))          suggestions.push('Use antibacterial mouthwash; focus on gum care & flossing');
   if (detected.includes('Tooth Discoloration')) suggestions.push('Consider whitening treatment; reduce coffee/tea/smoking');
@@ -69,14 +69,17 @@ async function callPredictAPI(imageFile: File): Promise<ReturnType<typeof simula
     if (data.status !== 'success') return null;
 
     // Map backend response → UI findings format
-    const findings = (data.all_classes || []).map((c: any) => ({
-      label:       c.label,
-      detected:    c.detected,
-      severity:    c.severity || (c.detected ? 'Detected' : 'None'),
-      color:       c.confidence >= 70 ? '#EF4444' : c.confidence >= 45 ? '#F59E0B' : '#10B981',
-      description: DISEASE_INFO[c.label]?.description || '',
-      urgency:     DISEASE_INFO[c.label]?.urgency     || 'Routine',
-    }));
+    const findings = (data.all_classes || []).map((c: any) => {
+      const label = c.label === 'Caries' ? 'Early Childhood Caries' : c.label;
+      return {
+        label:       label,
+        detected:    c.detected,
+        severity:    c.severity || (c.detected ? 'Detected' : 'None'),
+        color:       c.confidence >= 70 ? '#EF4444' : c.confidence >= 45 ? '#F59E0B' : '#10B981',
+        description: DISEASE_INFO[label]?.description || '',
+        urgency:     DISEASE_INFO[label]?.urgency     || 'Routine',
+      };
+    });
 
     const level: 'Low'|'Medium'|'High' = data.risk_level as any || 'Low';
     const suggestions: string[] = [];
@@ -84,7 +87,7 @@ async function callPredictAPI(imageFile: File): Promise<ReturnType<typeof simula
     else if (level === 'Medium') suggestions.push('Schedule a dental check-up soon');
     else                         suggestions.push('Great oral health — keep it up!');
     const detected = findings.filter((f:any) => f.detected).map((f:any) => f.label);
-    if (detected.includes('Caries'))              suggestions.push('Cavities detected — prompt filling treatment needed');
+    if (detected.includes('Early Childhood Caries'))              suggestions.push('Cavities detected — prompt filling treatment needed');
     if (detected.includes('Calculus'))            suggestions.push('Professional scaling required to remove hardened tartar');
     if (detected.includes('Gingivitis'))          suggestions.push('Use antibacterial mouthwash; focus on gum care & flossing');
     if (detected.includes('Tooth Discoloration')) suggestions.push('Consider whitening treatment; reduce coffee/tea/smoking');

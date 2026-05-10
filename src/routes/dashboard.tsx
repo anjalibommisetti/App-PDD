@@ -43,18 +43,6 @@ export default function DashboardScreen() {
           .limit(1)
           .maybeSingle();
 
-        // Fallback: if nothing found by user_id, fetch any latest assessment
-        // (handles case where old assessments were saved under a different user_id)
-        if (!assessment) {
-          const { data: fallback } = await supabase
-            .from('assessments')
-            .select('score, level, patient_name, created_at')
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-          assessment = fallback;
-        }
-
         if (assessment) {
           setRiskScore(assessment.score ?? null);
           setRiskLevel(assessment.level ?? '');
@@ -73,16 +61,6 @@ export default function DashboardScreen() {
           .eq('user_id', userId)
           .order('created_at', { ascending: false })
           .limit(3);
-
-        // Fallback if empty
-        if (!recent || recent.length === 0) {
-          const { data: fallbackRecent } = await supabase
-            .from('assessments')
-            .select('id, score, level, patient_name, created_at')
-            .order('created_at', { ascending: false })
-            .limit(3);
-          recent = fallbackRecent;
-        }
 
         if (recent && recent.length > 0) {
           setActivities(

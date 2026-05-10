@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform } from 'react-native';
 import React, { useState, useCallback } from 'react';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
@@ -35,15 +35,6 @@ export default function HistoryScreen() {
             .select('*')
             .eq('user_id', userId)
             .order('created_at', { ascending: false });
-          data = res.data;
-        }
-        // Fallback: fetch all (handles assessments saved without user_id)
-        if (!data || data.length === 0) {
-          const res = await supabase
-            .from('assessments')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .limit(20);
           data = res.data;
         }
         if (data && data.length > 0) {
@@ -86,17 +77,6 @@ export default function HistoryScreen() {
             }
             data = res.data;
           }
-          if (!data || data.length === 0) {
-            const res = await supabase
-              .from('appointments')
-              .select('*')
-              .order('created_at', { ascending: false })
-              .limit(20);
-            if (res.error) {
-              console.error('Appointments fallback error:', res.error.message);
-            }
-            data = res.data;
-          }
         } catch (_) {
           // appointments table may not exist yet
         }
@@ -123,22 +103,31 @@ export default function HistoryScreen() {
   };
 
   const handleDelete = (id: string, type: string) => {
-    Alert.alert(
-      'Delete Entry',
-      'Are you sure you want to delete this record?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            const table = type === 'appointment' ? 'appointments' : 'assessments';
-            await supabase.from(table).delete().eq('id', id);
-            setItems(prev => prev.filter(i => i.id !== id));
+    if (Platform.OS === 'web') {
+      if ((window as any).confirm('Are you sure you want to delete this record?')) {
+        const table = type === 'appointment' ? 'appointments' : 'assessments';
+        supabase.from(table).delete().eq('id', id).then(() => {
+          setItems(prev => prev.filter(i => i.id !== id));
+        });
+      }
+    } else {
+      Alert.alert(
+        'Delete Entry',
+        'Are you sure you want to delete this record?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+              const table = type === 'appointment' ? 'appointments' : 'assessments';
+              await supabase.from(table).delete().eq('id', id);
+              setItems(prev => prev.filter(i => i.id !== id));
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
   };
 
   const toneColors = {
