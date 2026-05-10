@@ -247,11 +247,6 @@ export default function ScanScreen() {
         score:            analysis.score,
         level:            analysis.level,
         patient_name:     `[Scan] ${userName}`,
-        insight:          `Teeth scan: ${
-          analysis.findings.filter(f => f.detected).map(f => f.label).join(', ') || 'No issues detected'
-        }. Risk: ${analysis.level}. ${
-          (analysis as any).predictedClass ? `Primary: ${(analysis as any).predictedClass} (${(analysis as any).confidence}% confidence)` : ''
-        }`,
         answers:          {},
         created_at:       new Date().toISOString(),
       });
