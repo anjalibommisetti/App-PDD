@@ -9,8 +9,8 @@ export default function DashboardScreen() {
   const navigation = useNavigation<any>();
   const [userName, setUserName] = useState('User');
   const [initials, setInitials] = useState('U');
-  const [riskLevel, setRiskLevel] = useState('');
-  const [riskScore, setRiskScore] = useState<number | null>(null);
+  const [riskLevel, setRiskLevel] = useState('Low');
+  const [riskScore, setRiskScore] = useState<number>(0);
   const [patientName, setPatientName] = useState('');
   const [assessedAt, setAssessedAt] = useState('');
   const [activities, setActivities] = useState<any[]>([]);
@@ -89,8 +89,7 @@ export default function DashboardScreen() {
 
   const riskColor =
     riskLevel === 'High' ? '#EF4444' :
-    riskLevel === 'Medium' ? '#F59E0B' :
-    riskScore !== null ? '#10B981' : '#157A6E';
+    riskLevel === 'Medium' ? '#F59E0B' : '#10B981';
 
   return (
     <PhoneShell>
@@ -114,7 +113,6 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Risk Card */}
-        {riskScore !== null ? (
           <View style={[styles.riskCard, { backgroundColor: riskColor }]}>
             <View style={styles.riskTop}>
               <Text style={styles.riskLabel}>Current Risk Level</Text>
@@ -140,7 +138,9 @@ export default function DashboardScreen() {
               </Text>
               {assessedAt ? (
                 <Text style={styles.riskDate}>Last assessed: {assessedAt}</Text>
-              ) : null}
+              ) : (
+                <Text style={styles.riskDate}>No assessments yet. Start below!</Text>
+              )}
             </View>
 
             {/* Progress bar */}
@@ -152,29 +152,10 @@ export default function DashboardScreen() {
               style={styles.riskBtn}
               onPress={() => navigation.navigate('Assessment')}
             >
-              <Text style={styles.riskBtnText}>Re-assess now</Text>
+              <Text style={styles.riskBtnText}>Take Assessment</Text>
               <Feather name="arrow-right" size={16} color="#0D4B42" />
             </TouchableOpacity>
           </View>
-        ) : (
-          /* No assessment yet */
-          <View style={styles.noAssessCard}>
-            <View style={styles.noAssessIcon}>
-              <Feather name="clipboard" size={28} color="#157A6E" />
-            </View>
-            <Text style={styles.noAssessTitle}>No Assessment Yet</Text>
-            <Text style={styles.noAssessSub}>
-              Take a 30-question assessment to get your personalized oral health risk score.
-            </Text>
-            <TouchableOpacity
-              style={styles.startBtn}
-              onPress={() => navigation.navigate('Assessment')}
-            >
-              <Feather name="play" size={16} color="#0D4B42" />
-              <Text style={styles.startBtnText}>Start Assessment</Text>
-            </TouchableOpacity>
-          </View>
-        )}
 
         {/* Quick Actions */}
         <View style={styles.section}>
