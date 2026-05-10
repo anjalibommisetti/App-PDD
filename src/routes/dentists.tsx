@@ -6,6 +6,7 @@ import {
   ScrollView,
   Modal,
   TextInput,
+  Platform,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { PhoneShell } from '../components/PhoneShell';
