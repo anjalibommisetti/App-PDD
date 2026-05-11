@@ -1,3 +1,4 @@
+import "./src/styles.css";
 import {
   View,
   Text,
@@ -14,6 +15,13 @@ import React from "react";
 // Disable native screens on web to prevent aria-hidden and focus warnings
 if (Platform.OS === "web") {
   enableScreens(false);
+  
+  // Inject Tailwind CSS for web rendering
+  if (typeof document !== 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.tailwindcss.com';
+    document.head.appendChild(script);
+  }
 }
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
