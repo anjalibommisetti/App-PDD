@@ -1,29 +1,41 @@
-import { View, Text, StyleSheet, TouchableOpacity, Platform, ActivityIndicator, Animated } from 'react-native';
-import { enableScreens } from 'react-native-screens';
-import 'react-native-gesture-handler';
-import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+  ActivityIndicator,
+  Animated,
+} from "react-native";
+import { enableScreens } from "react-native-screens";
+import "react-native-gesture-handler";
+import React from "react";
 
 // Disable native screens on web to prevent aria-hidden and focus warnings
-if (Platform.OS === 'web') {
+if (Platform.OS === "web") {
   enableScreens(false);
 }
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { supabase } from './src/lib/supabase';
-import { useEffect, useState } from 'react';
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { supabase } from "./src/lib/supabase";
+import { useEffect, useState } from "react";
 
 // IndexScreen removed — app starts on Login
-import SignupScreen from './src/routes/signup';
-import LoginScreen from './src/routes/login';
-import DashboardScreen from './src/routes/dashboard';
-import AssessmentScreen from './src/routes/assessment';
-import ResultsScreen from './src/routes/results';
-import ReportScreen from './src/routes/report';
-import ProfileScreen from './src/routes/profile';
-import HistoryScreen from './src/routes/history';
-import DentistsScreen from './src/routes/dentists';
-import AlertsScreen from './src/routes/alerts';
-import ScanScreen from './src/routes/scan';
+import SignupScreen from "./src/routes/signup";
+import LoginScreen from "./src/routes/login";
+import DashboardScreen from "./src/routes/dashboard";
+import AssessmentScreen from "./src/routes/assessment";
+import ResultsScreen from "./src/routes/results";
+import ReportScreen from "./src/routes/report";
+import ProfileScreen from "./src/routes/profile";
+import HistoryScreen from "./src/routes/history";
+import DentistsScreen from "./src/routes/dentists";
+import AlertsScreen from "./src/routes/alerts";
+import ScanScreen from "./src/routes/scan";
+import { Chatbot } from "./src/components/Chatbot";
+import LandingPage from "./src/routes/index";
+import AnalyticsDashboard from "./src/routes/analytics";
+import DoctorDashboard from "./src/routes/doctor-dashboard";
 
 const Stack = createStackNavigator();
 
@@ -60,11 +72,7 @@ function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
 
       {/* Next Button — only way to proceed */}
       <Animated.View style={[splash.nextBtnWrap, { opacity: btnOpacity }]}>
-        <TouchableOpacity
-          style={splash.nextBtn}
-          onPress={onDismiss}
-          activeOpacity={0.85}
-        >
+        <TouchableOpacity style={splash.nextBtn} onPress={onDismiss} activeOpacity={0.85}>
           <Text style={splash.nextBtnText}>Get Started</Text>
           <Text style={splash.nextArrow}>→</Text>
         </TouchableOpacity>
@@ -76,53 +84,53 @@ function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
 const splash = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0D4B42',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#0D4B42",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 40,
   },
-  logoBox: { alignItems: 'center', gap: 12 },
+  logoBox: { alignItems: "center", gap: 12 },
   tooth: { fontSize: 72 },
   appName: {
     fontSize: 36,
-    fontWeight: '900',
-    color: '#FFFFFF',
+    fontWeight: "900",
+    color: "#FFFFFF",
     letterSpacing: 1,
   },
   tagline: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.7)',
-    fontWeight: '500',
+    color: "rgba(255,255,255,0.7)",
+    fontWeight: "500",
     letterSpacing: 2,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
-  dotsRow: { flexDirection: 'row', gap: 8 },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#86F1D4' },
-  nextBtnWrap: { position: 'absolute', bottom: 60 },
+  dotsRow: { flexDirection: "row", gap: 8 },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#86F1D4" },
+  nextBtnWrap: { position: "absolute", bottom: 60 },
   nextBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
-    backgroundColor: '#86F1D4',
+    backgroundColor: "#86F1D4",
     paddingVertical: 16,
     paddingHorizontal: 40,
     borderRadius: 50,
     elevation: 8,
-    shadowColor: '#86F1D4',
+    shadowColor: "#86F1D4",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.5,
     shadowRadius: 12,
   },
   nextBtnText: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#0D4B42',
+    fontWeight: "800",
+    color: "#0D4B42",
     letterSpacing: 0.5,
   },
   nextArrow: {
     fontSize: 20,
-    fontWeight: '800',
-    color: '#0D4B42',
+    fontWeight: "800",
+    color: "#0D4B42",
   },
 });
 
@@ -148,10 +156,12 @@ export default function App() {
     // 1. Read session from localStorage (no network call needed)
     const checkSession = async () => {
       try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        const {
+          data: { session: currentSession },
+        } = await supabase.auth.getSession();
         setSession(currentSession ?? null);
       } catch (err) {
-        console.error('Session check error:', err);
+        console.error("Session check error:", err);
       } finally {
         if (!didFinish) {
           didFinish = true;
@@ -163,7 +173,9 @@ export default function App() {
     checkSession();
 
     // 2. Listen for auth state changes (login / logout events)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession ?? null);
     });
 
@@ -173,30 +185,38 @@ export default function App() {
     };
   }, []);
 
-  if (showSplash) return (
-    <SplashScreen
-      onDismiss={() => {
-        setShowSplash(false);
-      }}
-    />
-  );
+  if (showSplash)
+    return (
+      <SplashScreen
+        onDismiss={() => {
+          setShowSplash(false);
+        }}
+      />
+    );
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FBFB' }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#F8FBFB",
+        }}
+      >
         <ActivityIndicator size="large" color="#157A6E" />
-        <Text style={{ marginTop: 12, color: '#64748B' }}>Loading SmileGuard...</Text>
+        <Text style={{ marginTop: 12, color: "#64748B" }}>Loading SmileGuard...</Text>
       </View>
     );
   }
 
   return (
     <NavigationContainer>
-      <Stack.Navigator 
+      <Stack.Navigator
         screenOptions={{
           headerShown: false,
-          cardStyle: { backgroundColor: '#F8FBFB' },
-          detachPreviousScreen: Platform.OS !== 'web',
+          cardStyle: { backgroundColor: "#F8FBFB" },
+          detachPreviousScreen: Platform.OS !== "web",
         }}
       >
         {session ? (
@@ -211,15 +231,19 @@ export default function App() {
             <Stack.Screen name="History" component={HistoryScreen} />
             <Stack.Screen name="Dentists" component={DentistsScreen} />
             <Stack.Screen name="Alerts" component={AlertsScreen} />
+            <Stack.Screen name="Analytics" component={AnalyticsDashboard} />
+            <Stack.Screen name="DoctorDashboard" component={DoctorDashboard} />
           </>
         ) : (
-          // Auth Screens — Login is now the entry point
+          // Auth Screens — Landing is now the entry point
           <>
+            <Stack.Screen name="Landing" component={LandingPage} />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Signup" component={SignupScreen} />
           </>
         )}
       </Stack.Navigator>
+      <Chatbot />
     </NavigationContainer>
   );
 }

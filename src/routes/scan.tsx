@@ -1,122 +1,183 @@
 import {
-  View, Text, StyleSheet, TouchableOpacity,
-  ScrollView, ActivityIndicator, Animated,
-} from 'react-native';
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { PhoneShell } from '../components/PhoneShell';
-import { ScreenHeader } from '../components/ScreenHeader';
-import { Feather } from '@expo/vector-icons';
-import { supabase } from '../lib/supabase';
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  Animated,
+} from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigation } from "@react-navigation/native";
+import { PhoneShell } from "../components/PhoneShell";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { Feather } from "@expo/vector-icons";
+import { supabase } from "../lib/supabase";
 
 // ─── Backend URL ──────────────────────────────────────────────────────────────
-const BACKEND_URL =
-  process.env.EXPO_PUBLIC_BACKEND_URL ||
-  'https://smileguard-api.onrender.com';
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || "https://smileguard-api.onrender.com";
 
 // ─── Disease metadata ─────────────────────────────────────────────────────────
 const DISEASE_INFO: Record<string, { description: string; urgency: string }> = {
-  'Early Childhood Caries': { description: 'Severe decay/cavities in primary teeth of young children', urgency: 'Immediate' },
-  'Calculus':           { description: 'Hardened tartar/plaque buildup on tooth surfaces',       urgency: 'Soon'      },
-  'Gingivitis':         { description: 'Gum inflammation — early stage periodontal disease',     urgency: 'Soon'      },
-  'Tooth Discoloration':{ description: 'Staining or discolouration of tooth enamel/dentin',     urgency: 'Routine'   },
-  'Ulcers':             { description: 'Oral ulcers or canker sores inside the mouth',           urgency: 'Soon'      },
-  'Hypodontia':         { description: 'One or more congenitally missing teeth',                 urgency: 'Routine'   },
+  "Early Childhood Caries": {
+    description: "Severe decay/cavities in primary teeth of young children",
+    urgency: "Immediate",
+  },
+  Calculus: { description: "Hardened tartar/plaque buildup on tooth surfaces", urgency: "Soon" },
+  Gingivitis: {
+    description: "Gum inflammation — early stage periodontal disease",
+    urgency: "Soon",
+  },
+  "Tooth Discoloration": {
+    description: "Staining or discolouration of tooth enamel/dentin",
+    urgency: "Routine",
+  },
+  Ulcers: { description: "Oral ulcers or canker sores inside the mouth", urgency: "Soon" },
+  Hypodontia: { description: "One or more congenitally missing teeth", urgency: "Routine" },
 };
 
 // ─── Offline fallback (used if backend is unreachable) ───────────────────────
 function simulateAIAnalysis(seed: number) {
   const score = 85;
-  const level = 'High';
-  
+  const level = "High";
+
   const findings = [
-    { label: 'Early Childhood Caries (ECC) – Severe', detected: true, severity: 'Severe', color: '#EF4444', description: 'Severe decay/cavities in primary teeth of young children', urgency: 'Immediate' },
-    { label: 'Gingivitis', detected: true, severity: 'Mild', color: '#F59E0B', description: 'Gum inflammation — early stage periodontal disease', urgency: 'Soon' },
-    { label: 'Calculus', detected: false, severity: 'None', color: '#10B981', description: DISEASE_INFO['Calculus'].description, urgency: DISEASE_INFO['Calculus'].urgency },
-    { label: 'Tooth Discoloration', detected: false, severity: 'None', color: '#10B981', description: DISEASE_INFO['Tooth Discoloration'].description, urgency: DISEASE_INFO['Tooth Discoloration'].urgency },
-    { label: 'Ulcers', detected: false, severity: 'None', color: '#10B981', description: DISEASE_INFO['Ulcers'].description, urgency: DISEASE_INFO['Ulcers'].urgency },
-    { label: 'Hypodontia', detected: false, severity: 'None', color: '#10B981', description: DISEASE_INFO['Hypodontia'].description, urgency: DISEASE_INFO['Hypodontia'].urgency },
+    {
+      label: "Early Childhood Caries (ECC) – Severe",
+      detected: true,
+      severity: "Severe",
+      color: "#EF4444",
+      description: "Severe decay/cavities in primary teeth of young children",
+      urgency: "Immediate",
+    },
+    {
+      label: "Gingivitis",
+      detected: true,
+      severity: "Mild",
+      color: "#F59E0B",
+      description: "Gum inflammation — early stage periodontal disease",
+      urgency: "Soon",
+    },
+    {
+      label: "Calculus",
+      detected: false,
+      severity: "None",
+      color: "#10B981",
+      description: DISEASE_INFO["Calculus"].description,
+      urgency: DISEASE_INFO["Calculus"].urgency,
+    },
+    {
+      label: "Tooth Discoloration",
+      detected: false,
+      severity: "None",
+      color: "#10B981",
+      description: DISEASE_INFO["Tooth Discoloration"].description,
+      urgency: DISEASE_INFO["Tooth Discoloration"].urgency,
+    },
+    {
+      label: "Ulcers",
+      detected: false,
+      severity: "None",
+      color: "#10B981",
+      description: DISEASE_INFO["Ulcers"].description,
+      urgency: DISEASE_INFO["Ulcers"].urgency,
+    },
+    {
+      label: "Hypodontia",
+      detected: false,
+      severity: "None",
+      color: "#10B981",
+      description: DISEASE_INFO["Hypodontia"].description,
+      urgency: DISEASE_INFO["Hypodontia"].urgency,
+    },
   ];
-  
+
   const suggestions = [
-    'Immediate dental consultation required',
-    'Dental filling/restoration advised',
-    'Reduce sugary foods and drinks',
-    'Use fluoride toothpaste',
-    'Brush teeth twice daily',
+    "Immediate dental consultation required",
+    "Dental filling/restoration advised",
+    "Reduce sugary foods and drinks",
+    "Use fluoride toothpaste",
+    "Brush teeth twice daily",
   ];
-  
-  return { 
-    score, 
-    level, 
-    findings, 
-    suggestions, 
-    predictedClass: 'Early Childhood Caries (ECC) – Severe', 
-    confidence: 92 
+
+  return {
+    score,
+    level,
+    findings,
+    suggestions,
+    predictedClass: "Early Childhood Caries (ECC) – Severe",
+    confidence: 92,
   };
 }
 
 // ─── Real API call ────────────────────────────────────────────────────────────
-async function callPredictAPI(imageFile: File): Promise<ReturnType<typeof simulateAIAnalysis> | null> {
+async function callPredictAPI(
+  imageFile: File,
+): Promise<ReturnType<typeof simulateAIAnalysis> | null> {
   try {
     const form = new FormData();
-    form.append('file', imageFile);
-    const res  = await fetch(`${BACKEND_URL}/predict`, { method: 'POST', body: form });
+    form.append("file", imageFile);
+    const res = await fetch(`${BACKEND_URL}/predict`, { method: "POST", body: form });
     if (!res.ok) return null;
     const data = await res.json();
-    if (data.status !== 'success') return null;
+    if (data.status !== "success") return null;
 
     // Map backend response → UI findings format
     const findings = (data.all_classes || []).map((c: any) => {
-      const label = c.label === 'Caries' ? 'Early Childhood Caries' : c.label;
+      const label = c.label === "Caries" ? "Early Childhood Caries" : c.label;
       return {
-        label:       label,
-        detected:    c.detected,
-        severity:    c.severity || (c.detected ? 'Detected' : 'None'),
-        color:       c.confidence >= 70 ? '#EF4444' : c.confidence >= 45 ? '#F59E0B' : '#10B981',
-        description: DISEASE_INFO[label]?.description || '',
-        urgency:     DISEASE_INFO[label]?.urgency     || 'Routine',
+        label: label,
+        detected: c.detected,
+        severity: c.severity || (c.detected ? "Detected" : "None"),
+        color: c.confidence >= 70 ? "#EF4444" : c.confidence >= 45 ? "#F59E0B" : "#10B981",
+        description: DISEASE_INFO[label]?.description || "",
+        urgency: DISEASE_INFO[label]?.urgency || "Routine",
       };
     });
 
-    const level: 'Low'|'Medium'|'High' = data.risk_level as any || 'Low';
+    const level: "Low" | "Medium" | "High" = (data.risk_level as any) || "Low";
     const suggestions: string[] = [];
-    if (level === 'High')        suggestions.push('Book a dental appointment within 1–2 weeks');
-    else if (level === 'Medium') suggestions.push('Schedule a dental check-up soon');
-    else                         suggestions.push('Great oral health — keep it up!');
-    const detected = findings.filter((f:any) => f.detected).map((f:any) => f.label);
-    if (detected.includes('Early Childhood Caries'))              suggestions.push('Cavities detected — prompt filling treatment needed');
-    if (detected.includes('Calculus'))            suggestions.push('Professional scaling required to remove hardened tartar');
-    if (detected.includes('Gingivitis'))          suggestions.push('Use antibacterial mouthwash; focus on gum care & flossing');
-    if (detected.includes('Tooth Discoloration')) suggestions.push('Consider whitening treatment; reduce coffee/tea/smoking');
-    if (detected.includes('Ulcers'))              suggestions.push('Apply oral gel; avoid spicy foods until ulcers heal');
-    suggestions.push('Brush twice daily with fluoride toothpaste (2 min each)');
-    suggestions.push('Floss daily to remove interdental plaque buildup');
+    if (level === "High") suggestions.push("Book a dental appointment within 1–2 weeks");
+    else if (level === "Medium") suggestions.push("Schedule a dental check-up soon");
+    else suggestions.push("Great oral health — keep it up!");
+    const detected = findings.filter((f: any) => f.detected).map((f: any) => f.label);
+    if (detected.includes("Early Childhood Caries"))
+      suggestions.push("Cavities detected — prompt filling treatment needed");
+    if (detected.includes("Calculus"))
+      suggestions.push("Professional scaling required to remove hardened tartar");
+    if (detected.includes("Gingivitis"))
+      suggestions.push("Use antibacterial mouthwash; focus on gum care & flossing");
+    if (detected.includes("Tooth Discoloration"))
+      suggestions.push("Consider whitening treatment; reduce coffee/tea/smoking");
+    if (detected.includes("Ulcers"))
+      suggestions.push("Apply oral gel; avoid spicy foods until ulcers heal");
+    suggestions.push("Brush twice daily with fluoride toothpaste (2 min each)");
+    suggestions.push("Floss daily to remove interdental plaque buildup");
 
     return {
-      score:          data.risk_score,
+      score: data.risk_score,
       level,
       findings,
-      suggestions:    suggestions.slice(0, 6),
+      suggestions: suggestions.slice(0, 6),
       predictedClass: data.predicted_class,
-      confidence:     data.confidence,
+      confidence: data.confidence,
     };
   } catch {
-    return null;   // backend unreachable
+    return null; // backend unreachable
   }
 }
 
-
 export default function ScanScreen() {
   const navigation = useNavigation<any>();
-  const [imageUri,    setImageUri]    = useState<string | null>(null);
-  const [imageFile,   setImageFile]   = useState<File | null>(null);
-  const [imageSeed,   setImageSeed]   = useState<number>(0);
-  const [analyzing,   setAnalyzing]   = useState(false);
-  const [result,      setResult]      = useState<ReturnType<typeof simulateAIAnalysis> | null>(null);
-  const [autoSaved,   setAutoSaved]   = useState(false);
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageSeed, setImageSeed] = useState<number>(0);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [result, setResult] = useState<ReturnType<typeof simulateAIAnalysis> | null>(null);
+  const [autoSaved, setAutoSaved] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
-  const [showCamera,  setShowCamera]  = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
@@ -134,12 +195,36 @@ export default function ScanScreen() {
     setOfflineMode(false);
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setImageUri(url);
+    setImageFile(file);
+    setImageSeed(file.size);
+    setResult(null);
+    setAutoSaved(false);
+    setOfflineMode(false);
+  };
+
   const startCamera = async () => {
     setShowCamera(true);
     setResult(null);
     try {
       const stream = await (navigator as any).mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' }
+        video: { facingMode: "environment" },
       });
       streamRef.current = stream;
       if (videoRef.current) {
@@ -147,7 +232,8 @@ export default function ScanScreen() {
       }
     } catch (err) {
       console.error("Camera error:", err);
-      if (typeof window !== 'undefined') window.alert("Could not access camera. Please check permissions.");
+      if (typeof window !== "undefined")
+        window.alert("Could not access camera. Please check permissions.");
       setShowCamera(false);
     }
   };
@@ -162,24 +248,28 @@ export default function ScanScreen() {
 
   const capturePhoto = () => {
     if (!videoRef.current) return;
-    const canvas = (document as any).createElement('canvas');
+    const canvas = (document as any).createElement("canvas");
     canvas.width = (videoRef.current as any).videoWidth;
     canvas.height = (videoRef.current as any).videoHeight;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.drawImage(videoRef.current as any, 0, 0);
-    
-    canvas.toBlob((blob: any) => {
-      if (!blob) return;
-      const file = new File([blob], "camera_capture.jpg", { type: "image/jpeg" });
-      const url = URL.createObjectURL(file);
-      setImageUri(url);
-      setImageFile(file);
-      setImageSeed(file.size);
-      setAutoSaved(false);
-      setOfflineMode(false);
-      stopCamera();
-    }, 'image/jpeg', 0.9);
+
+    canvas.toBlob(
+      (blob: any) => {
+        if (!blob) return;
+        const file = new File([blob], "camera_capture.jpg", { type: "image/jpeg" });
+        const url = URL.createObjectURL(file);
+        setImageUri(url);
+        setImageFile(file);
+        setImageSeed(file.size);
+        setAutoSaved(false);
+        setOfflineMode(false);
+        stopCamera();
+      },
+      "image/jpeg",
+      0.9,
+    );
   };
 
   // Cleanup camera on unmount
@@ -212,8 +302,8 @@ export default function ScanScreen() {
           toValue: 0,
           duration: 1200,
           useNativeDriver: false,
-        })
-      ])
+        }),
+      ]),
     ).start();
 
     // Try real API first, fall back to simulation
@@ -230,7 +320,7 @@ export default function ScanScreen() {
     }
 
     // Wait for progress bar animation to complete
-    await new Promise(r => setTimeout(r, 3000));
+    await new Promise((r) => setTimeout(r, 3000));
     scanLineAnim.stopAnimation();
     scanLineAnim.setValue(0);
     setResult(analysis);
@@ -238,31 +328,32 @@ export default function ScanScreen() {
 
     // Auto-save to Supabase history
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const userId   = session?.user?.id ?? null;
-      const userName = session?.user?.user_metadata?.full_name ||
-        session?.user?.email?.split('@')[0] || 'User';
-      await supabase.from('assessments').insert({
-        user_id:          userId,
-        score:            analysis.score,
-        level:            analysis.level,
-        patient_name:     `[Scan] ${userName}`,
-        answers:          {},
-        created_at:       new Date().toISOString(),
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const userId = session?.user?.id ?? null;
+      const userName =
+        session?.user?.user_metadata?.full_name || session?.user?.email?.split("@")[0] || "User";
+      await supabase.from("assessments").insert({
+        user_id: userId,
+        score: analysis.score,
+        level: analysis.level,
+        patient_name: `[Scan] ${userName}`,
+        answers: {},
+        created_at: new Date().toISOString(),
       });
       setAutoSaved(true);
     } catch (err) {
-      console.error('Auto-save error:', err);
+      console.error("Auto-save error:", err);
     }
   };
 
   const riskColor =
-    result?.level === 'High' ? '#EF4444' :
-    result?.level === 'Medium' ? '#F59E0B' : '#10B981';
+    result?.level === "High" ? "#EF4444" : result?.level === "Medium" ? "#F59E0B" : "#10B981";
 
   const progressWidth = progressAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0%', '100%'],
+    outputRange: ["0%", "100%"],
   });
 
   return (
@@ -279,37 +370,50 @@ export default function ScanScreen() {
           {imageUri ? (
             <>
               {/* Image Preview using HTML img */}
-              <View style={{ position: 'relative', overflow: 'hidden', borderRadius: 16 }}>
+              <View style={{ position: "relative", overflow: "hidden", borderRadius: 16 }}>
                 <img
                   src={imageUri}
                   alt="Teeth scan"
-                  style={{
-                    width: '100%',
-                    height: 200,
-                    objectFit: 'cover',
-                    display: 'block',
-                  } as any}
+                  style={
+                    {
+                      width: "100%",
+                      height: 200,
+                      objectFit: "cover",
+                      display: "block",
+                    } as any
+                  }
                 />
                 {analyzing && (
-                  <Animated.View style={{
-                    position: 'absolute',
-                    top: scanLineAnim.interpolate({ inputRange: [0, 1], outputRange: ['0%', '98%'] }),
-                    left: 0, right: 0,
-                    height: 4,
-                    backgroundColor: '#86F1D4',
-                    shadowColor: '#86F1D4',
-                    shadowOffset: { width: 0, height: 0 },
-                    shadowOpacity: 1,
-                    shadowRadius: 10,
-                    elevation: 10,
-                  }} />
+                  <Animated.View
+                    style={{
+                      position: "absolute",
+                      top: scanLineAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ["0%", "98%"],
+                      }),
+                      left: 0,
+                      right: 0,
+                      height: 4,
+                      backgroundColor: "#86F1D4",
+                      shadowColor: "#86F1D4",
+                      shadowOffset: { width: 0, height: 0 },
+                      shadowOpacity: 1,
+                      shadowRadius: 10,
+                      elevation: 10,
+                    }}
+                  />
                 )}
                 {analyzing && (
-                  <View style={{
-                    position: 'absolute',
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(21, 122, 110, 0.15)',
-                  }} />
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      backgroundColor: "rgba(21, 122, 110, 0.15)",
+                    }}
+                  />
                 )}
               </View>
               <TouchableOpacity
@@ -325,21 +429,23 @@ export default function ScanScreen() {
               </TouchableOpacity>
             </>
           ) : showCamera ? (
-            <View style={{ alignItems: 'center', width: '100%' }}>
+            <View style={{ alignItems: "center", width: "100%" }}>
               <video
                 ref={videoRef}
                 autoPlay
                 playsInline
-                style={{
-                  width: '100%',
-                  height: 300,
-                  objectFit: 'cover',
-                  borderRadius: 16,
-                  backgroundColor: '#000',
-                  display: 'block'
-                } as any}
+                style={
+                  {
+                    width: "100%",
+                    height: 300,
+                    objectFit: "cover",
+                    borderRadius: 16,
+                    backgroundColor: "#000",
+                    display: "block",
+                  } as any
+                }
               />
-              <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
+              <View style={{ flexDirection: "row", gap: 12, marginTop: 16 }}>
                 <TouchableOpacity style={styles.cancelCamBtn} onPress={stopCamera}>
                   <Text style={styles.cancelCamText}>Cancel</Text>
                 </TouchableOpacity>
@@ -350,18 +456,33 @@ export default function ScanScreen() {
               </View>
             </View>
           ) : (
-            <View style={styles.uploadPlaceholder}>
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                padding: "40px 20px",
+                gap: "10px",
+                border: isDragging ? "2px dashed #157A6E" : "2px dashed #E2E8F0",
+                borderRadius: "16px",
+                backgroundColor: isDragging ? "rgba(21, 122, 110, 0.05)" : "transparent",
+                transition: "all 0.2s ease",
+              }}
+            >
               <View style={styles.uploadIcon}>
                 <Feather name="camera" size={32} color="#157A6E" />
               </View>
               <Text style={styles.uploadTitle}>Upload Teeth Photo</Text>
               <Text style={styles.uploadSub}>
-                Take a clear photo of your teeth in good lighting for best results
+                Drag and drop your image here, or use the buttons below
               </Text>
-              
-              <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
+
+              <View style={{ flexDirection: "row", gap: 12, marginTop: 16 }}>
                 {/* HTML file input for normal file selection */}
-                <label style={{ cursor: 'pointer' } as any}>
+                <label style={{ cursor: "pointer" } as any}>
                   <View style={styles.uploadBtn}>
                     <Feather name="upload" size={16} color="#0D4B42" />
                     <Text style={styles.uploadBtnText}>Upload File</Text>
@@ -369,7 +490,7 @@ export default function ScanScreen() {
                   <input
                     type="file"
                     accept="image/*"
-                    style={{ display: 'none' } as any}
+                    style={{ display: "none" } as any}
                     onChange={handleImagePick}
                   />
                 </label>
@@ -380,7 +501,7 @@ export default function ScanScreen() {
                   <Text style={styles.openCamText}>Take Photo</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </div>
           )}
         </View>
 
@@ -389,10 +510,10 @@ export default function ScanScreen() {
           <View style={styles.tipsCard}>
             <Text style={styles.tipsTitle}>📸 Photo Tips</Text>
             {[
-              'Good lighting — natural light works best',
-              'Open mouth wide, show all teeth',
-              'Keep camera steady for a sharp image',
-              'Include both upper and lower teeth',
+              "Good lighting — natural light works best",
+              "Open mouth wide, show all teeth",
+              "Keep camera steady for a sharp image",
+              "Include both upper and lower teeth",
             ].map((tip, i) => (
               <View key={i} style={styles.tipRow}>
                 <View style={styles.tipDot} />
@@ -460,11 +581,11 @@ export default function ScanScreen() {
                 <Text style={styles.scoreUnit}>%</Text>
               </View>
               <Text style={styles.scoreDesc}>
-                {result.level === 'Low'
-                  ? '✓ Your teeth look healthy!'
-                  : result.level === 'Medium'
-                  ? '⚠ Some areas need attention'
-                  : '🚨 Immediate dental care advised'}
+                {result.level === "Low"
+                  ? "✓ Your teeth look healthy!"
+                  : result.level === "Medium"
+                    ? "⚠ Some areas need attention"
+                    : "🚨 Immediate dental care advised"}
               </Text>
             </View>
 
@@ -473,47 +594,96 @@ export default function ScanScreen() {
               <Text style={styles.cardTitle}>🔍 AI Findings</Text>
               <Text style={styles.datasetTag}>📊 Kaggle Oral Diseases Dataset</Text>
               <View style={styles.findingsList}>
-                {result.findings.filter(f => f.detected).map((f, i) => (
-                  <View key={i} style={[styles.findingRow, f.detected && { borderLeftWidth: 3, borderLeftColor: f.color }]}>
-                    <Feather
-                      name={f.detected ? 'alert-circle' : 'check-circle'}
-                      size={16}
-                      color={f.detected ? f.color : '#10B981'}
-                    />
-                    <View style={{ flex: 1 }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Text style={styles.findingLabel}>{f.label}</Text>
-                        <View style={[styles.findingBadge, {
-                          backgroundColor: f.detected ? f.color + '20' : '#DCFCE7',
-                        }]}>
-                          <Text style={[styles.findingBadgeText, {
-                            color: f.detected ? f.color : '#10B981',
-                          }]}>
-                            {f.detected ? f.severity : 'None'}
-                          </Text>
+                {result.findings
+                  .filter((f) => f.detected)
+                  .map((f, i) => (
+                    <View
+                      key={i}
+                      style={[
+                        styles.findingRow,
+                        f.detected && { borderLeftWidth: 3, borderLeftColor: f.color },
+                      ]}
+                    >
+                      <Feather
+                        name={f.detected ? "alert-circle" : "check-circle"}
+                        size={16}
+                        color={f.detected ? f.color : "#10B981"}
+                      />
+                      <View style={{ flex: 1 }}>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Text style={styles.findingLabel}>{f.label}</Text>
+                          <View
+                            style={[
+                              styles.findingBadge,
+                              {
+                                backgroundColor: f.detected ? f.color + "20" : "#DCFCE7",
+                              },
+                            ]}
+                          >
+                            <Text
+                              style={[
+                                styles.findingBadgeText,
+                                {
+                                  color: f.detected ? f.color : "#10B981",
+                                },
+                              ]}
+                            >
+                              {f.detected ? f.severity : "None"}
+                            </Text>
+                          </View>
                         </View>
+                        {f.detected && (
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                              gap: 4,
+                              marginTop: 4,
+                            }}
+                          >
+                            <Text style={styles.findingDesc}>{f.description}</Text>
+                          </View>
+                        )}
+                        {f.detected && (
+                          <View
+                            style={[
+                              styles.urgencyBadge,
+                              {
+                                backgroundColor:
+                                  f.urgency === "Immediate"
+                                    ? "#FEF2F2"
+                                    : f.urgency === "Soon"
+                                      ? "#FFFBEB"
+                                      : "#F0FDF4",
+                              },
+                            ]}
+                          >
+                            <Text
+                              style={[
+                                styles.urgencyText,
+                                {
+                                  color:
+                                    f.urgency === "Immediate"
+                                      ? "#EF4444"
+                                      : f.urgency === "Soon"
+                                        ? "#F59E0B"
+                                        : "#10B981",
+                                },
+                              ]}
+                            >
+                              ⏱ {f.urgency}
+                            </Text>
+                          </View>
+                        )}
                       </View>
-                      {f.detected && (
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
-                          <Text style={styles.findingDesc}>{f.description}</Text>
-                        </View>
-                      )}
-                      {f.detected && (
-                        <View style={[styles.urgencyBadge, {
-                          backgroundColor: f.urgency === 'Immediate' ? '#FEF2F2' :
-                                           f.urgency === 'Soon' ? '#FFFBEB' : '#F0FDF4',
-                        }]}>
-                          <Text style={[styles.urgencyText, {
-                            color: f.urgency === 'Immediate' ? '#EF4444' :
-                                   f.urgency === 'Soon' ? '#F59E0B' : '#10B981',
-                          }]}>
-                            ⏱ {f.urgency}
-                          </Text>
-                        </View>
-                      )}
                     </View>
-                  </View>
-                ))}
+                  ))}
               </View>
             </View>
 
@@ -522,16 +692,26 @@ export default function ScanScreen() {
               <Text style={styles.cardTitle}>💡 Recommendations</Text>
               <View style={styles.suggList}>
                 {result.suggestions.map((s, i) => {
-                  const isDentist = s.toLowerCase().includes('dentist') || s.toLowerCase().includes('visit');
+                  const isDentist =
+                    s.toLowerCase().includes("dentist") || s.toLowerCase().includes("visit");
                   return (
                     <TouchableOpacity
                       key={i}
                       style={styles.suggItem}
-                      onPress={() => isDentist && navigation.navigate('Dentists')}
+                      onPress={() => isDentist && navigation.navigate("Dentists")}
                       activeOpacity={isDentist ? 0.7 : 1}
                     >
-                      <View style={[styles.suggIcon, { backgroundColor: isDentist ? '#EEF2FF' : '#DCFCE7' }]}>
-                        <Feather name={isDentist ? 'calendar' : 'check'} size={14} color={isDentist ? '#4F46E5' : '#10B981'} />
+                      <View
+                        style={[
+                          styles.suggIcon,
+                          { backgroundColor: isDentist ? "#EEF2FF" : "#DCFCE7" },
+                        ]}
+                      >
+                        <Feather
+                          name={isDentist ? "calendar" : "check"}
+                          size={14}
+                          color={isDentist ? "#4F46E5" : "#10B981"}
+                        />
                       </View>
                       <Text style={styles.suggText}>{s}</Text>
                       {isDentist && <Feather name="chevron-right" size={14} color="#CBD5E1" />}
@@ -565,7 +745,7 @@ export default function ScanScreen() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.dentistBtn}
-                onPress={() => navigation.navigate('Dentists')}
+                onPress={() => navigation.navigate("Dentists")}
                 activeOpacity={0.8}
               >
                 <Feather name="calendar" size={16} color="#4F46E5" />
@@ -584,150 +764,150 @@ const styles = StyleSheet.create({
 
   // Upload
   uploadCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 24,
     padding: 20,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
   },
-  uploadPlaceholder: { alignItems: 'center', paddingVertical: 20, gap: 10 },
+  uploadPlaceholder: { alignItems: "center", paddingVertical: 20, gap: 10 },
   uploadIcon: {
     width: 72,
     height: 72,
     borderRadius: 24,
-    backgroundColor: 'rgba(21,122,110,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(21,122,110,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  uploadTitle: { fontSize: 18, fontWeight: '700', color: '#0F172A' },
-  uploadSub: { fontSize: 13, color: '#64748B', textAlign: 'center', lineHeight: 20 },
+  uploadTitle: { fontSize: 18, fontWeight: "700", color: "#0F172A" },
+  uploadSub: { fontSize: 13, color: "#64748B", textAlign: "center", lineHeight: 20 },
   uploadBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: "#E2E8F0",
     paddingHorizontal: 20,
     paddingVertical: 14,
     borderRadius: 16,
   },
-  uploadBtnText: { fontSize: 14, fontWeight: '700', color: '#0F172A' },
+  uploadBtnText: { fontSize: 14, fontWeight: "700", color: "#0F172A" },
   openCamBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
-    backgroundColor: '#86F1D4',
+    backgroundColor: "#86F1D4",
     paddingHorizontal: 20,
     paddingVertical: 14,
     borderRadius: 16,
   },
-  openCamText: { fontSize: 14, fontWeight: '700', color: '#0D4B42' },
+  openCamText: { fontSize: 14, fontWeight: "700", color: "#0D4B42" },
   cancelCamBtn: {
     paddingHorizontal: 20,
     paddingVertical: 14,
     borderRadius: 16,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: "#F1F5F9",
   },
-  cancelCamText: { fontSize: 14, fontWeight: '600', color: '#64748B' },
+  cancelCamText: { fontSize: 14, fontWeight: "600", color: "#64748B" },
   captureBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
-    backgroundColor: '#157A6E',
+    backgroundColor: "#157A6E",
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 16,
   },
-  captureBtnText: { fontSize: 14, fontWeight: '700', color: '#FFF' },
+  captureBtnText: { fontSize: 14, fontWeight: "700", color: "#FFF" },
   retakeBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 6,
     marginTop: 12,
     paddingVertical: 8,
   },
-  retakeText: { fontSize: 13, color: '#64748B' },
+  retakeText: { fontSize: 13, color: "#64748B" },
 
   // Tips
   tipsCard: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: "#F8FAFC",
     borderRadius: 20,
     padding: 16,
     gap: 10,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: "#E2E8F0",
   },
-  tipsTitle: { fontSize: 14, fontWeight: '700', color: '#0F172A', marginBottom: 4 },
-  tipRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  tipDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#86F1D4' },
-  tipText: { fontSize: 13, color: '#475569' },
+  tipsTitle: { fontSize: 14, fontWeight: "700", color: "#0F172A", marginBottom: 4 },
+  tipRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+  tipDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#86F1D4" },
+  tipText: { fontSize: 13, color: "#475569" },
 
   // Analyze
   analyzeBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 10,
-    backgroundColor: '#86F1D4',
+    backgroundColor: "#86F1D4",
     paddingVertical: 18,
     borderRadius: 20,
     elevation: 4,
-    shadowColor: '#86F1D4',
+    shadowColor: "#86F1D4",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 8,
   },
-  analyzeBtnText: { fontSize: 16, fontWeight: '700', color: '#0D4B42' },
+  analyzeBtnText: { fontSize: 16, fontWeight: "700", color: "#0D4B42" },
 
   // Progress
   progressCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 20,
     gap: 12,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
   },
-  progressLabel: { fontSize: 13, color: '#64748B', textAlign: 'center' },
+  progressLabel: { fontSize: 13, color: "#64748B", textAlign: "center" },
   progressBg: {
     height: 8,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: "#F1F5F9",
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
-  progressFill: { height: '100%', backgroundColor: '#86F1D4', borderRadius: 4 },
+  progressFill: { height: "100%", backgroundColor: "#86F1D4", borderRadius: 4 },
 
   // Offline / Real AI banners
   offlineBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
-    backgroundColor: '#FFFBEB',
+    backgroundColor: "#FFFBEB",
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#FDE68A',
+    borderColor: "#FDE68A",
   },
-  offlineText: { flex: 1, fontSize: 12, fontWeight: '600', color: '#D97706' },
+  offlineText: { flex: 1, fontSize: 12, fontWeight: "600", color: "#D97706" },
   realAIBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
-    backgroundColor: 'rgba(21,122,110,0.08)',
+    backgroundColor: "rgba(21,122,110,0.08)",
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(21,122,110,0.2)',
+    borderColor: "rgba(21,122,110,0.2)",
   },
-  realAIText: { flex: 1, fontSize: 12, fontWeight: '600', color: '#157A6E' },
+  realAIText: { flex: 1, fontSize: 12, fontWeight: "600", color: "#157A6E" },
 
   // Score
   scoreCard: {
@@ -738,106 +918,129 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 12,
   },
-  scoreTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  scoreLabel: { fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.85)', textTransform: 'uppercase', letterSpacing: 1 },
-  scoreBadge: { backgroundColor: 'rgba(255,255,255,0.3)', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
-  scoreBadgeText: { fontSize: 11, fontWeight: '800', color: '#FFF' },
-  scoreRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 4, marginTop: 12 },
-  scoreNum: { fontSize: 60, fontWeight: '900', color: '#FFF', lineHeight: 64 },
-  scoreUnit: { fontSize: 22, fontWeight: '700', color: 'rgba(255,255,255,0.8)', marginBottom: 10 },
-  scoreDesc: { fontSize: 13, color: 'rgba(255,255,255,0.9)', marginTop: 8, fontWeight: '500' },
+  scoreTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  scoreLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "rgba(255,255,255,0.85)",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  scoreBadge: {
+    backgroundColor: "rgba(255,255,255,0.3)",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  scoreBadgeText: { fontSize: 11, fontWeight: "800", color: "#FFF" },
+  scoreRow: { flexDirection: "row", alignItems: "flex-end", gap: 4, marginTop: 12 },
+  scoreNum: { fontSize: 60, fontWeight: "900", color: "#FFF", lineHeight: 64 },
+  scoreUnit: { fontSize: 22, fontWeight: "700", color: "rgba(255,255,255,0.8)", marginBottom: 10 },
+  scoreDesc: { fontSize: 13, color: "rgba(255,255,255,0.9)", marginTop: 8, fontWeight: "500" },
 
   // Findings
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 24,
     padding: 20,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     gap: 12,
   },
-  cardTitle: { fontSize: 15, fontWeight: '700', color: '#0F172A' },
-  datasetTag: { fontSize: 10, fontWeight: '600', color: '#94A3B8', letterSpacing: 0.5, marginTop: -4 },
+  cardTitle: { fontSize: 15, fontWeight: "700", color: "#0F172A" },
+  datasetTag: {
+    fontSize: 10,
+    fontWeight: "600",
+    color: "#94A3B8",
+    letterSpacing: 0.5,
+    marginTop: -4,
+  },
   findingsList: { gap: 10 },
   findingRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     gap: 10,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: "#F8FAFC",
     borderRadius: 12,
     padding: 12,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
-  findingLabel: { fontSize: 13, fontWeight: '700', color: '#0F172A' },
-  findingDesc: { fontSize: 11, color: '#64748B', flex: 1, lineHeight: 16 },
+  findingLabel: { fontSize: 13, fontWeight: "700", color: "#0F172A" },
+  findingDesc: { fontSize: 11, color: "#64748B", flex: 1, lineHeight: 16 },
   findingBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
-  findingBadgeText: { fontSize: 11, fontWeight: '700' },
-  urgencyBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, marginTop: 4, alignSelf: 'flex-start' },
-  urgencyText: { fontSize: 10, fontWeight: '700' },
+  findingBadgeText: { fontSize: 11, fontWeight: "700" },
+  urgencyBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    marginTop: 4,
+    alignSelf: "flex-start",
+  },
+  urgencyText: { fontSize: 10, fontWeight: "700" },
 
   // Suggestions
   suggList: { gap: 10 },
   suggItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: "#F8FAFC",
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: "#E2E8F0",
   },
   suggIcon: {
     width: 30,
     height: 30,
     borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
-  suggText: { flex: 1, fontSize: 13, color: '#0F172A' },
+  suggText: { flex: 1, fontSize: 13, color: "#0F172A" },
 
   // Actions
-  actions: { flexDirection: 'row', gap: 12 },
+  actions: { flexDirection: "row", gap: 12 },
   autoSavedBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 8,
-    backgroundColor: '#DCFCE7',
+    backgroundColor: "#DCFCE7",
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#BBF7D0',
+    borderColor: "#BBF7D0",
   },
-  autoSavedText: { fontSize: 13, fontWeight: '600', color: '#10B981' },
+  autoSavedText: { fontSize: 13, fontWeight: "600", color: "#10B981" },
   scanAgainBtn: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 8,
-    backgroundColor: '#DCFCE7',
+    backgroundColor: "#DCFCE7",
     paddingVertical: 16,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#86F1D4',
+    borderColor: "#86F1D4",
   },
-  scanAgainText: { fontSize: 14, fontWeight: '700', color: '#157A6E' },
+  scanAgainText: { fontSize: 14, fontWeight: "700", color: "#157A6E" },
   dentistBtn: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 8,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: "#EEF2FF",
     paddingVertical: 16,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#C7D2FE',
+    borderColor: "#C7D2FE",
   },
-  dentistBtnText: { fontSize: 14, fontWeight: '700', color: '#4F46E5' },
+  dentistBtnText: { fontSize: 14, fontWeight: "700", color: "#4F46E5" },
 });

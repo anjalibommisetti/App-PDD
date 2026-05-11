@@ -1,4 +1,13 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image, Switch as RNSwitch } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  Image,
+  Switch as RNSwitch,
+} from "react-native";
 import * as React from "react";
 
 const Switch = ({ checked, onCheckedChange, disabled, style }: any) => {

@@ -1,6 +1,14 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  Image,
+} from "react-native";
 import * as React from "react";
-import { Dialog as PaperDialog, Portal } from 'react-native-paper';
+import { Dialog as PaperDialog, Portal } from "react-native-paper";
 
 const Dialog = ({ open, onOpenChange, children }: any) => {
   return (
@@ -12,35 +20,15 @@ const Dialog = ({ open, onOpenChange, children }: any) => {
   );
 };
 
-const DialogContent = ({ children }: any) => (
-  <PaperDialog.Content>
-    {children}
-  </PaperDialog.Content>
-);
+const DialogContent = ({ children }: any) => <PaperDialog.Content>{children}</PaperDialog.Content>;
 
-const DialogHeader = ({ children }: any) => (
-  <View style={styles.header}>
-    {children}
-  </View>
-);
+const DialogHeader = ({ children }: any) => <View style={styles.header}>{children}</View>;
 
-const DialogFooter = ({ children }: any) => (
-  <PaperDialog.Actions>
-    {children}
-  </PaperDialog.Actions>
-);
+const DialogFooter = ({ children }: any) => <PaperDialog.Actions>{children}</PaperDialog.Actions>;
 
-const DialogTitle = ({ children }: any) => (
-  <PaperDialog.Title>
-    {children}
-  </PaperDialog.Title>
-);
+const DialogTitle = ({ children }: any) => <PaperDialog.Title>{children}</PaperDialog.Title>;
 
-const DialogDescription = ({ children }: any) => (
-  <Text style={styles.description}>
-    {children}
-  </Text>
-);
+const DialogDescription = ({ children }: any) => <Text style={styles.description}>{children}</Text>;
 
 const styles = StyleSheet.create({
   header: {
@@ -48,17 +36,10 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 14,
-    color: '#64748B',
+    color: "#64748B",
     paddingHorizontal: 24,
     marginBottom: 8,
   },
 });
 
-export {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-};
+export { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription };

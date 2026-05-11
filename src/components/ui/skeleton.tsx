@@ -1,5 +1,5 @@
-import { View, StyleSheet, Animated } from 'react-native';
-import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Animated } from "react-native";
+import React, { useEffect, useRef } from "react";
 
 function Skeleton({ style }: any) {
   const opacity = useRef(new Animated.Value(0.3)).current;
@@ -17,24 +17,16 @@ function Skeleton({ style }: any) {
           duration: 800,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
   }, [opacity]);
 
-  return (
-    <Animated.View
-      style={[
-        styles.skeleton,
-        { opacity },
-        style,
-      ]}
-    />
-  );
+  return <Animated.View style={[styles.skeleton, { opacity }, style]} />;
 }
 
 const styles = StyleSheet.create({
   skeleton: {
-    backgroundColor: '#E2E8F0',
+    backgroundColor: "#E2E8F0",
     borderRadius: 4,
   },
 });

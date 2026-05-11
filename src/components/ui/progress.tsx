@@ -1,6 +1,6 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from "react-native";
 import * as React from "react";
-import { ProgressBar } from 'react-native-paper';
+import { ProgressBar } from "react-native-paper";
 
 const Progress = ({ value, style, color }: any) => {
   return (
@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   progress: {
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: "#E2E8F0",
   },
 });
 

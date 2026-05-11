@@ -1,12 +1,21 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image, ActivityIndicator } from 'react-native';
-import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  Image,
+  ActivityIndicator,
+} from "react-native";
+import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
 
 import { supabase } from "../lib/supabase";
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import { useRoute } from "@react-navigation/native";
 
 export default function ResultsScreen() {
@@ -17,11 +26,11 @@ export default function ResultsScreen() {
 
   // Use params passed directly from assessment first (always available immediately)
   const [score, setScore] = useState<number>(params?.score ?? 0);
-  const [level, setLevel] = useState<string>(params?.level ?? 'Low');
+  const [level, setLevel] = useState<string>(params?.level ?? "Low");
   const [breakdown, setBreakdown] = useState<any[]>(params?.breakdown ?? []);
-  const [insight, setInsight] = useState<string>(params?.insight ?? '');
+  const [insight, setInsight] = useState<string>(params?.insight ?? "");
   const [recommendations, setRecommendations] = useState<string[]>(params?.recommendations ?? []);
-  const [patientName, setPatientName] = useState<string>(params?.patientName ?? '');
+  const [patientName, setPatientName] = useState<string>(params?.patientName ?? "");
   const [loading, setLoading] = useState(!params?.score); // skip loading if params exist
 
   useEffect(() => {
@@ -33,13 +42,19 @@ export default function ResultsScreen() {
 
   const fetchResults = async () => {
     try {
-      let query: any = supabase.from('assessments').select('*');
+      let query: any = supabase.from("assessments").select("*");
       if (assessmentId) {
-        query = query.eq('id', assessmentId).single();
+        query = query.eq("id", assessmentId).single();
       } else {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (user) {
-          query = query.eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).single();
+          query = query
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .single();
         } else {
           setLoading(false);
           return;
@@ -49,14 +64,14 @@ export default function ResultsScreen() {
       const { data } = await query;
       if (data) {
         setScore(data.score ?? 0);
-        setLevel(data.level ?? 'Low');
+        setLevel(data.level ?? "Low");
         setBreakdown(data.breakdown ?? []);
-        setInsight(data.insight ?? 'No insight available.');
+        setInsight(data.insight ?? "No insight available.");
         setRecommendations(data.recommendations ?? []);
-        setPatientName(data.patient_name ?? '');
+        setPatientName(data.patient_name ?? "");
       }
     } catch (err) {
-      console.error('Error fetching results:', err);
+      console.error("Error fetching results:", err);
     } finally {
       setLoading(false);
     }
@@ -65,9 +80,9 @@ export default function ResultsScreen() {
   if (loading) {
     return (
       <PhoneShell showNav={false}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
           <ActivityIndicator size="large" color="#157A6E" />
-          <Text style={{ marginTop: 12, color: '#64748B' }}>Analyzing results...</Text>
+          <Text style={{ marginTop: 12, color: "#64748B" }}>Analyzing results...</Text>
         </View>
       </PhoneShell>
     );
@@ -77,7 +92,11 @@ export default function ResultsScreen() {
     <PhoneShell showNav={false}>
       <ScreenHeader title="Risk Results" subtitle="AI analysis complete" back="Dashboard" />
 
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Patient name above card */}
         {patientName ? (
           <View style={styles.patientRow}>
@@ -92,7 +111,15 @@ export default function ResultsScreen() {
         ) : null}
 
         {/* Risk hero */}
-        <View style={[styles.heroCard, { backgroundColor: level === 'High' ? '#EF4444' : level === 'Medium' ? '#F59E0B' : '#10B981' }]}>
+        <View
+          style={[
+            styles.heroCard,
+            {
+              backgroundColor:
+                level === "High" ? "#EF4444" : level === "Medium" ? "#F59E0B" : "#10B981",
+            },
+          ]}
+        >
           <View style={styles.heroTop}>
             <Text style={styles.heroLabel}>Risk Score</Text>
             <View style={styles.heroBadge}>
@@ -107,9 +134,17 @@ export default function ResultsScreen() {
             <View style={[styles.scoreBarFill, { width: `${score}%` }]} />
           </View>
           <View style={styles.heroWarning}>
-            <Feather name={level === 'Low' ? "check-circle" : "alert-triangle"} size={20} color="#FFFFFF" />
+            <Feather
+              name={level === "Low" ? "check-circle" : "alert-triangle"}
+              size={20}
+              color="#FFFFFF"
+            />
             <Text style={styles.heroWarningText}>
-              {level === 'High' ? 'Immediate Attention Required' : level === 'Medium' ? 'Precautionary Measures Needed' : 'Maintain Good Hygiene'}
+              {level === "High"
+                ? "Immediate Attention Required"
+                : level === "Medium"
+                  ? "Precautionary Measures Needed"
+                  : "Maintain Good Hygiene"}
             </Text>
           </View>
         </View>
@@ -126,7 +161,12 @@ export default function ResultsScreen() {
                     <Text style={styles.bdVal}>{b.value}%</Text>
                   </View>
                   <View style={styles.bdBarBg}>
-                    <View style={[styles.bdBarFill, { width: `${b.value}%`, backgroundColor: b.color || '#86F1D4' }]} />
+                    <View
+                      style={[
+                        styles.bdBarFill,
+                        { width: `${b.value}%`, backgroundColor: b.color || "#86F1D4" },
+                      ]}
+                    />
                   </View>
                 </View>
               ))}
@@ -154,10 +194,12 @@ export default function ResultsScreen() {
             <Text style={styles.cardTitle}>Recommendations</Text>
             <View style={styles.recList}>
               {recommendations.map((r, idx) => {
-                const isDentist = r.toLowerCase().includes('dentist') || r.toLowerCase().includes('visit');
-                const isBrush = r.toLowerCase().includes('brush') || r.toLowerCase().includes('floss');
-                const icon = isDentist ? 'calendar' : isBrush ? 'sun' : 'check-circle';
-                const dest = isDentist ? 'Dentists' : null;
+                const isDentist =
+                  r.toLowerCase().includes("dentist") || r.toLowerCase().includes("visit");
+                const isBrush =
+                  r.toLowerCase().includes("brush") || r.toLowerCase().includes("floss");
+                const icon = isDentist ? "calendar" : isBrush ? "sun" : "check-circle";
+                const dest = isDentist ? "Dentists" : null;
                 return (
                   <TouchableOpacity
                     key={idx}
@@ -166,7 +208,11 @@ export default function ResultsScreen() {
                     onPress={() => dest && navigation.navigate(dest)}
                   >
                     <View style={styles.recIconBox}>
-                      <Feather name={icon as any} size={16} color={isDentist ? '#4F46E5' : '#10B981'} />
+                      <Feather
+                        name={icon as any}
+                        size={16}
+                        color={isDentist ? "#4F46E5" : "#10B981"}
+                      />
                     </View>
                     <Text style={styles.recText}>{r}</Text>
                     {dest && <Feather name="chevron-right" size={14} color="#CBD5E1" />}
@@ -179,16 +225,16 @@ export default function ResultsScreen() {
 
         {/* Actions */}
         <View style={styles.actions}>
-          <TouchableOpacity 
-            style={styles.btnSecondary} 
+          <TouchableOpacity
+            style={styles.btnSecondary}
             activeOpacity={0.8}
             onPress={() => navigation.navigate("Report", { id: assessmentId, score })}
           >
             <Feather name="file-text" size={16} color="#0F172A" />
             <Text style={styles.btnSecondaryText}>Full Report</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.btnPrimary} 
+          <TouchableOpacity
+            style={styles.btnPrimary}
             activeOpacity={0.8}
             onPress={() => navigation.navigate("Dentists")}
           >
@@ -208,14 +254,14 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   patientRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 14,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
@@ -224,117 +270,117 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: '#86F1D4',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#86F1D4",
+    alignItems: "center",
+    justifyContent: "center",
   },
   patientAvatarText: {
     fontSize: 18,
-    fontWeight: '800',
-    color: '#0D4B42',
+    fontWeight: "800",
+    color: "#0D4B42",
   },
   patientLabel: {
     fontSize: 11,
-    color: '#94A3B8',
-    fontWeight: '500',
+    color: "#94A3B8",
+    fontWeight: "500",
   },
   patientName: {
     fontSize: 15,
-    fontWeight: '700',
-    color: '#0F172A',
+    fontWeight: "700",
+    color: "#0F172A",
   },
   heroCard: {
-    backgroundColor: '#EF4444', // Alert bg approx
+    backgroundColor: "#EF4444", // Alert bg approx
     borderRadius: 24,
     padding: 24,
     elevation: 8,
-    shadowColor: '#EF4444',
+    shadowColor: "#EF4444",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
   },
   heroTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
   },
   heroLabel: {
     fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
+    fontWeight: "600",
+    textTransform: "uppercase",
     letterSpacing: 1,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: "rgba(255, 255, 255, 0.9)",
   },
   heroBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
   },
   heroBadgeText: {
     fontSize: 11,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
   scoreWrap: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
+    flexDirection: "row",
+    alignItems: "flex-end",
     gap: 8,
     marginTop: 12,
   },
   scoreMain: {
     fontSize: 60,
-    fontWeight: '900',
-    color: '#FFFFFF',
+    fontWeight: "900",
+    color: "#FFFFFF",
     lineHeight: 64,
   },
   scoreUnit: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: "bold",
+    color: "rgba(255, 255, 255, 0.8)",
     marginBottom: 8,
   },
   scoreBarBg: {
     height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
     borderRadius: 4,
     marginTop: 20,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   scoreBarFill: {
-    height: '100%',
-    backgroundColor: '#FFFFFF',
+    height: "100%",
+    backgroundColor: "#FFFFFF",
     borderRadius: 4,
   },
   heroWarning: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     marginTop: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     paddingHorizontal: 12,
     paddingVertical: 12,
     borderRadius: 16,
   },
   heroWarningText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    fontWeight: "600",
+    color: "#FFFFFF",
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 24,
     padding: 20,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
   },
   cardTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#0F172A',
+    fontWeight: "600",
+    color: "#0F172A",
   },
   breakdownList: {
     marginTop: 16,
@@ -342,132 +388,132 @@ const styles = StyleSheet.create({
   },
   breakdownItem: {},
   bdTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 6,
   },
   bdLabel: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#0F172A',
+    fontWeight: "500",
+    color: "#0F172A",
   },
   bdVal: {
     fontSize: 14,
-    fontWeight: 'bold',
-    color: '#0F172A',
+    fontWeight: "bold",
+    color: "#0F172A",
   },
   bdBarBg: {
     height: 8,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: "#F1F5F9",
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   bdBarFill: {
-    height: '100%',
+    height: "100%",
     borderRadius: 4,
   },
   cardBeige: {
-    backgroundColor: '#F1F5F9', // Beige approx
+    backgroundColor: "#F1F5F9", // Beige approx
     borderRadius: 24,
     padding: 20,
   },
   insightHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     marginBottom: 8,
   },
   insightIcon: {
     width: 32,
     height: 32,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   confBadge: {
-    marginLeft: 'auto',
-    backgroundColor: '#FFFFFF',
+    marginLeft: "auto",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 12,
   },
   confText: {
     fontSize: 10,
-    fontWeight: 'bold',
-    color: '#10B981',
+    fontWeight: "bold",
+    color: "#10B981",
   },
   insightText: {
     fontSize: 14,
     lineHeight: 22,
-    color: 'rgba(15, 23, 42, 0.8)',
+    color: "rgba(15, 23, 42, 0.8)",
   },
   recList: {
     marginTop: 12,
     gap: 10,
   },
   recItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: "#F8FAFC",
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: "#E2E8F0",
   },
   recIconBox: {
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: 'rgba(16,185,129,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(16,185,129,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   recText: {
     flex: 1,
     fontSize: 14,
-    color: '#0F172A',
+    color: "#0F172A",
   },
   actions: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
   },
   btnSecondary: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: "#E2E8F0",
     paddingVertical: 16,
     borderRadius: 16,
   },
   btnSecondaryText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#0F172A',
+    fontWeight: "600",
+    color: "#0F172A",
   },
   btnPrimary: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 8,
-    backgroundColor: '#86F1D4',
+    backgroundColor: "#86F1D4",
     paddingVertical: 16,
     borderRadius: 16,
     elevation: 4,
-    shadowColor: '#86F1D4',
+    shadowColor: "#86F1D4",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
   btnPrimaryText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#0D4B42',
-  }
+    fontWeight: "600",
+    color: "#0D4B42",
+  },
 });

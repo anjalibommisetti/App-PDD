@@ -26,6 +26,8 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "expo": "~55.0.18",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.14.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-native": "0.82.1",
@@ -35,6 +37,7 @@
     "react-native-screens": "~4.23.0",
     "react-native-url-polyfill": "^3.0.0",
     "react-native-web": "^0.21.0",
+    "recharts": "^3.8.1",
     "tailwind-merge": "^3.5.0",
     "zod": "^3.24.2"
   },

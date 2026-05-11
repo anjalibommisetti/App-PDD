@@ -1,6 +1,14 @@
-import React from 'react';
-import { View, StyleSheet, SafeAreaView, Platform, StatusBar, ScrollView, Dimensions } from 'react-native';
-import { BottomNav } from './BottomNav';
+import React from "react";
+import {
+  View,
+  StyleSheet,
+  SafeAreaView,
+  Platform,
+  StatusBar,
+  ScrollView,
+  Dimensions,
+} from "react-native";
+import { BottomNav } from "./BottomNav";
 
 interface PhoneShellProps {
   children: React.ReactNode;
@@ -10,10 +18,8 @@ interface PhoneShellProps {
 export const PhoneShell = ({ children, showNav = true }: PhoneShellProps) => {
   return (
     <View style={styles.root}>
-      <SafeAreaView style={[styles.safeArea, Platform.OS === 'web' && styles.webSafeArea]}>
-        <View style={styles.container}>
-          {children}
-        </View>
+      <SafeAreaView style={[styles.safeArea, Platform.OS === "web" && styles.webSafeArea]}>
+        <View style={styles.container}>{children}</View>
         {showNav && <BottomNav />}
       </SafeAreaView>
     </View>
@@ -23,29 +29,29 @@ export const PhoneShell = ({ children, showNav = true }: PhoneShellProps) => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: Platform.OS === 'web' ? '#E2E8F0' : '#F8FAFC',
-    alignItems: Platform.OS === 'web' ? 'center' : 'stretch',
-    height: Platform.OS === 'web' ? Dimensions.get('window').height : undefined,
+    backgroundColor: Platform.OS === "web" ? "#E2E8F0" : "#F8FAFC",
+    alignItems: Platform.OS === "web" ? "center" : "stretch",
+    height: Platform.OS === "web" ? Dimensions.get("window").height : undefined,
   },
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-    width: '100%',
+    backgroundColor: "#F8FAFC",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    width: "100%",
   },
   webSafeArea: {
-    width: '100%',
+    width: "100%",
     maxWidth: 480,
-    height: Platform.OS === 'web' ? Dimensions.get('window').height : '100%', // Critical for web visibility
-    shadowColor: '#000',
+    height: Platform.OS === "web" ? Dimensions.get("window").height : "100%", // Critical for web visibility
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: "#F8FAFC",
   },
 });

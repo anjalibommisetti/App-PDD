@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from "react-native";
+import React from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
 
@@ -24,14 +24,8 @@ export const BottomNav = () => {
             style={styles.navItem}
             onPress={() => navigation.navigate(item.name)}
           >
-            <Feather
-              name={item.icon as any}
-              size={24}
-              color={isActive ? "#157A6E" : "#64748B"}
-            />
-            <Text style={[styles.navLabel, isActive && styles.activeLabel]}>
-              {item.label}
-            </Text>
+            <Feather name={item.icon as any} size={24} color={isActive ? "#157A6E" : "#64748B"} />
+            <Text style={[styles.navLabel, isActive && styles.activeLabel]}>{item.label}</Text>
           </TouchableOpacity>
         );
       })}
@@ -41,29 +35,29 @@ export const BottomNav = () => {
 
 const styles = StyleSheet.create({
   navContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     height: 70,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-    paddingBottom: Platform.OS === 'ios' ? 20 : 10,
+    borderTopColor: "#E2E8F0",
+    paddingBottom: Platform.OS === "ios" ? 20 : 10,
     paddingHorizontal: 10,
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    width: '100%',
+    justifyContent: "space-around",
+    alignItems: "center",
+    width: "100%",
   },
   navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     flex: 1,
   },
   navLabel: {
     fontSize: 12,
-    color: '#64748B',
+    color: "#64748B",
     marginTop: 4,
   },
   activeLabel: {
-    color: '#157A6E',
-    fontWeight: '600',
+    color: "#157A6E",
+    fontWeight: "600",
   },
 });

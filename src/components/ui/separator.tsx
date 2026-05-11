@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from "react-native";
 import * as React from "react";
 
 const Separator = ({ orientation = "horizontal", style }: any) => {
@@ -15,14 +15,14 @@ const Separator = ({ orientation = "horizontal", style }: any) => {
 
 const styles = StyleSheet.create({
   separator: {
-    backgroundColor: '#E2E8F0',
+    backgroundColor: "#E2E8F0",
   },
   horizontal: {
     height: 1,
-    width: '100%',
+    width: "100%",
   },
   vertical: {
-    height: '100%',
+    height: "100%",
     width: 1,
   },
 });

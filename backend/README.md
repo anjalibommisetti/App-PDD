@@ -1,6 +1,7 @@
 # SmileGuard AI — Backend Setup Guide
 
 ## Prerequisites
+
 - Python 3.10+
 - pip
 - Trained model file (`oral_disease_cnn.h5`)
@@ -26,6 +27,7 @@ cp ../ml/models/oral_disease_cnn.h5 models/
 
 > If you haven't trained the model yet, run `cd ../ml && python train.py` first.
 > Or use **Google Colab** (recommended for free GPU):
+>
 > 1. Upload `ml/train.py` to Colab
 > 2. Upload your dataset
 > 3. Run the script
@@ -85,13 +87,13 @@ curl -X POST http://localhost:8000/predict \
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/health` | Health check |
-| POST | `/predict` | Real CNN prediction from image |
-| POST | `/assessment/risk` | Risk score from questionnaire answers |
-| POST | `/analytics/future-risk` | Predict future risk from history |
-| POST | `/analytics/chart-data` | Format data for trend chart |
+| Method | Endpoint                 | Description                           |
+| ------ | ------------------------ | ------------------------------------- |
+| GET    | `/health`                | Health check                          |
+| POST   | `/predict`               | Real CNN prediction from image        |
+| POST   | `/assessment/risk`       | Risk score from questionnaire answers |
+| POST   | `/analytics/future-risk` | Predict future risk from history      |
+| POST   | `/analytics/chart-data`  | Format data for trend chart           |
 
 ---
 

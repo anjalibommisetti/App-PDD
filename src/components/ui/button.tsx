@@ -1,6 +1,14 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  Image,
+} from "react-native";
 import * as React from "react";
-import { Button as PaperButton } from 'react-native-paper';
+import { Button as PaperButton } from "react-native-paper";
 
 const Button = React.forwardRef<any, any>(
   ({ children, variant, size, style, labelStyle, ...props }, ref) => {
@@ -39,7 +47,7 @@ const Button = React.forwardRef<any, any>(
         {children}
       </PaperButton>
     );
-  }
+  },
 );
 
 const styles = StyleSheet.create({
@@ -49,7 +57,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
 
