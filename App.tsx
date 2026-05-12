@@ -219,7 +219,7 @@ export default function App() {
   }
 
   return (
-    <View style={{ flex: 1, width: "100%", height: Platform.OS === "web" ? "100vh" : "100%" }}>
+    <View style={{ flex: 1, width: Platform.OS === "web" ? "100vw" : "100%", height: Platform.OS === "web" ? "100vh" : "100%" }}>
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{

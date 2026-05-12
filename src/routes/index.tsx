@@ -49,7 +49,8 @@ export default function LandingPage() {
 
   return (
     <div
-      className={`w-full min-h-screen ${isDarkMode ? "dark bg-slate-950 text-slate-50" : "bg-slate-50 text-slate-900"} transition-colors duration-300 font-sans`}
+      className={`w-screen min-h-screen ${isDarkMode ? "dark bg-slate-950 text-slate-50" : "bg-slate-50 text-slate-900"} transition-colors duration-300 font-sans`}
+      style={{ width: '100vw', overflowX: 'hidden' }}
     >
       {/* Navigation */}
       <nav className="fixed w-full z-50 top-0 transition-all duration-300 backdrop-blur-md bg-white/70 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800">
