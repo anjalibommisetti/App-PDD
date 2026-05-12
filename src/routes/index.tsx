@@ -54,7 +54,7 @@ export default function LandingPage() {
     >
       {/* Navigation */}
       <nav className="fixed w-full z-50 top-0 transition-all duration-300 backdrop-blur-md bg-white/70 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-2">
               <div className="bg-blue-600 p-2 rounded-xl">
@@ -148,7 +148,7 @@ export default function LandingPage() {
             <div className="relative left-1/2 -z-10 aspect-[1155/678] w-[36.125rem] max-w-none -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-20 sm:left-[calc(50%-40rem)] sm:w-[72.1875rem]"></div>
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="w-full px-4 sm:px-6 lg:px-16 relative">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <motion.div
                 initial="initial"
@@ -255,7 +255,7 @@ export default function LandingPage() {
 
         {/* Stats Section */}
         <section className="py-12 border-y border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
                 { label: "Patients Analyzed", value: "10,000+", icon: Users },
@@ -286,8 +286,8 @@ export default function LandingPage() {
 
         {/* Workflow Section */}
         <section id="workflow" className="py-24 relative">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="w-full px-4 sm:px-6 lg:px-8">
+            <div className="text-center w-full mx-auto mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">How SmileGuard AI Works</h2>
               <p className="text-lg text-slate-600 dark:text-slate-400">
                 A seamless 4-step process to predict, detect, and prevent oral diseases before they
@@ -341,7 +341,7 @@ export default function LandingPage() {
         {/* CTA Section */}
         <section className="py-24 bg-blue-600 relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-          <div className="max-w-4xl mx-auto px-4 relative z-10 text-center text-white">
+          <div className="w-full px-4 sm:px-6 lg:px-16 relative z-10 text-center text-white">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
               Ready to prioritize your oral health?
             </h2>
@@ -359,7 +359,7 @@ export default function LandingPage() {
 
         {/* Footer */}
         <footer className="bg-slate-950 text-slate-400 py-12 border-t border-slate-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="w-full px-4 sm:px-6 lg:px-16 grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center space-x-2 mb-4">
                 <Shield className="h-6 w-6 text-blue-500" />
@@ -408,7 +408,7 @@ export default function LandingPage() {
               </ul>
             </div>
           </div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-slate-800 text-sm text-center">
+          <div className="w-full px-4 sm:px-6 lg:px-16 mt-12 pt-8 border-t border-slate-800 text-sm text-center">
             &copy; {new Date().getFullYear()} SmileGuard AI. All rights reserved.
           </div>
         </footer>
