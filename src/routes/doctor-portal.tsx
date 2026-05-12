@@ -33,7 +33,7 @@ export default function DoctorPortal() {
   ];
 
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-slate-950 font-sans overflow-hidden">
+    <div className="w-full flex h-screen bg-slate-50 dark:bg-slate-950 font-sans overflow-hidden">
       {/* Sidebar Navigation */}
       <aside
         className={`${

@@ -219,39 +219,41 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-          cardStyle: { backgroundColor: "#F8FBFB" },
-          detachPreviousScreen: Platform.OS !== "web",
-        }}
-      >
-        {session ? (
-          // Protected Screens
-          <>
-            <Stack.Screen name="Dashboard" component={DashboardScreen} />
-            <Stack.Screen name="Assessment" component={AssessmentScreen} />
-            <Stack.Screen name="Scan" component={ScanScreen} />
-            <Stack.Screen name="Results" component={ResultsScreen} />
-            <Stack.Screen name="Report" component={ReportScreen} />
-            <Stack.Screen name="Profile" component={ProfileScreen} />
-            <Stack.Screen name="History" component={HistoryScreen} />
-            <Stack.Screen name="Dentists" component={DentistsScreen} />
-            <Stack.Screen name="Alerts" component={AlertsScreen} />
-            <Stack.Screen name="Analytics" component={AnalyticsDashboard} />
-            <Stack.Screen name="DoctorDashboard" component={DoctorPortal} />
-          </>
-        ) : (
-          // Auth Screens — Landing is now the entry point
-          <>
-            <Stack.Screen name="Landing" component={LandingPage} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Signup" component={SignupScreen} />
-          </>
-        )}
-      </Stack.Navigator>
-      <Chatbot />
-    </NavigationContainer>
+    <View style={{ flex: 1, width: "100%", height: Platform.OS === "web" ? "100vh" : "100%" }}>
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            cardStyle: { backgroundColor: "#F8FBFB", flex: 1 },
+            detachPreviousScreen: Platform.OS !== "web",
+          }}
+        >
+          {session ? (
+            // Protected Screens
+            <>
+              <Stack.Screen name="Dashboard" component={DashboardScreen} />
+              <Stack.Screen name="Assessment" component={AssessmentScreen} />
+              <Stack.Screen name="Scan" component={ScanScreen} />
+              <Stack.Screen name="Results" component={ResultsScreen} />
+              <Stack.Screen name="Report" component={ReportScreen} />
+              <Stack.Screen name="Profile" component={ProfileScreen} />
+              <Stack.Screen name="History" component={HistoryScreen} />
+              <Stack.Screen name="Dentists" component={DentistsScreen} />
+              <Stack.Screen name="Alerts" component={AlertsScreen} />
+              <Stack.Screen name="Analytics" component={AnalyticsDashboard} />
+              <Stack.Screen name="DoctorDashboard" component={DoctorPortal} />
+            </>
+          ) : (
+            // Auth Screens — Landing is now the entry point
+            <>
+              <Stack.Screen name="Landing" component={LandingPage} />
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="Signup" component={SignupScreen} />
+            </>
+          )}
+        </Stack.Navigator>
+        <Chatbot />
+      </NavigationContainer>
+    </View>
   );
 }
