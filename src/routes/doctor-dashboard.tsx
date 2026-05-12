@@ -92,7 +92,7 @@ function DoctorDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans p-4 md:p-8">
+    <div className="font-sans p-4 md:p-8">
       {/* Header */}
       <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
