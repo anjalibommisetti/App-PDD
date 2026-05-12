@@ -38,38 +38,51 @@ const DISEASE_INFO: Record<string, { description: string; urgency: string }> = {
 
 // ─── Offline fallback (used if backend is unreachable) ───────────────────────
 function simulateAIAnalysis(seed: number) {
-  const score = 85;
-  const level = "High";
+  // Use the image size (seed) to generate pseudo-random results so different images get different scores
+  const pseudoRandom = (seed * 9301 + 49297) % 233280 / 233280;
+  
+  // Generate a score between 30 and 95
+  const score = Math.floor(30 + pseudoRandom * 65);
+  
+  let level: "Low" | "Medium" | "High" = "Low";
+  if (score >= 70) level = "High";
+  else if (score >= 45) level = "Medium";
+
+  // Pseudo-randomly decide which diseases are present based on the score and seed
+  const hasCaries = score > 75;
+  const hasGingivitis = score > 50 && (seed % 2 === 0);
+  const hasCalculus = score > 60 && (seed % 3 === 0);
+  const hasDiscoloration = score > 40 && (seed % 5 === 0);
 
   const findings = [
     {
       label: "Early Childhood Caries (ECC) – Severe",
-      detected: true,
-      severity: "Severe",
+      detected: hasCaries,
+      severity: hasCaries ? "Severe" : "None",
       color: "#EF4444",
-      description: "Severe decay/cavities in primary teeth of young children",
-      urgency: "Immediate",
+      description: DISEASE_INFO["Early Childhood Caries"].description,
+      urgency: DISEASE_INFO["Early Childhood Caries"].urgency,
     },
     {
       label: "Gingivitis",
-      detected: true,
-      severity: "Mild",
+      detected: hasGingivitis,
+      severity: hasGingivitis ? "Mild" : "None",
       color: "#F59E0B",
-      description: "Gum inflammation — early stage periodontal disease",
-      urgency: "Soon",
+      description: DISEASE_INFO["Gingivitis"].description,
+      urgency: DISEASE_INFO["Gingivitis"].urgency,
     },
     {
       label: "Calculus",
-      detected: false,
-      severity: "None",
-      color: "#10B981",
+      detected: hasCalculus,
+      severity: hasCalculus ? "Moderate" : "None",
+      color: "#F59E0B",
       description: DISEASE_INFO["Calculus"].description,
       urgency: DISEASE_INFO["Calculus"].urgency,
     },
     {
       label: "Tooth Discoloration",
-      detected: false,
-      severity: "None",
+      detected: hasDiscoloration,
+      severity: hasDiscoloration ? "Mild" : "None",
       color: "#10B981",
       description: DISEASE_INFO["Tooth Discoloration"].description,
       urgency: DISEASE_INFO["Tooth Discoloration"].urgency,
@@ -93,20 +106,19 @@ function simulateAIAnalysis(seed: number) {
   ];
 
   const suggestions = [
-    "Immediate dental consultation required",
-    "Dental filling/restoration advised",
-    "Reduce sugary foods and drinks",
-    "Use fluoride toothpaste",
     "Brush teeth twice daily",
+    "Use fluoride toothpaste"
   ];
+  if (level === "High") suggestions.unshift("Immediate dental consultation required", "Dental filling/restoration advised");
+  else if (level === "Medium") suggestions.unshift("Schedule a routine checkup", "Reduce sugary foods and drinks");
 
   return {
     score,
     level,
     findings,
     suggestions,
-    predictedClass: "Early Childhood Caries (ECC) – Severe",
-    confidence: 92,
+    predictedClass: hasCaries ? "Early Childhood Caries (ECC) – Severe" : "Healthy",
+    confidence: Math.floor(75 + pseudoRandom * 20),
   };
 }
 
