@@ -569,10 +569,12 @@ export default function ScanScreen() {
 
         {/* Success / Real AI badge */}
         {result && (
-          <View style={styles.realAIBanner}>
-            <Feather name="check-circle" size={14} color="#157A6E" />
-            <Text style={styles.realAIText}>
-              AI analysis completed successfully · Confidence Score: {result.confidence}%
+          <View style={[styles.realAIBanner, offlineMode && { backgroundColor: "#FEF2F2", borderColor: "#EF4444" }]}>
+            <Feather name={offlineMode ? "alert-triangle" : "check-circle"} size={14} color={offlineMode ? "#EF4444" : "#157A6E"} />
+            <Text style={[styles.realAIText, offlineMode && { color: "#EF4444", fontWeight: "bold" }]}>
+              {offlineMode 
+                ? `⚠️ Backend Asleep/Unreachable. Displaying Simulated Data. Confidence: ${result.confidence}%` 
+                : `AI analysis completed successfully · Confidence Score: ${result.confidence}%`}
             </Text>
           </View>
         )}
