@@ -146,6 +146,7 @@ export default function App() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
+  const [initialRoute, setInitialRoute] = useState<string>("Dashboard");
   useEffect(() => {
     // NO auto-dismiss — user must click "Get Started" button
   }, []);
