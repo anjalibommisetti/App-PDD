@@ -13,6 +13,8 @@ import { PhoneShell } from "../components/PhoneShell";
 import { supabase } from "../lib/supabase";
 import { Feather } from "@expo/vector-icons";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 export default function LoginScreen() {
   const navigation = useNavigation<any>();
   const [email, setEmail] = useState("");
@@ -20,6 +22,7 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isDoctor, setIsDoctor] = useState(false); // NEW STATE FOR ROLE
 
   const handleLogin = async () => {
     setErrorMessage("");
@@ -54,10 +57,11 @@ export default function LoginScreen() {
           setErrorMessage(msg || "Login failed. Please try again.");
         }
       } else if (data?.session) {
-        navigation.navigate("Dashboard");
+        // Save the chosen role to AsyncStorage so App.tsx knows where to route them!
+        await AsyncStorage.setItem("userRole", isDoctor ? "doctor" : "patient");
+        navigation.navigate(isDoctor ? "DoctorDashboard" : "Dashboard");
       }
     } catch (err: any) {
-      // Catches fetch/network errors that Supabase doesn't wrap
       setErrorMessage("⚠ No internet connection. Please check your network and try again.");
     } finally {
       setLoading(false);
@@ -100,6 +104,32 @@ export default function LoginScreen() {
             <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowPassword(!showPassword)}>
               <Feather name={showPassword ? "eye" : "eye-off"} size={20} color="#64748B" />
             </TouchableOpacity>
+          </View>
+
+          {/* ROLE SELECTOR */}
+          <View style={styles.roleContainer}>
+            <Text style={styles.roleLabel}>I am logging in as a:</Text>
+            <View style={styles.roleOptions}>
+              <TouchableOpacity
+                style={[styles.roleOption, !isDoctor && styles.roleOptionActive]}
+                onPress={() => setIsDoctor(false)}
+              >
+                <Feather name="user" size={16} color={!isDoctor ? "#0D4B42" : "#64748B"} />
+                <Text style={[styles.roleOptionText, !isDoctor && styles.roleOptionTextActive]}>
+                  Patient
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.roleOption, isDoctor && styles.roleOptionActive]}
+                onPress={() => setIsDoctor(true)}
+              >
+                <Feather name="briefcase" size={16} color={isDoctor ? "#0D4B42" : "#64748B"} />
+                <Text style={[styles.roleOptionText, isDoctor && styles.roleOptionTextActive]}>
+                  Doctor
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
@@ -158,6 +188,44 @@ const styles = StyleSheet.create({
   },
   eyeIcon: {
     padding: 12,
+  },
+  roleContainer: {
+    marginTop: 4,
+    marginBottom: 4,
+  },
+  roleLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#64748B",
+    marginBottom: 8,
+  },
+  roleOptions: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  roleOption: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    backgroundColor: "#F8FAFC",
+  },
+  roleOptionActive: {
+    borderColor: "#86F1D4",
+    backgroundColor: "#E6FAF4",
+  },
+  roleOptionText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#64748B",
+  },
+  roleOptionTextActive: {
+    color: "#0D4B42",
   },
   button: {
     backgroundColor: "#86F1D4",

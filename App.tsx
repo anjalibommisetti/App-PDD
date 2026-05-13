@@ -168,6 +168,11 @@ export default function App() {
           data: { session: currentSession },
         } = await supabase.auth.getSession();
         setSession(currentSession ?? null);
+        if (currentSession) {
+          const role = await AsyncStorage.getItem("userRole");
+          if (role === "doctor") setInitialRoute("DoctorDashboard");
+          else setInitialRoute("Dashboard");
+        }
       } catch (err) {
         console.error("Session check error:", err);
       } finally {
@@ -183,8 +188,13 @@ export default function App() {
     // 2. Listen for auth state changes (login / logout events)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
       setSession(newSession ?? null);
+      if (newSession) {
+        const role = await AsyncStorage.getItem("userRole");
+        if (role === "doctor") setInitialRoute("DoctorDashboard");
+        else setInitialRoute("Dashboard");
+      }
     });
 
     return () => {
@@ -227,6 +237,7 @@ export default function App() {
             cardStyle: { backgroundColor: "#F8FBFB", flex: 1 },
             detachPreviousScreen: Platform.OS !== "web",
           }}
+          initialRouteName={initialRoute}
         >
           {session ? (
             // Protected Screens
