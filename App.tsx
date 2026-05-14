@@ -147,7 +147,7 @@ export default function App() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
-  const [initialRoute, setInitialRoute] = useState<string>("Dashboard");
+  const [initialRoute, setInitialRoute] = useState<string>("Landing");
   useEffect(() => {
     // NO auto-dismiss — user must click "Get Started" button
   }, []);
@@ -174,6 +174,8 @@ export default function App() {
           const role = await AsyncStorage.getItem("userRole");
           if (role === "doctor") setInitialRoute("DoctorDashboard");
           else setInitialRoute("Dashboard");
+        } else {
+          setInitialRoute("Landing");
         }
         
         // Set session AFTER initialRoute is determined so Navigator mounts correctly
@@ -199,6 +201,8 @@ export default function App() {
         const role = await AsyncStorage.getItem("userRole");
         if (role === "doctor") setInitialRoute("DoctorDashboard");
         else setInitialRoute("Dashboard");
+      } else {
+        setInitialRoute("Landing");
       }
     });
 
