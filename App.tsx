@@ -168,12 +168,15 @@ export default function App() {
         const {
           data: { session: currentSession },
         } = await supabase.auth.getSession();
-        setSession(currentSession ?? null);
+        
         if (currentSession) {
           const role = await AsyncStorage.getItem("userRole");
           if (role === "doctor") setInitialRoute("DoctorDashboard");
           else setInitialRoute("Dashboard");
         }
+        
+        // Set session AFTER initialRoute is determined so Navigator mounts correctly
+        setSession(currentSession ?? null);
       } catch (err) {
         console.error("Session check error:", err);
       } finally {
