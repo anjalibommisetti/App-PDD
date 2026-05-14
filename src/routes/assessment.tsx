@@ -405,6 +405,12 @@ export default function AssessmentScreen() {
           recommendations,
           patientName: userName,
         });
+
+        // Clear the form after submission so the next assessment is fresh
+        setTimeout(() => {
+          setSectionIndex(0);
+          setAnswers({});
+        }, 500);
       } catch (e) {
         console.error("Submit error:", e);
         const { score, level, breakdown, insight, recommendations } = computeRisk(answers);
@@ -416,6 +422,11 @@ export default function AssessmentScreen() {
           recommendations,
           patientName: answers.q0 || "",
         });
+        
+        setTimeout(() => {
+          setSectionIndex(0);
+          setAnswers({});
+        }, 500);
       } finally {
         setSaving(false);
       }

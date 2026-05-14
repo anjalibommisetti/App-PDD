@@ -134,17 +134,17 @@ export default function HistoryScreen() {
     }
   };
 
-  const handleDelete = (id: string, type: string) => {
+  const handleDelete = async (id: string, type: string) => {
     if (Platform.OS === "web") {
       if ((window as any).confirm("Are you sure you want to delete this record?")) {
         const table = type === "appointment" ? "appointments" : "assessments";
-        supabase
-          .from(table)
-          .delete()
-          .eq("id", id)
-          .then(() => {
-            setItems((prev) => prev.filter((i) => i.id !== id));
-          });
+        const { error } = await supabase.from(table).delete().eq("id", id);
+        if (error) {
+          console.error("Delete error:", error.message);
+          alert("Could not delete record. Please try again.");
+        } else {
+          setItems((prev) => prev.filter((i) => i.id !== id));
+        }
       }
     } else {
       Alert.alert("Delete Entry", "Are you sure you want to delete this record?", [
@@ -154,8 +154,13 @@ export default function HistoryScreen() {
           style: "destructive",
           onPress: async () => {
             const table = type === "appointment" ? "appointments" : "assessments";
-            await supabase.from(table).delete().eq("id", id);
-            setItems((prev) => prev.filter((i) => i.id !== id));
+            const { error } = await supabase.from(table).delete().eq("id", id);
+            if (error) {
+              console.error("Delete error:", error.message);
+              Alert.alert("Error", "Could not delete record. Please try again.");
+            } else {
+              setItems((prev) => prev.filter((i) => i.id !== id));
+            }
           },
         },
       ]);
