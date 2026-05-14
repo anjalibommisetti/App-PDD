@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, Styl
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { supabase } from "../lib/supabase";
-import { Feather, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 export default function ForgotPasswordScreen() {
   const navigation = useNavigation<any>();
