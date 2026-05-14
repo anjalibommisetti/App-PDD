@@ -53,6 +53,8 @@ export default function SignupScreen() {
     if (password.length < 6) {
       setErrorMessage("Password must be at least 6 characters");
       return;
+    }
+    
     if (role === "doctor" && (!specialization || !licenseNumber)) {
       setErrorMessage("Please fill in your medical credentials");
       return;
