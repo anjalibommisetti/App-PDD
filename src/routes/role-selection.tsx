@@ -13,7 +13,7 @@ export default function RoleSelectionScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#F8FBFB" }}>
+    <div style={{ flex: 1, backgroundColor: "#F8FBFB", minHeight: "100vh" }}>
       <div className="flex-1 flex flex-col px-6 py-12 max-w-md mx-auto w-full">
         {/* Header */}
         <button 
@@ -77,6 +77,6 @@ export default function RoleSelectionScreen() {
           </p>
         </div>
       </div>
-    </SafeAreaView>
+    </div>
   );
 }
