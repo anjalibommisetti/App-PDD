@@ -13,14 +13,24 @@ import {
   Menu,
 } from "lucide-react";
 import { useNavigation } from "@react-navigation/native";
-import { TouchableOpacity, Platform } from "react-native";
+import { Platform } from "react-native";
 import DoctorDashboard from "./doctor-dashboard";
 import AnalyticsDashboard from "./analytics";
+import ProfileScreen from "./profile";
+import { supabase } from "../lib/supabase";
 
 export default function DoctorPortal() {
   const navigation = useNavigation<any>();
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
 
   const TABS = [
     { id: "Dashboard", icon: Activity, label: "Overview" },
@@ -78,13 +88,13 @@ export default function DoctorPortal() {
         </nav>
 
         <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Login")}
-            className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-start gap-3 px-3 py-3 rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
           >
             <LogOut className="w-5 h-5" />
             {sidebarOpen && <span className="font-semibold">Logout</span>}
-          </TouchableOpacity>
+          </button>
         </div>
       </aside>
 
@@ -144,8 +154,8 @@ export default function DoctorPortal() {
             </div>
           )}
           {activeTab === "Settings" && (
-            <div className="p-8 flex items-center justify-center h-full text-slate-500">
-              Doctor Profile Settings (Coming Next)
+            <div className="flex-1 w-full h-full overflow-hidden">
+              <ProfileScreen />
             </div>
           )}
         </div>
