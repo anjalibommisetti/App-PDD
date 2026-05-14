@@ -93,7 +93,7 @@ export default function LandingPage() {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => navigation.navigate("Signup")}
+                onPress={() => navigation.navigate("RoleSelection")}
                 className="px-5 py-2.5 rounded-full bg-blue-600 shadow-lg shadow-blue-500/30"
               >
                 <Text className="text-white font-medium">Get Started</Text>
@@ -130,7 +130,7 @@ export default function LandingPage() {
                   <Text className="block py-2 font-medium text-blue-600 dark:text-blue-400">Log in</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => navigation.navigate("Signup")}
+                  onPress={() => navigation.navigate("RoleSelection")}
                   className="block py-3 mt-2 text-center rounded-lg bg-blue-600"
                 >
                   <Text className="text-white font-medium">Get Started</Text>
@@ -188,7 +188,7 @@ export default function LandingPage() {
                 </motion.p>
                 <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4">
                   <TouchableOpacity
-                    onPress={() => navigation.navigate("Signup")}
+                    onPress={() => navigation.navigate("RoleSelection")}
                     className="inline-flex justify-center items-center px-8 py-4 rounded-full bg-blue-600 shadow-lg shadow-blue-500/30 group"
                   >
                     <Text className="text-white font-semibold text-lg flex items-center">
@@ -197,7 +197,7 @@ export default function LandingPage() {
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={() => navigation.navigate("Login")}
+                    onPress={() => navigation.navigate("RoleSelection")}
                     className="inline-flex justify-center items-center px-8 py-4 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
                   >
                     <Text className="text-slate-900 dark:text-white font-semibold text-lg">Doctor Portal</Text>
@@ -349,7 +349,7 @@ export default function LandingPage() {
               Join thousands of patients and clinics using SmileGuard AI for predictive dental care.
             </p>
             <TouchableOpacity
-              onPress={() => navigation.navigate("Signup")}
+              onPress={() => navigation.navigate("RoleSelection")}
               className="inline-flex justify-center items-center px-8 py-4 rounded-full bg-white shadow-xl"
             >
               <Text className="text-blue-600 font-bold text-lg">Get Your Free Assessment</Text>

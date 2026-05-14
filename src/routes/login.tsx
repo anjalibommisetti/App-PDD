@@ -22,7 +22,6 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [isDoctor, setIsDoctor] = useState(false); // NEW STATE FOR ROLE
 
   const handleLogin = async () => {
     setErrorMessage("");
@@ -57,9 +56,13 @@ export default function LoginScreen() {
           setErrorMessage(msg || "Login failed. Please try again.");
         }
       } else if (data?.session) {
-        // Save the chosen role to AsyncStorage so App.tsx knows where to route them!
-        await AsyncStorage.setItem("userRole", isDoctor ? "doctor" : "patient");
-        navigation.navigate(isDoctor ? "DoctorDashboard" : "Dashboard");
+        // Fetch actual role from user metadata
+        const role = data.session.user.user_metadata?.role || "patient";
+        await AsyncStorage.setItem("userRole", role);
+        
+        if (role === "admin") navigation.navigate("AdminDashboard");
+        else if (role === "doctor") navigation.navigate("DoctorDashboard");
+        else navigation.navigate("Dashboard");
       }
     } catch (err: any) {
       setErrorMessage("⚠ No internet connection. Please check your network and try again.");
@@ -106,31 +109,12 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* ROLE SELECTOR */}
-          <View style={styles.roleContainer}>
-            <Text style={styles.roleLabel}>I am logging in as a:</Text>
-            <View style={styles.roleOptions}>
-              <TouchableOpacity
-                style={[styles.roleOption, !isDoctor && styles.roleOptionActive]}
-                onPress={() => setIsDoctor(false)}
-              >
-                <Feather name="user" size={16} color={!isDoctor ? "#0D4B42" : "#64748B"} />
-                <Text style={[styles.roleOptionText, !isDoctor && styles.roleOptionTextActive]}>
-                  Patient
-                </Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity
-                style={[styles.roleOption, isDoctor && styles.roleOptionActive]}
-                onPress={() => setIsDoctor(true)}
-              >
-                <Feather name="briefcase" size={16} color={isDoctor ? "#0D4B42" : "#64748B"} />
-                <Text style={[styles.roleOptionText, isDoctor && styles.roleOptionTextActive]}>
-                  Doctor
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <TouchableOpacity
+            style={{ alignSelf: "flex-end", marginTop: -8, marginBottom: 16 }}
+            onPress={() => navigation.navigate("ForgotPassword")}
+          >
+            <Text style={{ color: "#64748B", fontWeight: "500", fontSize: 14 }}>Forgot Password?</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
             {loading ? (
@@ -143,7 +127,7 @@ export default function LoginScreen() {
           <TouchableOpacity
             onPress={() => {
               Keyboard.dismiss();
-              navigation.navigate("Signup");
+              navigation.navigate("RoleSelection");
             }}
           >
             <Text style={styles.link}>Don't have an account? Sign up</Text>

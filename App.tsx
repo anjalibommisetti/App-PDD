@@ -44,7 +44,9 @@ import ScanScreen from "./src/routes/scan";
 import { Chatbot } from "./src/components/Chatbot";
 import LandingPage from "./src/routes/index";
 import AnalyticsDashboard from "./src/routes/analytics";
-import DoctorPortal from "./src/routes/doctor-portal";
+import RoleSelectionScreen from "./src/routes/role-selection";
+import AdminPortal from "./src/routes/admin-portal";
+import ForgotPasswordScreen from "./src/routes/forgot-password";
 
 const Stack = createStackNavigator();
 
@@ -262,13 +264,16 @@ export default function App() {
               <Stack.Screen name="Alerts" component={AlertsScreen} />
               <Stack.Screen name="Analytics" component={AnalyticsDashboard} />
               <Stack.Screen name="DoctorDashboard" component={DoctorPortal} />
+              <Stack.Screen name="AdminDashboard" component={AdminPortal} />
             </>
           ) : (
             // Auth Screens — Landing is now the entry point
             <>
               <Stack.Screen name="Landing" component={LandingPage} />
+              <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Signup" component={SignupScreen} />
+              <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
             </>
           )}
         </Stack.Navigator>

@@ -13,6 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { supabase } from "../lib/supabase";
 import { Feather } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SignupScreen() {
   console.log("SignupScreen rendered");
@@ -24,6 +25,18 @@ export default function SignupScreen() {
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  
+  // Role specific state
+  const [role, setRole] = useState("patient");
+  const [specialization, setSpecialization] = useState("");
+  const [licenseNumber, setLicenseNumber] = useState("");
+  const [adminCode, setAdminCode] = useState("");
+
+  React.useEffect(() => {
+    AsyncStorage.getItem("selectedSignupRole").then(r => {
+      if (r) setRole(r);
+    });
+  }, []);
 
   const handleSignup = async () => {
     setErrorMessage("");
@@ -40,6 +53,14 @@ export default function SignupScreen() {
     if (password.length < 6) {
       setErrorMessage("Password must be at least 6 characters");
       return;
+    if (role === "doctor" && (!specialization || !licenseNumber)) {
+      setErrorMessage("Please fill in your medical credentials");
+      return;
+    }
+    
+    if (role === "admin" && adminCode !== "ADMIN2026") {
+      setErrorMessage("Invalid Admin Registration Code");
+      return;
     }
 
     setLoading(true);
@@ -50,6 +71,9 @@ export default function SignupScreen() {
       options: {
         data: {
           full_name: fullName,
+          role: role,
+          specialization: role === "doctor" ? specialization : null,
+          license_number: role === "doctor" ? licenseNumber : null,
         },
       },
     });
@@ -75,7 +99,9 @@ export default function SignupScreen() {
     <PhoneShell showNav={false}>
       <View style={{ flex: 1 }}>
         <View style={styles.container}>
-          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.title}>
+            {role === "doctor" ? "Doctor Registration" : role === "admin" ? "Admin Registration" : "Create Account"}
+          </Text>
 
           {errorMessage ? (
             <View style={styles.errorContainer}>
@@ -86,13 +112,40 @@ export default function SignupScreen() {
 
           <TextInput
             style={styles.input}
-            placeholder="Full Name"
+            placeholder={role === "doctor" ? "Dr. Full Name" : "Full Name"}
             value={fullName}
             onChangeText={(val) => {
               setFullName(val);
               setErrorMessage("");
             }}
           />
+
+          {role === "doctor" && (
+            <>
+              <TextInput
+                style={styles.input}
+                placeholder="Medical Specialization (e.g. Orthodontist)"
+                value={specialization}
+                onChangeText={setSpecialization}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Medical License Number"
+                value={licenseNumber}
+                onChangeText={setLicenseNumber}
+              />
+            </>
+          )}
+
+          {role === "admin" && (
+            <TextInput
+              style={styles.input}
+              placeholder="Admin Registration Code"
+              secureTextEntry
+              value={adminCode}
+              onChangeText={setAdminCode}
+            />
+          )}
 
           <TextInput
             style={styles.input}
