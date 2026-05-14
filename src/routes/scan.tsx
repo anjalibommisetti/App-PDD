@@ -573,7 +573,7 @@ export default function ScanScreen() {
             <Feather name={offlineMode ? "alert-triangle" : "check-circle"} size={14} color={offlineMode ? "#EF4444" : "#157A6E"} />
             <Text style={[styles.realAIText, offlineMode && { color: "#EF4444", fontWeight: "bold" }]}>
               {offlineMode 
-                ? `⚠️ Backend Asleep/Unreachable. Displaying Simulated Data. Confidence: ${result.confidence}%` 
+                ? `⚠️ Backend Asleep/Unreachable. Displaying Simulated Data. (If you just started the app, wait ~50s for the free backend to wake up and try again). Confidence: ${result.confidence}%` 
                 : `AI analysis completed successfully · Confidence Score: ${result.confidence}%`}
             </Text>
           </View>

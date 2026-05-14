@@ -13,6 +13,7 @@ import { PhoneShell } from "../components/PhoneShell";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
 import { supabase } from "../lib/supabase";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const badges = [
   { name: "Healthy Habits", icon: "star", tone: "mint" },
@@ -28,6 +29,7 @@ export default function ProfileScreen() {
   const [latestLevel, setLatestLevel] = useState<string | null>(null);
   const [riskChange, setRiskChange] = useState<number | null>(null);
   const [totalAssessments, setTotalAssessments] = useState(0);
+  const [role, setRole] = useState("Patient");
 
   useFocusEffect(
     useCallback(() => {
@@ -42,6 +44,13 @@ export default function ProfileScreen() {
         data: { session },
       } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
+
+      const storedRole = await AsyncStorage.getItem("userRole");
+      if (storedRole === "doctor") {
+        setRole("Doctor");
+      } else {
+        setRole("Patient");
+      }
 
       // Fetch last 2 completed assessments for real stats
       const userId = session?.user?.id;
@@ -122,7 +131,7 @@ export default function ProfileScreen() {
             <Text style={styles.userEmail}>{user?.email}</Text>
             <View style={{ flexDirection: "row", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
               <View style={styles.roleBadge}>
-                <Text style={styles.roleText}>Patient</Text>
+                <Text style={styles.roleText}>{role}</Text>
               </View>
               {latestLevel && (
                 <View style={[styles.roleBadge, { backgroundColor: riskBg }]}>
