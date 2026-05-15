@@ -13,7 +13,7 @@ import {
   Menu,
 } from "lucide-react";
 import { useNavigation } from "@react-navigation/native";
-import { Platform } from "react-native";
+import { Platform, View } from "react-native";
 import DoctorDashboard from "./doctor-dashboard";
 import AnalyticsDashboard from "./analytics";
 import ProfileScreen from "./profile";
@@ -43,8 +43,9 @@ export default function DoctorPortal() {
   ];
 
   return (
-    <div className="w-full flex h-screen bg-slate-50 dark:bg-slate-950 font-sans overflow-hidden">
-      {/* Sidebar Navigation */}
+    <View style={{ flex: 1 }}>
+      <div className="w-full flex h-screen bg-slate-50 dark:bg-slate-950 font-sans overflow-hidden">
+        {/* Sidebar Navigation */}
       <aside
         className={`${
           sidebarOpen ? "w-64" : "w-20"
@@ -158,8 +159,9 @@ export default function DoctorPortal() {
               <ProfileScreen />
             </div>
           )}
-        </div>
-      </main>
-    </div>
+          </div>
+        </main>
+      </div>
+    </View>
   );
 }

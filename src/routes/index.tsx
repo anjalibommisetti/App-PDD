@@ -20,7 +20,7 @@ import {
   Stethoscope,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
-import { TouchableOpacity, Text } from "react-native";
+import { TouchableOpacity, Text, View } from "react-native";
 
 export default function LandingPage() {
   const navigation = useNavigation<any>();
@@ -48,10 +48,10 @@ export default function LandingPage() {
   };
 
   return (
-    <div
-      className={`w-screen min-h-screen ${isDarkMode ? "dark bg-slate-950 text-slate-50" : "bg-slate-50 text-slate-900"} transition-colors duration-300 font-sans`}
-      style={{ width: '100vw', overflowX: 'hidden' }}
-    >
+    <View style={{ flex: 1, width: '100%', overflow: 'hidden' }}>
+      <div
+        className={`w-screen min-h-screen ${isDarkMode ? "dark bg-slate-950 text-slate-50" : "bg-slate-50 text-slate-900"} transition-colors duration-300 font-sans`}
+      >
       {/* Navigation */}
       <nav className="fixed w-full z-50 top-0 transition-all duration-300 backdrop-blur-md bg-white/70 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800">
         <div className="w-full px-4 sm:px-6 lg:px-8">
@@ -87,17 +87,17 @@ export default function LandingPage() {
               >
                 {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </button>
-              <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-                <Text className="font-medium hover:text-blue-500 transition-colors">
+              <button onClick={() => navigation.navigate("Login")}>
+                <span className="font-medium hover:text-blue-500 transition-colors">
                   Log in
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => navigation.navigate("RoleSelection")}
+                </span>
+              </button>
+              <button
+                onClick={() => navigation.navigate("RoleSelection")}
                 className="px-5 py-2.5 rounded-full bg-blue-600 shadow-lg shadow-blue-500/30"
               >
-                <Text className="text-white font-medium">Get Started</Text>
-              </TouchableOpacity>
+                <span className="text-white font-medium">Get Started</span>
+              </button>
             </div>
 
             <div className="md:hidden flex items-center">
@@ -124,17 +124,17 @@ export default function LandingPage() {
                 <a href="#workflow" className="block py-2 font-medium">
                   How it Works
                 </a>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate("Login")}
+                <button
+                  onClick={() => navigation.navigate("Login")}
                 >
-                  <Text className="block py-2 font-medium text-blue-600 dark:text-blue-400">Log in</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate("RoleSelection")}
-                  className="block py-3 mt-2 text-center rounded-lg bg-blue-600"
+                  <span className="block py-2 font-medium text-blue-600 dark:text-blue-400">Log in</span>
+                </button>
+                <button
+                  onClick={() => navigation.navigate("RoleSelection")}
+                  className="block py-3 mt-2 w-full text-center rounded-lg bg-blue-600"
                 >
-                  <Text className="text-white font-medium">Get Started</Text>
-                </TouchableOpacity>
+                  <span className="text-white font-medium">Get Started</span>
+                </button>
               </div>
             </motion.div>
           )}
@@ -187,21 +187,21 @@ export default function LandingPage() {
                   Transforming dental care from reactive treatment to proactive prevention.
                 </motion.p>
                 <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4">
-                  <TouchableOpacity
-                    onPress={() => navigation.navigate("RoleSelection")}
+                  <button
+                    onClick={() => navigation.navigate("RoleSelection")}
                     className="inline-flex justify-center items-center px-8 py-4 rounded-full bg-blue-600 shadow-lg shadow-blue-500/30 group"
                   >
-                    <Text className="text-white font-semibold text-lg flex items-center">
+                    <span className="text-white font-semibold text-lg flex items-center">
                       Start Assessment
                       <ArrowRight className="ml-2 h-5 w-5" />
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => navigation.navigate("RoleSelection")}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => navigation.navigate("RoleSelection")}
                     className="inline-flex justify-center items-center px-8 py-4 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
                   >
-                    <Text className="text-slate-900 dark:text-white font-semibold text-lg">Doctor Portal</Text>
-                  </TouchableOpacity>
+                    <span className="text-slate-900 dark:text-white font-semibold text-lg">Doctor Portal</span>
+                  </button>
                 </motion.div>
               </motion.div>
 
@@ -348,12 +348,12 @@ export default function LandingPage() {
             <p className="text-xl text-blue-100 mb-10">
               Join thousands of patients and clinics using SmileGuard AI for predictive dental care.
             </p>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("RoleSelection")}
+            <button
+              onClick={() => navigation.navigate("RoleSelection")}
               className="inline-flex justify-center items-center px-8 py-4 rounded-full bg-white shadow-xl"
             >
-              <Text className="text-blue-600 font-bold text-lg">Get Your Free Assessment</Text>
-            </TouchableOpacity>
+              <span className="text-blue-600 font-bold text-lg">Get Your Free Assessment</span>
+            </button>
           </div>
         </section>
 
@@ -413,6 +413,7 @@ export default function LandingPage() {
           </div>
         </footer>
       </main>
-    </div>
+      </div>
+    </View>
   );
 }

@@ -18,6 +18,7 @@ import {
 } from "recharts";
 import { Activity, TrendingUp, Users, Target } from "lucide-react";
 import { motion } from "framer-motion";
+import { View } from "react-native";
 
 // Mock Data
 const monthlyCasesData = [
@@ -44,8 +45,9 @@ const accuracyTrendData = [
 
 function AnalyticsDashboard() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans p-4 md:p-8">
-      {/* Header */}
+    <View style={{ flex: 1 }}>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans p-4 md:p-8">
+        {/* Header */}
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Platform Analytics</h1>
         <p className="text-slate-600 dark:text-slate-400">
@@ -293,8 +295,9 @@ function AnalyticsDashboard() {
             </ResponsiveContainer>
           </div>
         </motion.div>
+        </div>
       </div>
-    </div>
+    </View>
   );
 }
 

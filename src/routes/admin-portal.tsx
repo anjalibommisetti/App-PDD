@@ -16,7 +16,7 @@ export default function AdminPortal() {
   };
 
   return (
-    <div style={{ flex: 1, backgroundColor: "#F8FAFC", minHeight: "100vh" }}>
+    <View style={{ flex: 1, backgroundColor: "#F8FAFC", minHeight: "100vh" as any }}>
       {/* Top Navbar */}
       <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6">
         <div className="flex items-center gap-2">
@@ -84,6 +84,6 @@ export default function AdminPortal() {
           </button>
         </div>
       </div>
-    </div>
+    </View>
   );
 }

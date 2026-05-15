@@ -13,7 +13,7 @@ export default function RoleSelectionScreen() {
   };
 
   return (
-    <div style={{ flex: 1, backgroundColor: "#F8FBFB", minHeight: "100vh" }}>
+    <View style={{ flex: 1, backgroundColor: "#F8FBFB", minHeight: "100vh" as any }}>
       <div className="flex-1 flex flex-col px-6 py-12 max-w-md mx-auto w-full">
         {/* Header */}
         <button 
@@ -77,6 +77,6 @@ export default function RoleSelectionScreen() {
           </p>
         </div>
       </div>
-    </div>
+    </View>
   );
 }
