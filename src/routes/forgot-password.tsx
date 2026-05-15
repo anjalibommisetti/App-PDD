@@ -8,11 +8,14 @@ import { ArrowLeft } from "lucide-react";
 export default function ForgotPasswordScreen() {
   const navigation = useNavigation<any>();
   const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const handleReset = async () => {
+  const handleSendOtp = async () => {
     setMessage("");
     setErrorMsg("");
     if (!email) {
@@ -25,7 +28,54 @@ export default function ForgotPasswordScreen() {
     if (error) {
       setErrorMsg(error.message);
     } else {
-      setMessage("Password reset instructions have been sent to your email.");
+      setMessage("An OTP has been sent to your email.");
+      setStep(2);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setMessage("");
+    setErrorMsg("");
+    if (!otp) {
+      setErrorMsg("Please enter the OTP.");
+      return;
+    }
+    setLoading(true);
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: email.trim(),
+      token: otp.trim(),
+      type: "recovery",
+    });
+    setLoading(false);
+    
+    if (error) {
+      setErrorMsg(error.message);
+    } else if (data?.session) {
+      setMessage("OTP verified successfully. Please enter a new password.");
+      setStep(3);
+    } else {
+      setErrorMsg("Invalid OTP or expired.");
+    }
+  };
+
+  const handleResetPassword = async () => {
+    setMessage("");
+    setErrorMsg("");
+    if (!newPassword || newPassword.length < 6) {
+      setErrorMsg("Password must be at least 6 characters.");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    setLoading(false);
+
+    if (error) {
+      setErrorMsg(error.message);
+    } else {
+      Alert.alert("Success", "Your password has been changed successfully. You can now log in.");
+      navigation.navigate("Login");
     }
   };
 
@@ -36,8 +86,16 @@ export default function ForgotPasswordScreen() {
           <ArrowLeft className="w-6 h-6 text-slate-500" />
         </TouchableOpacity>
         
-        <Text style={styles.title}>Reset Password</Text>
-        <Text style={styles.subtitle}>Enter the email associated with your account and we'll send you a link to reset your password.</Text>
+        <Text style={styles.title}>
+          {step === 1 ? "Reset Password" : step === 2 ? "Verify OTP" : "New Password"}
+        </Text>
+        <Text style={styles.subtitle}>
+          {step === 1 
+            ? "Enter the email associated with your account and we'll send you an OTP."
+            : step === 2
+            ? `Enter the 6-digit OTP sent to ${email}`
+            : "Enter your new password to secure your account."}
+        </Text>
 
         {errorMsg ? (
           <View style={styles.errorContainer}>
@@ -51,22 +109,51 @@ export default function ForgotPasswordScreen() {
           </View>
         ) : null}
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email Address"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-        />
+        {step === 1 && (
+          <>
+            <TextInput
+              style={styles.input}
+              placeholder="Email Address"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+            />
+            <TouchableOpacity style={styles.button} onPress={handleSendOtp} disabled={loading}>
+              {loading ? <ActivityIndicator color="#0D4B42" /> : <Text style={styles.buttonText}>Send OTP</Text>}
+            </TouchableOpacity>
+          </>
+        )}
 
-        <TouchableOpacity style={styles.button} onPress={handleReset} disabled={loading}>
-          {loading ? (
-            <ActivityIndicator color="#0D4B42" />
-          ) : (
-            <Text style={styles.buttonText}>Send Reset Link</Text>
-          )}
-        </TouchableOpacity>
+        {step === 2 && (
+          <>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter 6-digit OTP"
+              keyboardType="number-pad"
+              value={otp}
+              onChangeText={setOtp}
+            />
+            <TouchableOpacity style={styles.button} onPress={handleVerifyOtp} disabled={loading}>
+              {loading ? <ActivityIndicator color="#0D4B42" /> : <Text style={styles.buttonText}>Verify OTP</Text>}
+            </TouchableOpacity>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <TextInput
+              style={styles.input}
+              placeholder="New Password"
+              secureTextEntry
+              value={newPassword}
+              onChangeText={setNewPassword}
+            />
+            <TouchableOpacity style={styles.button} onPress={handleResetPassword} disabled={loading}>
+              {loading ? <ActivityIndicator color="#0D4B42" /> : <Text style={styles.buttonText}>Update Password</Text>}
+            </TouchableOpacity>
+          </>
+        )}
       </View>
     </PhoneShell>
   );

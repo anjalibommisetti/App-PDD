@@ -188,7 +188,10 @@ export default function LandingPage() {
                 </motion.p>
                 <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4">
                   <button
-                    onClick={() => navigation.navigate("RoleSelection")}
+                    onClick={async () => {
+                      await import("@react-native-async-storage/async-storage").then(m => m.default.setItem("selectedSignupRole", "patient"));
+                      navigation.navigate("Signup");
+                    }}
                     className="inline-flex justify-center items-center px-8 py-4 rounded-full bg-blue-600 shadow-lg shadow-blue-500/30 group"
                   >
                     <span className="text-white font-semibold text-lg flex items-center">
@@ -197,7 +200,7 @@ export default function LandingPage() {
                     </span>
                   </button>
                   <button
-                    onClick={() => navigation.navigate("RoleSelection")}
+                    onClick={() => navigation.navigate("Login")}
                     className="inline-flex justify-center items-center px-8 py-4 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
                   >
                     <span className="text-slate-900 dark:text-white font-semibold text-lg">Doctor Portal</span>
