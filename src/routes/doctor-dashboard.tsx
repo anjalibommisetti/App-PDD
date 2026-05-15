@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Users,
   Activity,
@@ -9,85 +9,144 @@ import {
   FileText,
   ChevronRight,
   XCircle,
+  Clock
 } from "lucide-react";
 import { motion } from "framer-motion";
-
-// Mock Data
-const MOCK_PATIENTS = [
-  {
-    id: "1",
-    name: "Emily Chen",
-    age: 8,
-    lastVisit: "2026-05-01",
-    risk: "High",
-    aiDiagnosis: "Early Childhood Caries",
-    confidence: 94,
-    status: "Pending Review",
-  },
-  {
-    id: "2",
-    name: "Michael Smith",
-    age: 34,
-    lastVisit: "2026-05-10",
-    risk: "Medium",
-    aiDiagnosis: "Gingivitis",
-    confidence: 88,
-    status: "Approved",
-  },
-  {
-    id: "3",
-    name: "Sarah Johnson",
-    age: 45,
-    lastVisit: "2026-04-20",
-    risk: "Low",
-    aiDiagnosis: "Healthy",
-    confidence: 99,
-    status: "Approved",
-  },
-  {
-    id: "4",
-    name: "David Lee",
-    age: 28,
-    lastVisit: "2026-05-05",
-    risk: "Medium",
-    aiDiagnosis: "Calculus",
-    confidence: 75,
-    status: "Pending Review",
-  },
-  {
-    id: "5",
-    name: "Emma Wilson",
-    age: 12,
-    lastVisit: "2026-05-11",
-    risk: "High",
-    aiDiagnosis: "Tooth Discoloration",
-    confidence: 91,
-    status: "Pending Review",
-  },
-];
+import { supabase } from "../lib/supabase";
 
 function DoctorDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRisk, setFilterRisk] = useState("All");
-  const [selectedPatient, setSelectedPatient] = useState<(typeof MOCK_PATIENTS)[0] | null>(null);
+  const [patients, setPatients] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedPatient, setSelectedPatient] = useState<any | null>(null);
+  const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
+  const [prescriptionText, setPrescriptionText] = useState("");
 
-  const filteredPatients = MOCK_PATIENTS.filter((p) => {
+  useEffect(() => {
+    fetchAssessments();
+  }, []);
+
+  const fetchAssessments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("assessments")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      if (data) {
+        // Map Supabase columns to our UI structure
+        const mappedData = data.map((item) => ({
+          id: item.id,
+          name: item.patient_name || "Unknown Patient",
+          age: "N/A", // Not currently stored in assessments table
+          lastVisit: new Date(item.created_at).toLocaleDateString("en-IN"),
+          risk: item.level || "Low",
+          aiDiagnosis: "AI Predicted Result",
+          confidence: item.score || 0,
+          status: item.status || "Pending Review",
+          answers: item.answers,
+        }));
+        setPatients(mappedData);
+      }
+    } catch (err) {
+      console.error("Error fetching assessments:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredPatients = patients.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRisk = filterRisk === "All" || p.risk === filterRisk;
     return matchesSearch && matchesRisk;
   });
 
-  const handleApprove = () => {
+  const handleApprove = async () => {
     if (selectedPatient) {
-      alert(`Diagnosis approved for ${selectedPatient.name}`);
-      setSelectedPatient(null);
+      try {
+        await supabase
+          .from("assessments")
+          .update({ status: "Approved" })
+          .eq("id", selectedPatient.id);
+        alert(`Diagnosis approved for ${selectedPatient.name}`);
+        fetchAssessments();
+        setSelectedPatient(null);
+      } catch (err) {
+        console.error("Error approving:", err);
+      }
     }
   };
 
-  const handleReject = () => {
+  const handleReject = async () => {
     if (selectedPatient) {
-      alert(`Diagnosis rejected for ${selectedPatient.name}`);
-      setSelectedPatient(null);
+      try {
+        await supabase
+          .from("assessments")
+          .update({ status: "Rejected" })
+          .eq("id", selectedPatient.id);
+        alert(`Diagnosis rejected for ${selectedPatient.name}`);
+        fetchAssessments();
+        setSelectedPatient(null);
+      } catch (err) {
+        console.error("Error rejecting:", err);
+      }
+    }
+  };
+
+  const generatePDF = () => {
+    if (!selectedPatient) return;
+    
+    // Create a simple printable window for the prescription
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>SmileGuard AI - Prescription</title>
+            <style>
+              body { font-family: system-ui, sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; }
+              .header { text-align: center; border-bottom: 2px solid #86F1D4; padding-bottom: 20px; margin-bottom: 30px; }
+              .logo { font-size: 24px; font-weight: bold; color: #0D4B42; }
+              .row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+              .prescription-box { border: 1px solid #cbd5e1; border-radius: 8px; padding: 20px; min-height: 200px; margin-top: 30px; }
+              .footer { margin-top: 50px; text-align: right; border-top: 1px solid #cbd5e1; padding-top: 20px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div class="logo">🦷 SmileGuard AI</div>
+              <p>Official Dental Prescription Report</p>
+            </div>
+            
+            <div class="row">
+              <div><strong>Patient Name:</strong> ${selectedPatient.name}</div>
+              <div><strong>Date:</strong> ${new Date().toLocaleDateString('en-IN')}</div>
+            </div>
+            <div class="row">
+              <div><strong>AI Assessed Risk:</strong> ${selectedPatient.risk} (${selectedPatient.confidence}% Score)</div>
+            </div>
+            
+            <div class="prescription-box">
+              <h3>Doctor's Prescription & Notes</h3>
+              <p>${prescriptionText.replace(/\n/g, '<br/>') || "No specific notes provided."}</p>
+            </div>
+            
+            <div class="footer">
+              <p>Doctor's Signature: _______________________</p>
+            </div>
+            
+            <script>
+              window.onload = function() { window.print(); }
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      setShowPrescriptionModal(false);
+      setPrescriptionText("");
     }
   };
 
@@ -108,7 +167,9 @@ function DoctorDashboard() {
             </div>
             <div>
               <p className="text-xs text-slate-500 font-medium">High Risk Patients</p>
-              <p className="text-lg font-bold text-slate-900 dark:text-white">2 Alerts</p>
+              <p className="text-lg font-bold text-slate-900 dark:text-white">
+                {patients.filter(p => p.risk === "High").length} Alerts
+              </p>
             </div>
           </div>
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3 flex items-center gap-3 shadow-sm">
@@ -117,7 +178,9 @@ function DoctorDashboard() {
             </div>
             <div>
               <p className="text-xs text-slate-500 font-medium">Pending Reviews</p>
-              <p className="text-lg font-bold text-slate-900 dark:text-white">3 Scans</p>
+              <p className="text-lg font-bold text-slate-900 dark:text-white">
+                {patients.filter(p => p.status === "Pending Review").length} Scans
+              </p>
             </div>
           </div>
         </div>
@@ -168,7 +231,13 @@ function DoctorDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                  {filteredPatients.map((patient) => (
+                  {loading ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                        Loading patients from database...
+                      </td>
+                    </tr>
+                  ) : filteredPatients.map((patient) => (
                     <tr
                       key={patient.id}
                       className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
@@ -177,7 +246,6 @@ function DoctorDashboard() {
                         <div className="font-medium text-slate-900 dark:text-white">
                           {patient.name}
                         </div>
-                        <div className="text-xs text-slate-500">Age: {patient.age}</div>
                       </td>
                       <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
                         {patient.lastVisit}
@@ -197,17 +265,19 @@ function DoctorDashboard() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
-                        {patient.aiDiagnosis}
+                        {patient.confidence}%
                       </td>
                       <td className="px-6 py-4">
                         <span
                           className={`inline-flex items-center gap-1 text-xs font-medium
-                          ${patient.status === "Approved" ? "text-green-600 dark:text-green-400" : "text-blue-600 dark:text-blue-400"}`}
+                          ${patient.status === "Approved" ? "text-green-600 dark:text-green-400" : patient.status === "Rejected" ? "text-red-600 dark:text-red-400" : "text-blue-600 dark:text-blue-400"}`}
                         >
                           {patient.status === "Approved" ? (
                             <CheckCircle className="w-3 h-3" />
+                          ) : patient.status === "Rejected" ? (
+                            <XCircle className="w-3 h-3" />
                           ) : (
-                            <Activity className="w-3 h-3" />
+                            <Clock className="w-3 h-3" />
                           )}
                           {patient.status}
                         </span>
@@ -225,7 +295,7 @@ function DoctorDashboard() {
                 </tbody>
               </table>
             </div>
-            {filteredPatients.length === 0 && (
+            {!loading && filteredPatients.length === 0 && (
               <div className="p-8 text-center text-slate-500">
                 No patients found matching your criteria.
               </div>
@@ -260,20 +330,20 @@ function DoctorDashboard() {
                   <p className="text-lg font-bold text-slate-900 dark:text-white">
                     {selectedPatient.name}
                   </p>
-                  <p className="text-sm text-slate-500">Age: {selectedPatient.age}</p>
+                  <p className="text-sm text-slate-500">Scanned on: {selectedPatient.lastVisit}</p>
                 </div>
 
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-100 dark:border-slate-700/50">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                      AI Diagnosis
+                      AI Risk Score
                     </span>
                     <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded-full font-bold">
-                      {selectedPatient.confidence}% Confidence
+                      {selectedPatient.confidence}% Score
                     </span>
                   </div>
                   <p className="text-xl font-bold text-slate-900 dark:text-white mb-4">
-                    {selectedPatient.aiDiagnosis}
+                    {selectedPatient.risk} Risk Profile
                   </p>
 
                   <div className="space-y-3">
@@ -311,13 +381,24 @@ function DoctorDashboard() {
                       </button>
                     </div>
                   ) : (
-                    <div className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 p-3 rounded-lg flex items-center justify-center gap-2 font-medium">
-                      <CheckCircle className="w-5 h-5" /> Diagnosis Already Approved
+                    <div className={`p-3 rounded-lg flex items-center justify-center gap-2 font-medium ${
+                      selectedPatient.status === "Approved" 
+                        ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400"
+                        : "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400"
+                    }`}>
+                      {selectedPatient.status === "Approved" ? (
+                        <><CheckCircle className="w-5 h-5" /> Diagnosis Approved</>
+                      ) : (
+                        <><XCircle className="w-5 h-5" /> Diagnosis Rejected</>
+                      )}
                     </div>
                   )}
 
-                  <button className="w-full flex items-center justify-center gap-2 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium mt-2">
-                    <FileText className="w-4 h-4" /> Upload Prescription
+                  <button 
+                    onClick={() => setShowPrescriptionModal(true)}
+                    className="w-full flex items-center justify-center gap-2 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium mt-2"
+                  >
+                    <FileText className="w-4 h-4" /> Write Prescription & Export PDF
                   </button>
                 </div>
               </div>
@@ -336,6 +417,49 @@ function DoctorDashboard() {
           )}
         </div>
       </div>
+
+      {/* Prescription Modal */}
+      {showPrescriptionModal && (
+        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-800">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+              <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <FileText className="w-5 h-5 text-blue-500" />
+                Write Prescription
+              </h3>
+              <button onClick={() => setShowPrescriptionModal(false)} className="text-slate-400 hover:text-slate-600">
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                Writing prescription for <strong>{selectedPatient?.name}</strong>. This will be exported as a printable PDF report.
+              </p>
+              <textarea
+                className="w-full h-40 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white resize-none"
+                placeholder="Type doctor's notes, recommended treatments, or medication here..."
+                value={prescriptionText}
+                onChange={(e) => setPrescriptionText(e.target.value)}
+              ></textarea>
+              <div className="flex gap-3 mt-6">
+                <button 
+                  onClick={() => setShowPrescriptionModal(false)}
+                  className="flex-1 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 font-medium"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={generatePDF}
+                  className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+                >
+                  Generate PDF
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
