@@ -45,6 +45,7 @@ import { Chatbot } from "./src/components/Chatbot";
 import LandingPage from "./src/routes/index";
 import AnalyticsDashboard from "./src/routes/analytics";
 import RoleSelectionScreen from "./src/routes/role-selection";
+import DoctorPortal from "./src/routes/doctor-portal";
 import AdminPortal from "./src/routes/admin-portal";
 import ForgotPasswordScreen from "./src/routes/forgot-password";
 
