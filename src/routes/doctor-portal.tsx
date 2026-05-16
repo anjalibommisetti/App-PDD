@@ -17,6 +17,10 @@ import { Platform, View } from "react-native";
 import DoctorDashboard from "./doctor-dashboard";
 import AnalyticsDashboard from "./analytics";
 import ProfileScreen from "./profile";
+import PatientsModule from "./patients";
+import AppointmentsModule from "./appointments";
+import CommunicationModule from "./communication";
+import EmergencyModule from "./emergency";
 import { supabase } from "../lib/supabase";
 
 export default function DoctorPortal() {
@@ -134,26 +138,10 @@ export default function DoctorPortal() {
         <div className="flex-1 overflow-y-auto">
           {activeTab === "Dashboard" && <DoctorDashboard />}
           {activeTab === "Analytics" && <AnalyticsDashboard />}
-          {activeTab === "Patients" && (
-            <div className="p-8 flex items-center justify-center h-full text-slate-500">
-              Patient Management Module & AI Scan Viewer (Coming Next)
-            </div>
-          )}
-          {activeTab === "Appointments" && (
-            <div className="p-8 flex items-center justify-center h-full text-slate-500">
-              Appointments Calendar (Coming Next)
-            </div>
-          )}
-          {activeTab === "Messages" && (
-            <div className="p-8 flex items-center justify-center h-full text-slate-500">
-              Patient Communication Panel (Coming Next)
-            </div>
-          )}
-          {activeTab === "Emergency" && (
-            <div className="p-8 flex items-center justify-center h-full text-slate-500">
-              Emergency Alerts Panel (Coming Next)
-            </div>
-          )}
+          {activeTab === "Patients" && <PatientsModule />}
+          {activeTab === "Appointments" && <AppointmentsModule />}
+          {activeTab === "Messages" && <CommunicationModule />}
+          {activeTab === "Emergency" && <EmergencyModule />}
           {activeTab === "Settings" && (
             <div className="flex-1 w-full h-full overflow-hidden">
               <ProfileScreen />
