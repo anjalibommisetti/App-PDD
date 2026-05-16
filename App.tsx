@@ -206,6 +206,7 @@ export default function App() {
       if (event === "PASSWORD_RECOVERY") {
         setIsRecovery(true);
         setInitialRoute("ForgotPassword");
+        setShowSplash(false); // Auto-dismiss splash screen
         if (navigationRef.isReady()) {
           navigationRef.navigate("ForgotPassword", { step: 3 });
         }
