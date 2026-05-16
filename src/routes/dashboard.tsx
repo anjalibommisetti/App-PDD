@@ -292,30 +292,7 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Admin/Doctor Dashboard Section */}
-        {userName === "Admin" || userName.toLowerCase().includes("dr") ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Doctor / Admin Dashboard</Text>
-            <View style={styles.adminGrid}>
-              <View style={styles.adminStatCard}>
-                <Text style={styles.adminStatNum}>1,248</Text>
-                <Text style={styles.adminStatLabel}>Total Patients</Text>
-              </View>
-              <View style={styles.adminStatCard}>
-                <Text style={styles.adminStatNum}>3,402</Text>
-                <Text style={styles.adminStatLabel}>AI Scans</Text>
-              </View>
-              <View style={styles.adminStatCard}>
-                <Text style={styles.adminStatNum}>94%</Text>
-                <Text style={styles.adminStatLabel}>AI Accuracy</Text>
-              </View>
-              <View style={styles.adminStatCard}>
-                <Text style={styles.adminStatNum}>12</Text>
-                <Text style={styles.adminStatLabel}>Pending Appts</Text>
-              </View>
-            </View>
-          </View>
-        ) : null}
+
       </ScrollView>
     </PhoneShell>
   );
