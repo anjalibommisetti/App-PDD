@@ -22,6 +22,9 @@ import { supabase } from "../lib/supabase";
 import AnalyticsDashboard from "./analytics";
 import AdminMonitoring from "./admin-monitoring";
 import AdminSecurity from "./admin-security";
+import AdminReports from "./admin-reports";
+import AdminNotifications from "./admin-notifications";
+import AdminSettings from "./admin-settings";
 
 export default function AdminPortal() {
   const navigation = useNavigation<any>();
@@ -295,14 +298,9 @@ export default function AdminPortal() {
             {activeTab === "Monitoring" && <AdminMonitoring />}
             {activeTab === "ActivityLogs" && <AdminMonitoring />}
             {activeTab === "Security" && <AdminSecurity />}
-            
-            {(activeTab === "Settings" || activeTab === "Notifications" || activeTab === "Reports") && (
-              <div className="flex flex-col items-center justify-center h-full text-slate-500 dark:text-slate-400">
-                <Settings className="w-16 h-16 text-slate-200 dark:text-slate-800 mb-4" />
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{activeTab} Module</h2>
-                <p>This module is currently being provisioned.</p>
-              </div>
-            )}
+            {activeTab === "Reports" && <AdminReports />}
+            {activeTab === "Notifications" && <AdminNotifications />}
+            {activeTab === "Settings" && <AdminSettings />}
           </div>
         </main>
       </div>
