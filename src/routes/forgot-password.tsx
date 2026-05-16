@@ -11,6 +11,7 @@ export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [step, setStep] = useState(route.params?.step || 1);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -98,6 +99,10 @@ export default function ForgotPasswordScreen() {
     setErrorMsg("");
     if (!newPassword || newPassword.length < 6) {
       setErrorMsg("Password must be at least 6 characters.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setErrorMsg("Passwords do not match.");
       return;
     }
     setLoading(true);
@@ -196,6 +201,13 @@ export default function ForgotPasswordScreen() {
               secureTextEntry
               value={newPassword}
               onChangeText={setNewPassword}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm Password"
+              secureTextEntry
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
             />
             <TouchableOpacity style={styles.button} onPress={handleResetPassword} disabled={loading}>
               {loading ? <ActivityIndicator color="#0D4B42" /> : <Text style={styles.buttonText}>Update Password</Text>}
