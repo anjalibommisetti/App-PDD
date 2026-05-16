@@ -180,7 +180,8 @@ export default function App() {
         
         if (currentSession) {
           const role = await AsyncStorage.getItem("userRole");
-          if (role === "doctor") setInitialRoute("DoctorDashboard");
+          if (role === "admin") setInitialRoute("AdminDashboard");
+          else if (role === "doctor") setInitialRoute("DoctorDashboard");
           else setInitialRoute("Dashboard");
         } else {
           setInitialRoute("Landing");
@@ -213,7 +214,8 @@ export default function App() {
         }
       } else if (newSession && !isRecovery) {
         const role = await AsyncStorage.getItem("userRole");
-        if (role === "doctor") setInitialRoute("DoctorDashboard");
+        if (role === "admin") setInitialRoute("AdminDashboard");
+        else if (role === "doctor") setInitialRoute("DoctorDashboard");
         else setInitialRoute("Dashboard");
       } else if (!newSession) {
         setInitialRoute("Landing");
