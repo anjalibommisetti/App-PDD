@@ -1,12 +1,33 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { PhoneShell } from "../components/PhoneShell";
-import { Feather } from "@expo/vector-icons";
 import { supabase } from "../lib/supabase";
+import {
+  LayoutDashboard,
+  UploadCloud,
+  FileText,
+  Calendar as CalendarIcon,
+  MessageCircle,
+  Bell,
+  Settings,
+  LogOut,
+  Activity,
+  User,
+  Menu,
+  ChevronRight,
+  ChevronDown
+} from "lucide-react";
 
-export default function DashboardScreen() {
-  const navigation = useNavigation<any>();
+import ScanScreen from "./scan";
+import ResultsScreen from "./results";
+import DentistsScreen from "./dentists";
+import ReportScreen from "./report";
+import ChatbotScreen from "./chatbot";
+import ProfileScreen from "./profile";
+import HistoryScreen from "./history";
+
+// --- Sub-components for Patient Dashboard Main View ---
+function PatientDashboardMain({ navigation }: any) {
   const [userName, setUserName] = useState("User");
   const [initials, setInitials] = useState("U");
   const [riskLevel, setRiskLevel] = useState("Low");
@@ -14,7 +35,6 @@ export default function DashboardScreen() {
   const [patientName, setPatientName] = useState("");
   const [assessedAt, setAssessedAt] = useState("");
   const [activities, setActivities] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchDashboardData();
@@ -22,27 +42,16 @@ export default function DashboardScreen() {
 
   const fetchDashboardData = async () => {
     try {
-      // getSession reads from localStorage — no network hang
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       const user = session?.user;
       const userId = user?.id;
 
       if (user) {
         const fullName = user.user_metadata?.full_name || user.email?.split("@")[0] || "User";
         setUserName(fullName);
-        setInitials(
-          fullName
-            .split(" ")
-            .map((n: string) => n[0])
-            .join("")
-            .toUpperCase()
-            .slice(0, 2),
-        );
+        setInitials(fullName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2));
 
-        // Fetch the LATEST assessment by this user
-        let { data: assessment, error: assessErr } = await supabase
+        let { data: assessment } = await supabase
           .from("assessments")
           .select("score, level, patient_name, created_at")
           .eq("user_id", userId)
@@ -51,19 +60,14 @@ export default function DashboardScreen() {
           .maybeSingle();
 
         if (assessment) {
-          setRiskScore(assessment.score ?? null);
-          setRiskLevel(assessment.level ?? "");
+          setRiskScore(assessment.score ?? 0);
+          setRiskLevel(assessment.level ?? "Low");
           setPatientName(assessment.patient_name || "");
-          setAssessedAt(
-            new Date(assessment.created_at).toLocaleDateString("en-IN", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            }),
-          );
+          setAssessedAt(new Date(assessment.created_at).toLocaleDateString("en-IN", {
+            day: "2-digit", month: "short", year: "numeric",
+          }));
         }
 
-        // Recent activity: last 3 assessments
         let { data: recent } = await supabase
           .from("assessments")
           .select("id, score, level, patient_name, created_at")
@@ -72,484 +76,250 @@ export default function DashboardScreen() {
           .limit(3);
 
         if (recent && recent.length > 0) {
-          setActivities(
-            recent.map((r: any) => ({
-              id: r.id,
-              icon:
-                r.level === "High"
-                  ? "alert-triangle"
-                  : r.level === "Medium"
-                    ? "alert-circle"
-                    : "check-circle",
-              color: r.level === "High" ? "#EF4444" : r.level === "Medium" ? "#F59E0B" : "#10B981",
-              title: `Risk Assessment — ${r.level ?? "Unknown"} (${r.score ?? 0}%)`,
-              subtitle: r.patient_name || "Anonymous",
-              time: new Date(r.created_at).toLocaleDateString("en-IN", {
-                day: "2-digit",
-                month: "short",
-              }),
-            })),
-          );
+          setActivities(recent.map((r: any) => ({
+            id: r.id,
+            level: r.level,
+            score: r.score,
+            title: `Risk Assessment — ${r.level ?? "Unknown"} (${r.score ?? 0}%)`,
+            subtitle: r.patient_name || "Anonymous",
+            time: new Date(r.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }),
+          })));
         }
       }
-    } catch (err) {
-      console.error("Dashboard error:", err);
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) {}
   };
 
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-
-  const riskColor =
-    riskLevel === "High" ? "#EF4444" : riskLevel === "Medium" ? "#F59E0B" : "#10B981";
+  const getRiskColor = (level: string) => {
+    if (level === "High") return "text-red-500 bg-red-100 dark:bg-red-900/30 dark:text-red-400";
+    if (level === "Medium") return "text-yellow-500 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400";
+    return "text-green-500 bg-green-100 dark:bg-green-900/30 dark:text-green-400";
+  };
+  const getRiskBarColor = (level: string) => {
+    if (level === "High") return "bg-red-500";
+    if (level === "Medium") return "bg-yellow-500";
+    return "bg-green-500";
+  };
 
   return (
-    <PhoneShell>
+    <div className="space-y-6 max-w-6xl mx-auto pb-10">
       {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>{greeting},</Text>
-          <Text style={styles.name}>{userName}</Text>
-        </View>
-        <TouchableOpacity style={styles.avatar} onPress={() => navigation.navigate("Profile")}>
-          <Text style={styles.avatarText}>{initials}</Text>
-        </TouchableOpacity>
-      </View>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Welcome back, {userName}</h1>
+          <p className="text-slate-500 dark:text-slate-400">Here is a summary of your oral health.</p>
+        </div>
+      </div>
 
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Risk Card */}
-        <View style={[styles.riskCard, { backgroundColor: riskColor }]}>
-          <View style={styles.riskTop}>
-            <Text style={styles.riskLabel}>Current Risk Level</Text>
-            <View style={styles.riskBadge}>
-              <Text style={styles.riskBadgeText}>{riskLevel}</Text>
-            </View>
-          </View>
+      {/* Main Risk Card */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">Current Oral Health Status</p>
+          <div className="flex items-baseline gap-4 mb-4">
+            <h2 className="text-5xl font-black text-slate-900 dark:text-white">{riskScore}%</h2>
+            <span className={`px-4 py-1 rounded-full text-sm font-bold ${getRiskColor(riskLevel)}`}>{riskLevel} Risk</span>
+          </div>
+          <p className="text-slate-600 dark:text-slate-400 text-sm">Last assessed on {assessedAt || "Never"}</p>
+        </div>
+        <div className="flex-1 w-full relative h-4 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+           <div className={`absolute left-0 top-0 h-full rounded-full ${getRiskBarColor(riskLevel)} transition-all duration-1000`} style={{ width: `${riskScore}%` }}></div>
+        </div>
+      </div>
 
-          <View style={styles.riskMiddle}>
-            <View style={styles.scoreRow}>
-              <Text style={styles.riskScore}>{riskScore}</Text>
-              <Text style={styles.riskScoreUnit}>%</Text>
-            </View>
-            {patientName ? <Text style={styles.riskPatient}>Patient: {patientName}</Text> : null}
-            <Text style={styles.riskDesc}>
-              {riskLevel === "Low"
-                ? "✓ Doing great — keep it up!"
-                : riskLevel === "Medium"
-                  ? "⚠ Moderate risk — take action"
-                  : "🚨 Needs immediate attention"}
-            </Text>
-            {assessedAt ? (
-              <Text style={styles.riskDate}>Last assessed: {assessedAt}</Text>
-            ) : (
-              <Text style={styles.riskDate}>No assessments yet. Start below!</Text>
-            )}
-          </View>
-
-          {/* Progress bar */}
-          <View style={styles.progressBg}>
-            <View style={[styles.progressFill, { width: `${riskScore}%` as any }]} />
-          </View>
-
-          <TouchableOpacity
-            style={styles.riskBtn}
-            onPress={() => navigation.navigate("Assessment")}
-          >
-            <Text style={styles.riskBtnText}>Take Assessment</Text>
-            <Feather name="arrow-right" size={16} color="#0D4B42" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Quick Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          <View style={styles.grid}>
-            <ActionCard
-              icon="cpu"
-              title="Teeth Scan"
-              color="#FEF3C7"
-              iconColor="#D97706"
-              onPress={() => navigation.navigate("Scan")}
-            />
-            <ActionCard
-              icon="clipboard"
-              title="Assessment"
-              color="#DCFCE7"
-              iconColor="#157A6E"
-              onPress={() => navigation.navigate("Assessment")}
-            />
-            <ActionCard
-              icon="calendar"
-              title="Book Visit"
-              color="#E0E7FF"
-              iconColor="#4F46E5"
-              onPress={() => navigation.navigate("Dentists")}
-            />
-              <ActionCard
-                icon="message-circle"
-                title="AI Chatbot"
-                color="rgba(168, 85, 247, 0.1)"
-                iconColor="#A855F7"
-                onPress={() => navigation.navigate("Chatbot")}
-              />
-              <ActionCard
-                icon="clock"
-                title="History"
-                color="rgba(236, 72, 153, 0.1)"
-                iconColor="#EC4899"
-                onPress={() => navigation.navigate("History")}
-              />
-            <ActionCard
-              icon="download"
-              title="Reports"
-              color="#F3E8FF"
-              iconColor="#9333EA"
-              onPress={() => navigation.navigate("Report")}
-            />
-          </View>
-        </View>
-
-        {/* Upcoming Appointments */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
-          <View style={styles.notificationCard}>
-            <View style={styles.notifRow}>
-              <View style={[styles.notifIcon, { backgroundColor: "#E0E7FF" }]}>
-                <Feather name="calendar" size={16} color="#4F46E5" />
-              </View>
-              <View style={styles.notifBody}>
-                <Text style={styles.notifTitle}>Dr. Priya Sharma</Text>
-                <Text style={styles.notifTime}>Tomorrow at 11:00 AM · Pending Confirmation</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
+      <div className="grid lg:grid-cols-2 gap-8">
         {/* Recent Activity */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Activity</Text>
-          <View style={styles.activityList}>
-            {activities.length > 0 ? (
-              activities.map((act, idx) => (
-                <TouchableOpacity
-                  key={idx}
-                  style={styles.activityItem}
-                  onPress={() => act.id && navigation.navigate("Results", { id: act.id })}
-                  activeOpacity={0.7}
-                >
-                  <View style={[styles.activityIconBox, { backgroundColor: act.color + "20" }]}>
-                    <Feather name={act.icon} size={16} color={act.color} />
-                  </View>
-                  <View style={styles.activityBody}>
-                    <Text style={styles.activityTitle}>{act.title}</Text>
-                    <Text style={styles.activityTime}>
-                      {act.subtitle} · {act.time}
-                    </Text>
-                  </View>
-                  <Feather name="chevron-right" size={16} color="#CBD5E1" />
-                </TouchableOpacity>
-              ))
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+            <Activity className="w-5 h-5 text-blue-500" /> Recent Predictions
+          </h3>
+          <div className="space-y-4">
+            {activities.length === 0 ? (
+              <p className="text-slate-500 text-sm">No recent activity.</p>
             ) : (
-              <View style={styles.emptyActivity}>
-                <Feather name="inbox" size={28} color="#CBD5E1" />
-                <Text style={styles.emptyActivityText}>No recent activity</Text>
-                <Text style={styles.emptyActivitySub}>
-                  Complete an assessment to start tracking
-                </Text>
-              </View>
+              activities.map((act) => (
+                <div key={act.id} className="flex items-center justify-between p-4 border border-slate-100 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getRiskColor(act.level)}`}>
+                      <Activity className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">{act.title}</h4>
+                      <p className="text-xs text-slate-500">{act.subtitle}</p>
+                    </div>
+                  </div>
+                  <span className="text-xs text-slate-400 font-medium">{act.time}</span>
+                </div>
+              ))
             )}
-          </View>
-        </View>
+          </div>
+        </div>
 
-        {/* Notifications & Reminders */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Reminders & Notifications</Text>
-          <View style={styles.notificationCard}>
-            <View style={styles.notifRow}>
-              <View style={[styles.notifIcon, { backgroundColor: "#FEE2E2" }]}>
-                <Feather name="bell" size={16} color="#EF4444" />
-              </View>
-              <View style={styles.notifBody}>
-                <Text style={styles.notifTitle}>Dental Checkup Overdue</Text>
-                <Text style={styles.notifTime}>It's been 6 months since your last visit.</Text>
-              </View>
-            </View>
-            <View
-              style={[
-                styles.notifRow,
-                { borderTopWidth: 1, borderColor: "#F1F5F9", paddingTop: 12 },
-              ]}
-            >
-              <View style={[styles.notifIcon, { backgroundColor: "#E0F2FE" }]}>
-                <Feather name="info" size={16} color="#0284C7" />
-              </View>
-              <View style={styles.notifBody}>
-                <Text style={styles.notifTitle}>Daily Tip</Text>
-                <Text style={styles.notifTime}>
-                  Drink water after coffee to reduce enamel staining.
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-
-      </ScrollView>
-    </PhoneShell>
+        {/* Reminders */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+            <Bell className="w-5 h-5 text-purple-500" /> Notifications & Reminders
+          </h3>
+          <div className="space-y-4">
+             <div className="flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/50 rounded-xl">
+               <CalendarIcon className="w-6 h-6 text-blue-600 dark:text-blue-400 shrink-0" />
+               <div>
+                 <h4 className="font-bold text-blue-900 dark:text-blue-100 text-sm">Upcoming Dental Appointment</h4>
+                 <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">Tomorrow at 10:00 AM with Dr. Sarah Smith.</p>
+               </div>
+             </div>
+             <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl">
+               <FileText className="w-6 h-6 text-slate-500 shrink-0" />
+               <div>
+                 <h4 className="font-bold text-slate-900 dark:text-white text-sm">New Report Available</h4>
+                 <p className="text-xs text-slate-500 mt-1">Your latest scan report is ready to download.</p>
+               </div>
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
-function ActionCard({ icon, title, color, iconColor, onPress }: any) {
+export default function PatientPortal() {
+  const navigation = useNavigation<any>();
+  const [activeTab, setActiveTab] = useState("Dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigation.reset({ index: 0, routes: [{ name: "Landing" }] });
+  };
+
+  const navItems = [
+    { id: "Dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "Scan", label: "Upload Scan", icon: UploadCloud },
+    { id: "History", label: "Predictions", icon: Activity },
+    { id: "Appointments", label: "Appointments", icon: CalendarIcon },
+    { id: "Report", label: "Reports", icon: FileText },
+    { id: "Chatbot", label: "AI Chatbot", icon: MessageCircle },
+    { id: "Settings", label: "Settings", icon: Settings },
+  ];
+
   return (
-    <TouchableOpacity style={styles.actionCard} onPress={onPress} activeOpacity={0.8}>
-      <View style={[styles.actionIconBox, { backgroundColor: color }]}>
-        <Feather name={icon} size={20} color={iconColor} />
-      </View>
-      <Text style={styles.actionTitle}>{title}</Text>
-    </TouchableOpacity>
+    <View style={{ flex: 1, backgroundColor: "#F8FAFC" }}>
+      <div className="flex h-screen bg-slate-50 dark:bg-slate-950 font-sans overflow-hidden">
+        
+        {/* Sidebar */}
+        <aside className={`bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 flex flex-col ${sidebarOpen ? "w-64" : "w-20"}`}>
+          <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+            <div className="flex items-center gap-2 overflow-hidden">
+              <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center shrink-0">
+                <Activity className="w-5 h-5 text-white" />
+              </div>
+              {sidebarOpen && <span className="font-bold text-lg text-slate-900 dark:text-white truncate">SmileGuard</span>}
+            </div>
+          </div>
+
+          <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+            <div className="mb-4">
+              {sidebarOpen && <p className="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Patient Portal</p>}
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors ${
+                    activeTab === item.id 
+                      ? "bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 font-semibold" 
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                  }`}
+                  title={!sidebarOpen ? item.label : undefined}
+                >
+                  <item.icon className={`w-5 h-5 shrink-0 ${activeTab === item.id ? "text-teal-600 dark:text-teal-400" : "text-slate-400"}`} />
+                  {sidebarOpen && <span className="truncate">{item.label}</span>}
+                </button>
+              ))}
+            </div>
+          </nav>
+
+          <div className="p-4 border-t border-slate-200 dark:border-slate-800 shrink-0">
+            <button 
+              onClick={handleLogout}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors`}
+            >
+              <LogOut className="w-5 h-5 shrink-0" />
+              {sidebarOpen && <span>Logout</span>}
+            </button>
+          </div>
+        </aside>
+
+        {/* Main Content Area */}
+        <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950">
+          {/* Top Navbar */}
+          <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-6 shrink-0">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <button className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 relative">
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+              </button>
+              <div className="h-8 w-px bg-slate-200 dark:bg-slate-700"></div>
+              <div className="flex items-center gap-3">
+                <div className="hidden sm:block text-right">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">Patient User</p>
+                  <p className="text-xs text-slate-500">Premium Plan</p>
+                </div>
+                <div className="w-9 h-9 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center">
+                  <span className="text-teal-700 dark:text-teal-300 font-bold text-sm">PU</span>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* Dynamic View Content */}
+          <div className="flex-1 overflow-y-auto p-4 md:p-8">
+            {activeTab === "Dashboard" && <PatientDashboardMain />}
+            
+            {activeTab === "Scan" && (
+              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+                <ScanScreen />
+              </div>
+            )}
+            
+            {activeTab === "History" && (
+              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+                <HistoryScreen />
+              </div>
+            )}
+            
+            {activeTab === "Appointments" && (
+              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+                <DentistsScreen />
+              </div>
+            )}
+            
+            {activeTab === "Report" && (
+              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+                <ReportScreen />
+              </div>
+            )}
+            
+            {activeTab === "Chatbot" && (
+              <div className="flex-1 w-full h-[800px] overflow-hidden border border-slate-200 rounded-2xl shadow-sm">
+                <ChatbotScreen />
+              </div>
+            )}
+            
+            {activeTab === "Settings" && (
+              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+                <ProfileScreen />
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
-  },
-  greeting: { fontSize: 13, color: "#64748B" },
-  name: { fontSize: 22, fontWeight: "800", color: "#0F172A" },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#86F1D4",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: { fontSize: 15, fontWeight: "800", color: "#0D4B42" },
-  content: { paddingHorizontal: 20, paddingBottom: 30, gap: 24 },
-
-  // ─── Risk Card ───────────────────────────────────────────
-  riskCard: {
-    borderRadius: 28,
-    padding: 24,
-    elevation: 8,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-  },
-  riskTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  riskLabel: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "rgba(255,255,255,0.85)",
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  riskBadge: {
-    backgroundColor: "rgba(255,255,255,0.3)",
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  riskBadgeText: { fontSize: 11, fontWeight: "800", color: "#FFF" },
-  riskMiddle: { marginTop: 14 },
-  scoreRow: { flexDirection: "row", alignItems: "flex-end", gap: 4 },
-  riskScore: { fontSize: 56, fontWeight: "900", color: "#FFF", lineHeight: 60 },
-  riskScoreUnit: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "rgba(255,255,255,0.8)",
-    marginBottom: 8,
-  },
-  riskPatient: { fontSize: 12, color: "rgba(255,255,255,0.8)", marginTop: 2 },
-  riskDesc: { fontSize: 13, color: "rgba(255,255,255,0.9)", marginTop: 6, fontWeight: "500" },
-  riskDate: { fontSize: 11, color: "rgba(255,255,255,0.65)", marginTop: 4 },
-  progressBg: {
-    height: 6,
-    backgroundColor: "rgba(255,255,255,0.3)",
-    borderRadius: 3,
-    marginTop: 18,
-    overflow: "hidden",
-  },
-  progressFill: { height: "100%", backgroundColor: "#FFF", borderRadius: 3 },
-  riskBtn: {
-    marginTop: 18,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 12,
-    borderRadius: 14,
-  },
-  riskBtnText: { fontSize: 14, fontWeight: "700", color: "#0D4B42" },
-
-  // ─── No Assessment Card ───────────────────────────────────
-  noAssessCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 28,
-    padding: 28,
-    alignItems: "center",
-    gap: 10,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.07,
-    shadowRadius: 8,
-    borderWidth: 2,
-    borderColor: "#86F1D4",
-    borderStyle: "dashed",
-  },
-  noAssessIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 20,
-    backgroundColor: "rgba(21,122,110,0.1)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 4,
-  },
-  noAssessTitle: { fontSize: 18, fontWeight: "800", color: "#0F172A" },
-  noAssessSub: {
-    fontSize: 13,
-    color: "#64748B",
-    textAlign: "center",
-    lineHeight: 20,
-  },
-  startBtn: {
-    marginTop: 8,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: "#86F1D4",
-    paddingHorizontal: 28,
-    paddingVertical: 14,
-    borderRadius: 16,
-  },
-  startBtnText: { fontSize: 15, fontWeight: "700", color: "#0D4B42" },
-
-  // ─── Quick Actions ────────────────────────────────────────
-  section: {},
-  sectionTitle: { fontSize: 16, fontWeight: "800", color: "#0F172A", marginBottom: 12 },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
-  actionCard: {
-    width: "48%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    padding: 16,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-  },
-  actionIconBox: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
-  },
-  actionTitle: { fontSize: 13, fontWeight: "700", color: "#0F172A" },
-
-  // ─── Activity ─────────────────────────────────────────────
-  activityList: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 24,
-    padding: 16,
-    gap: 14,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-  },
-  activityItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  activityIconBox: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  activityBody: { flex: 1 },
-  activityTitle: { fontSize: 13, fontWeight: "600", color: "#0F172A" },
-  activityTime: { fontSize: 11, color: "#64748B", marginTop: 2 },
-  emptyActivity: {
-    alignItems: "center",
-    paddingVertical: 20,
-    gap: 6,
-  },
-  emptyActivityText: { fontSize: 14, fontWeight: "500", color: "#94A3B8" },
-  emptyActivitySub: { fontSize: 12, color: "#CBD5E1", textAlign: "center" },
-
-  // ─── Notifications & Admin ────────────────────────────────
-  notificationCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    padding: 16,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    gap: 12,
-  },
-  notifRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  notifIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  notifBody: { flex: 1 },
-  notifTitle: { fontSize: 14, fontWeight: "700", color: "#0F172A" },
-  notifTime: { fontSize: 12, color: "#64748B", marginTop: 2 },
-  adminGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
-  adminStatCard: {
-    width: "48%",
-    backgroundColor: "#0D4B42",
-    borderRadius: 16,
-    padding: 16,
-    alignItems: "center",
-  },
-  adminStatNum: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: "#86F1D4",
-  },
-  adminStatLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "rgba(255,255,255,0.8)",
-    marginTop: 4,
-  },
-});
