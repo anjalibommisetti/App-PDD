@@ -20,6 +20,8 @@ import { useNavigation } from "@react-navigation/native";
 import { Platform, View, ScrollView } from "react-native";
 import { supabase } from "../lib/supabase";
 import AnalyticsDashboard from "./analytics";
+import AdminMonitoring from "./admin-monitoring";
+import AdminSecurity from "./admin-security";
 
 export default function AdminPortal() {
   const navigation = useNavigation<any>();
@@ -286,7 +288,10 @@ export default function AdminPortal() {
               </div>
             )}
 
-            {(activeTab === "Monitoring" || activeTab === "Security" || activeTab === "Settings") && (
+            {activeTab === "Monitoring" && <AdminMonitoring />}
+            {activeTab === "Security" && <AdminSecurity />}
+            
+            {activeTab === "Settings" && (
               <div className="flex flex-col items-center justify-center h-full text-slate-500 dark:text-slate-400">
                 <Settings className="w-16 h-16 text-slate-200 dark:text-slate-800 mb-4" />
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{activeTab} Module</h2>
