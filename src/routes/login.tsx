@@ -22,7 +22,6 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [demoRole, setDemoRole] = useState("patient");
 
   const handleLogin = async () => {
     setErrorMessage("");
@@ -57,19 +56,13 @@ export default function LoginScreen() {
           setErrorMessage(msg || "Login failed. Please try again.");
         }
       } else if (data?.session) {
-        // Fetch actual role from user metadata, OR override with demo role
-        let role = data.session.user.user_metadata?.role || "patient";
-        
-        // Override for demo purposes if they selected something other than patient
-        if (demoRole !== "patient") {
-          role = demoRole;
-        }
-        
+        // Fetch actual role from user metadata
+        const role = data.session.user.user_metadata?.role || "patient";
         await AsyncStorage.setItem("userRole", role);
         
-        if (role === "admin") navigation.replace("AdminDashboard");
-        else if (role === "doctor") navigation.replace("DoctorDashboard");
-        else navigation.replace("Dashboard");
+        if (role === "admin") navigation.navigate("AdminDashboard");
+        else if (role === "doctor") navigation.navigate("DoctorDashboard");
+        else navigation.navigate("Dashboard");
       }
     } catch (err: any) {
       setErrorMessage("⚠ No internet connection. Please check your network and try again.");
@@ -114,33 +107,6 @@ export default function LoginScreen() {
             <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowPassword(!showPassword)}>
               <Feather name={showPassword ? "eye" : "eye-off"} size={20} color="#64748B" />
             </TouchableOpacity>
-          </View>
-
-          <View style={styles.roleContainer}>
-            <Text style={styles.roleLabel}>Demo Portal Override:</Text>
-            <View style={styles.roleOptions}>
-              <TouchableOpacity
-                style={[styles.roleOption, demoRole === "patient" && styles.roleOptionActive]}
-                onPress={() => setDemoRole("patient")}
-              >
-                <Text style={[styles.roleOptionText, demoRole === "patient" && styles.roleOptionTextActive]}>Patient</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.roleOption, demoRole === "doctor" && styles.roleOptionActive]}
-                onPress={() => setDemoRole("doctor")}
-              >
-                <Text style={[styles.roleOptionText, demoRole === "doctor" && styles.roleOptionTextActive]}>Doctor</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.roleOption, demoRole === "admin" && styles.roleOptionActive]}
-                onPress={() => setDemoRole("admin")}
-              >
-                <Text style={[styles.roleOptionText, demoRole === "admin" && styles.roleOptionTextActive]}>Admin</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={{fontSize: 12, color: "#94A3B8", marginTop: 4, textAlign: 'center'}}>
-              Use this to easily preview the different portals with your existing login!
-            </Text>
           </View>
 
           <TouchableOpacity
