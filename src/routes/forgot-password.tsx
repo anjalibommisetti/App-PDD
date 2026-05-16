@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
@@ -14,6 +14,25 @@ export default function ForgotPasswordScreen() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [timer, setTimer] = useState(120);
+  const [canResend, setCanResend] = useState(false);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (step === 2 && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (timer === 0) {
+      setCanResend(true);
+    }
+    return () => clearInterval(interval);
+  }, [step, timer]);
+
+  const startTimer = () => {
+    setTimer(120);
+    setCanResend(false);
+  };
 
   const handleSendOtp = async () => {
     setMessage("");
@@ -30,6 +49,21 @@ export default function ForgotPasswordScreen() {
     } else {
       setMessage("An OTP has been sent to your email.");
       setStep(2);
+      startTimer();
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setMessage("");
+    setErrorMsg("");
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
+    setLoading(false);
+    if (error) {
+      setErrorMsg(error.message);
+    } else {
+      setMessage("A new OTP has been sent to your email.");
+      startTimer();
     }
   };
 
@@ -137,6 +171,18 @@ export default function ForgotPasswordScreen() {
             <TouchableOpacity style={styles.button} onPress={handleVerifyOtp} disabled={loading}>
               {loading ? <ActivityIndicator color="#0D4B42" /> : <Text style={styles.buttonText}>Verify OTP</Text>}
             </TouchableOpacity>
+
+            <View style={styles.resendContainer}>
+              {canResend ? (
+                <TouchableOpacity onPress={handleResendOtp} disabled={loading}>
+                  <Text style={styles.resendText}>Resend OTP</Text>
+                </TouchableOpacity>
+              ) : (
+                <Text style={styles.timerText}>
+                  Resend OTP in {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
+                </Text>
+              )}
+            </View>
           </>
         )}
 
@@ -230,5 +276,18 @@ const styles = StyleSheet.create({
     color: "#16A34A",
     fontSize: 14,
     fontWeight: "500",
+  },
+  resendContainer: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  resendText: {
+    color: '#0D4B42',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  timerText: {
+    color: '#64748b',
+    fontSize: 14,
   },
 });
