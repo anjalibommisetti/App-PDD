@@ -19,6 +19,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { Platform, View, ScrollView } from "react-native";
 import { supabase } from "../lib/supabase";
+import AnalyticsDashboard from "./analytics";
 
 export default function AdminPortal() {
   const navigation = useNavigation<any>();
@@ -280,10 +281,8 @@ export default function AdminPortal() {
             )}
 
             {activeTab === "Analytics" && (
-              <div className="flex flex-col items-center justify-center h-full text-slate-500 dark:text-slate-400">
-                <BarChart2 className="w-16 h-16 text-purple-200 dark:text-purple-900 mb-4" />
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Advanced Disease Analytics</h2>
-                <p>Interactive Pie Charts and Usage Statistics Module (Coming Next)</p>
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden w-full h-[800px]">
+                <AnalyticsDashboard />
               </div>
             )}
 

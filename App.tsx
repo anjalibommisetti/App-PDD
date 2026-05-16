@@ -49,6 +49,7 @@ import RoleSelectionScreen from "./src/routes/role-selection";
 import DoctorPortal from "./src/routes/doctor-portal";
 import AdminPortal from "./src/routes/admin-portal";
 import ForgotPasswordScreen from "./src/routes/forgot-password";
+import ChatbotScreen from "./src/routes/chatbot";
 
 const Stack = createStackNavigator();
 

@@ -191,13 +191,20 @@ export default function DashboardScreen() {
               iconColor="#4F46E5"
               onPress={() => navigation.navigate("Dentists")}
             />
-            <ActionCard
-              icon="activity"
-              title="History"
-              color="#FCE7F3"
-              iconColor="#DB2777"
-              onPress={() => navigation.navigate("History")}
-            />
+              <ActionCard
+                icon="message-circle"
+                title="AI Chatbot"
+                color="rgba(168, 85, 247, 0.1)"
+                iconColor="#A855F7"
+                onPress={() => navigation.navigate("Chatbot")}
+              />
+              <ActionCard
+                icon="clock"
+                title="History"
+                color="rgba(236, 72, 153, 0.1)"
+                iconColor="#EC4899"
+                onPress={() => navigation.navigate("History")}
+              />
             <ActionCard
               icon="download"
               title="Reports"
