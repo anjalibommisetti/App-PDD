@@ -27,7 +27,8 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "./src/lib/supabase";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { createNavigationContainerRef } from '@react-navigation/native';
 
 // IndexScreen removed — app starts on Login
 import SignupScreen from "./src/routes/signup";
@@ -146,11 +147,14 @@ const splash = StyleSheet.create({
   },
 });
 
+export const navigationRef = createNavigationContainerRef<any>();
+
 export default function App() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
   const [initialRoute, setInitialRoute] = useState<string>("Landing");
+  const [isRecovery, setIsRecovery] = useState(false);
   useEffect(() => {
     // NO auto-dismiss — user must click "Get Started" button
   }, []);
@@ -198,15 +202,21 @@ export default function App() {
     // 2. Listen for auth state changes (login / logout events)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-      setSession(newSession ?? null);
-      if (newSession) {
+    } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setIsRecovery(true);
+        setInitialRoute("ForgotPassword");
+        if (navigationRef.isReady()) {
+          navigationRef.navigate("ForgotPassword", { step: 3 });
+        }
+      } else if (newSession && !isRecovery) {
         const role = await AsyncStorage.getItem("userRole");
         if (role === "doctor") setInitialRoute("DoctorDashboard");
         else setInitialRoute("Dashboard");
-      } else {
+      } else if (!newSession) {
         setInitialRoute("Landing");
       }
+      setSession(newSession ?? null);
     });
 
     return () => {
@@ -241,8 +251,8 @@ export default function App() {
   }
 
   return (
-    <View style={{ flex: 1, width: Platform.OS === "web" ? "100vw" : "100%", height: Platform.OS === "web" ? "100vh" : "100%" }}>
-      <NavigationContainer>
+    <View style={{ flex: 1, width: (Platform.OS === "web" ? "100vw" : "100%") as any, height: (Platform.OS === "web" ? "100vh" : "100%") as any }}>
+      <NavigationContainer ref={navigationRef}>
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
@@ -266,6 +276,11 @@ export default function App() {
               <Stack.Screen name="Analytics" component={AnalyticsDashboard} />
               <Stack.Screen name="DoctorDashboard" component={DoctorPortal} />
               <Stack.Screen name="AdminDashboard" component={AdminPortal} />
+              <Stack.Screen 
+                name="ForgotPassword" 
+                component={ForgotPasswordScreen} 
+                initialParams={{ step: isRecovery ? 3 : 1 }} 
+              />
             </>
           ) : (
             // Auth Screens — Landing is now the entry point
@@ -274,7 +289,11 @@ export default function App() {
               <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Signup" component={SignupScreen} />
-              <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+              <Stack.Screen 
+                name="ForgotPassword" 
+                component={ForgotPasswordScreen} 
+                initialParams={{ step: isRecovery ? 3 : 1 }} 
+              />
             </>
           )}
         </Stack.Navigator>

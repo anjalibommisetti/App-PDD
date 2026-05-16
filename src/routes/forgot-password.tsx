@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { supabase } from "../lib/supabase";
 import { ArrowLeft } from "lucide-react";
 
 export default function ForgotPasswordScreen() {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(route.params?.step || 1);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -109,6 +110,7 @@ export default function ForgotPasswordScreen() {
       setErrorMsg(error.message);
     } else {
       Alert.alert("Success", "Your password has been changed successfully. You can now log in.");
+      await supabase.auth.signOut();
       navigation.navigate("Login");
     }
   };
