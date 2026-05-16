@@ -18,6 +18,8 @@ import {
   Sparkles,
   Upload,
   Stethoscope,
+  Bell,
+  Calendar,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { TouchableOpacity, Text, View } from "react-native";
@@ -206,40 +208,65 @@ export default function LandingPage() {
                 className="relative hidden lg:block"
               >
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 to-teal-400 rounded-[3rem] transform rotate-3 opacity-20 blur-2xl"></div>
-                <div className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-[2rem] p-6 shadow-2xl">
-                  {/* Mockup UI representation */}
-                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600">
-                        <Activity className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <div className="text-sm text-slate-500">Overall Health Score</div>
-                        <div className="text-2xl font-bold text-green-500">92/100</div>
-                      </div>
+                <div className="relative bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-2xl w-full">
+                  {/* Dashboard Mockup UI */}
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h3 className="text-xl font-bold text-white">Welcome back, Sarah</h3>
+                      <p className="text-sm text-slate-400">Here is a summary of your oral health.</p>
                     </div>
-                    <div className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full text-xs font-semibold">
-                      Low Risk
+                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+                      SA
                     </div>
                   </div>
-                  <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="flex items-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl"
-                      >
-                        <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 mr-4 flex items-center justify-center">
-                          <Brain className="h-5 w-5 text-blue-600" />
+                  
+                  <div className="bg-slate-900 rounded-xl p-5 border border-slate-800 mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-semibold text-slate-400 tracking-wider">CURRENT ORAL HEALTH STATUS</span>
+                    </div>
+                    <div className="flex items-end gap-4 mb-4">
+                      <h4 className="text-4xl font-bold text-white">94%</h4>
+                      <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-bold mb-1">
+                        High Risk
+                      </span>
+                    </div>
+                    
+                    <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-red-500 w-[94%] rounded-full"></div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-slate-900 rounded-xl p-4 border border-slate-800">
+                      <div className="flex items-center gap-2 mb-3 text-slate-400">
+                        <Activity className="w-4 h-4" />
+                        <span className="text-xs font-bold">Recent Predictions</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-400">
+                          <Activity className="w-4 h-4" />
                         </div>
-                        <div className="flex-1">
-                          <div className="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
-                          <div className="h-3 w-40 bg-slate-100 dark:bg-slate-800 rounded"></div>
-                        </div>
-                        <div className="w-12 h-12 rounded-full border-4 border-teal-400 flex items-center justify-center">
-                          <span className="text-xs font-bold">98%</span>
+                        <div>
+                          <p className="text-sm font-bold text-white">High (94%)</p>
+                          <p className="text-xs text-slate-500">15 May</p>
                         </div>
                       </div>
-                    ))}
+                    </div>
+                    <div className="bg-slate-900 rounded-xl p-4 border border-slate-800">
+                      <div className="flex items-center gap-2 mb-3 text-slate-400">
+                        <Bell className="w-4 h-4" />
+                        <span className="text-xs font-bold">Reminders</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
+                          <Calendar className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-white">Dental Appt</p>
+                          <p className="text-xs text-slate-500">Tomorrow</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </motion.div>
