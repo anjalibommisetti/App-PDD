@@ -37,12 +37,15 @@ export default function DoctorPortal() {
   };
 
   const TABS = [
-    { id: "Dashboard", icon: Activity, label: "Overview" },
-    { id: "Patients", icon: Users, label: "Patients & Scans" },
-    { id: "Analytics", icon: FileText, label: "Risk Analytics" },
-    { id: "Appointments", icon: Calendar, label: "Appointments" },
-    { id: "Messages", icon: MessageSquare, label: "Communication" },
-    { id: "Emergency", icon: ShieldAlert, label: "Emergency Alerts" },
+    { id: "Dashboard", icon: Activity, label: "Dashboard" },
+    { id: "Patients", icon: Users, label: "Patients" },
+    { id: "MedicalRecords", icon: FileText, label: "Medical Records" },
+    { id: "PredictionReviews", icon: Activity, label: "Prediction Reviews" },
+    { id: "Appointments", icon: Calendar, label: "Manage Appointments" },
+    { id: "Prescriptions", icon: FileText, label: "Prescriptions" },
+    { id: "Analytics", icon: FileText, label: "Analytics" },
+    { id: "Emergency", icon: ShieldAlert, label: "High-Risk Alerts" },
+    { id: "Notifications", icon: Bell, label: "Notifications" },
     { id: "Settings", icon: Settings, label: "Profile Settings" },
   ];
 
@@ -137,11 +140,14 @@ export default function DoctorPortal() {
         {/* Dynamic View Content */}
         <div className="flex-1 overflow-y-auto">
           {activeTab === "Dashboard" && <DoctorDashboard />}
-          {activeTab === "Analytics" && <AnalyticsDashboard />}
           {activeTab === "Patients" && <PatientsModule />}
+          {activeTab === "MedicalRecords" && <PatientsModule />}
+          {activeTab === "PredictionReviews" && <DoctorDashboard />}
           {activeTab === "Appointments" && <AppointmentsModule />}
-          {activeTab === "Messages" && <CommunicationModule />}
+          {activeTab === "Prescriptions" && <PatientsModule />}
+          {activeTab === "Analytics" && <AnalyticsDashboard />}
           {activeTab === "Emergency" && <EmergencyModule />}
+          {activeTab === "Notifications" && <CommunicationModule />}
           {activeTab === "Settings" && (
             <div className="flex-1 w-full h-full overflow-hidden">
               <ProfileScreen />

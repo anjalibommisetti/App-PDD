@@ -37,12 +37,16 @@ export default function AdminPortal() {
   };
 
   const TABS = [
-    { id: "Dashboard", icon: Activity, label: "System Overview" },
-    { id: "Users", icon: Users, label: "User Management" },
+    { id: "Dashboard", icon: Activity, label: "Dashboard" },
+    { id: "ManageUsers", icon: Users, label: "Manage Users" },
+    { id: "ManageDoctors", icon: UserCheck, label: "Manage Doctors" },
     { id: "Analytics", icon: BarChart2, label: "Platform Analytics" },
-    { id: "Monitoring", icon: Database, label: "System Monitoring" },
-    { id: "Security", icon: Lock, label: "Security & Access" },
-    { id: "Settings", icon: Settings, label: "Platform Settings" },
+    { id: "Monitoring", icon: Database, label: "Database Monitoring" },
+    { id: "Reports", icon: FileText, label: "Reports" },
+    { id: "Security", icon: Lock, label: "Security Management" },
+    { id: "Notifications", icon: Bell, label: "Notifications" },
+    { id: "Settings", icon: Settings, label: "System Settings" },
+    { id: "ActivityLogs", icon: Activity, label: "Activity Logs" },
   ];
 
   const MOCK_USERS = [
@@ -222,12 +226,12 @@ export default function AdminPortal() {
               </div>
             )}
 
-            {activeTab === "Users" && (
+            {(activeTab === "ManageUsers" || activeTab === "ManageDoctors") && (
               <div className="space-y-6 max-w-6xl mx-auto">
                 <div className="flex justify-between items-center mb-6">
                   <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">User Management</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Manage Patients, Doctors, and Access Controls.</p>
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">{activeTab === "ManageUsers" ? "Manage Users" : "Manage Doctors"}</h1>
+                    <p className="text-slate-500 dark:text-slate-400">Manage {activeTab === "ManageUsers" ? "Patients" : "Doctors"} and Access Controls.</p>
                   </div>
                   <button className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700">
                     <UserPlus className="w-4 h-4" /> Add User
@@ -289,9 +293,10 @@ export default function AdminPortal() {
             )}
 
             {activeTab === "Monitoring" && <AdminMonitoring />}
+            {activeTab === "ActivityLogs" && <AdminMonitoring />}
             {activeTab === "Security" && <AdminSecurity />}
             
-            {activeTab === "Settings" && (
+            {(activeTab === "Settings" || activeTab === "Notifications" || activeTab === "Reports") && (
               <div className="flex flex-col items-center justify-center h-full text-slate-500 dark:text-slate-400">
                 <Settings className="w-16 h-16 text-slate-200 dark:text-slate-800 mb-4" />
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{activeTab} Module</h2>
