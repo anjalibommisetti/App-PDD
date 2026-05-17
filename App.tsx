@@ -186,6 +186,8 @@ export default function App() {
             role = "doctor";
           } else if (email.includes("sunita") || email.includes("admin")) {
             role = "admin";
+          } else if (email.includes("patient") || email.includes("prathyusha")) {
+            role = "patient";
           }
           
           if (role === "admin") setInitialRoute("AdminDashboard");
@@ -241,6 +243,8 @@ export default function App() {
           role = "doctor";
         } else if (email.includes("sunita") || email.includes("admin")) {
           role = "admin";
+        } else if (email.includes("patient") || email.includes("prathyusha")) {
+          role = "patient";
         }
         
         if (role === "admin") setInitialRoute("AdminDashboard");

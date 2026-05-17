@@ -65,6 +65,8 @@ export default function LoginScreen() {
           role = "doctor";
         } else if (userEmail.includes("sunita") || userEmail.includes("admin")) {
           role = "admin";
+        } else if (userEmail.includes("patient") || userEmail.includes("prathyusha")) {
+          role = "patient";
         }
         
         // Fallback
