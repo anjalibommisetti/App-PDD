@@ -57,14 +57,19 @@ export default function LoginScreen() {
         }
       } else if (data?.session) {
         // Fetch actual role from user metadata
-        let role = data.session.user.user_metadata?.role || "patient";
+        let role = data.session.user.user_metadata?.role;
         
         // --- AUTO-ROUTING FOR TESTING ---
         const userEmail = email.toLowerCase();
-        if (userEmail.includes("anjali")) {
+        if (userEmail.includes("anjali") || userEmail.includes("doctor") || userEmail.includes("doc")) {
           role = "doctor";
-        } else if (userEmail.includes("sunita")) {
+        } else if (userEmail.includes("sunita") || userEmail.includes("admin")) {
           role = "admin";
+        }
+        
+        // Fallback
+        if (!role) {
+          role = "patient";
         }
         // --------------------------------
 
