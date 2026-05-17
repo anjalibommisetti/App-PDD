@@ -191,8 +191,21 @@ export default function App() {
           if (role === "admin") setInitialRoute("AdminDashboard");
           else if (role === "doctor") setInitialRoute("DoctorDashboard");
           else setInitialRoute("Dashboard");
+          
+          setTimeout(() => {
+            if (navigationRef.isReady()) {
+              if (role === "admin") navigationRef.navigate("AdminDashboard");
+              else if (role === "doctor") navigationRef.navigate("DoctorDashboard");
+              else navigationRef.navigate("Dashboard");
+            }
+          }, 200);
         } else {
           setInitialRoute("Landing");
+          setTimeout(() => {
+            if (navigationRef.isReady()) {
+              navigationRef.navigate("Landing");
+            }
+          }, 200);
         }
         
         // Set session AFTER initialRoute is determined so Navigator mounts correctly
@@ -233,8 +246,22 @@ export default function App() {
         if (role === "admin") setInitialRoute("AdminDashboard");
         else if (role === "doctor") setInitialRoute("DoctorDashboard");
         else setInitialRoute("Dashboard");
+        
+        // Force navigation to the correct route after React Navigation hot-swaps screens
+        setTimeout(() => {
+          if (navigationRef.isReady()) {
+            if (role === "admin") navigationRef.navigate("AdminDashboard");
+            else if (role === "doctor") navigationRef.navigate("DoctorDashboard");
+            else navigationRef.navigate("Dashboard");
+          }
+        }, 100);
       } else if (!newSession) {
         setInitialRoute("Landing");
+        setTimeout(() => {
+          if (navigationRef.isReady()) {
+            navigationRef.navigate("Landing");
+          }
+        }, 100);
       }
       setSession(newSession ?? null);
     });
