@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { TouchableOpacity } from "react-native";
 import {
   Users,
   Activity,
@@ -21,12 +22,32 @@ import PatientsModule from "./patients";
 import AppointmentsModule from "./appointments";
 import CommunicationModule from "./communication";
 import EmergencyModule from "./emergency";
+import ChatbotScreen from "./chatbot";
 import { supabase } from "../lib/supabase";
 
 export default function DoctorPortal() {
   const navigation = useNavigation<any>();
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [userName, setUserName] = useState("Doctor");
+  const [initials, setInitials] = useState("DR");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        let name = session.user.user_metadata?.full_name || session.user.email?.split("@")[0] || "Doctor";
+        // Ensure name includes Dr. prefix for display
+        if (!name.toLowerCase().startsWith("dr.") && !name.toLowerCase().startsWith("dr ")) {
+          name = `Dr. ${name}`;
+        }
+        setUserName(name);
+        const init = name.replace(/^Dr\.\s*/, "").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+        setInitials(init);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -46,6 +67,7 @@ export default function DoctorPortal() {
     { id: "Analytics", icon: Activity, label: "Analytics" },
     { id: "Emergency", icon: ShieldAlert, label: "High-Risk Alerts" },
     { id: "Notifications", icon: Bell, label: "Notifications" },
+    { id: "Chat", icon: MessageSquare, label: "Chat" },
     { id: "Settings", icon: Settings, label: "Profile Settings" },
   ];
 
@@ -127,12 +149,12 @@ export default function DoctorPortal() {
             </button>
             <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-slate-900 dark:text-white">Dr. Sarah Smith</p>
+                <p className="text-sm font-bold text-slate-900 dark:text-white">{userName}</p>
                 <p className="text-xs text-slate-500">Chief Orthodontist</p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">
-                SS
-              </div>
+              <TouchableOpacity onPress={() => setActiveTab("Settings")} className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold uppercase">
+                {initials}
+              </TouchableOpacity>
             </div>
           </div>
         </header>
@@ -147,6 +169,7 @@ export default function DoctorPortal() {
           {activeTab === "Prescriptions" && <PatientsModule />}
           {activeTab === "Analytics" && <AnalyticsDashboard />}
           {activeTab === "Emergency" && <EmergencyModule />}
+          {activeTab === "Chat" && <ChatbotScreen />}
           {activeTab === "Notifications" && <CommunicationModule />}
           {activeTab === "Settings" && (
             <div className="flex-1 w-full h-full overflow-hidden">

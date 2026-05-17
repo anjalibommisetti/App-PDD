@@ -138,11 +138,11 @@ export default function AdminPortal() {
               </button>
               <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">System Admin</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">{userName}</p>
                   <p className="text-xs text-slate-500">Superuser</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold">
-                  SA
+                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold uppercase">
+                  {initials}
                 </div>
               </div>
             </div>
