@@ -197,6 +197,7 @@ export default function PatientPortal() {
     { id: "Appointments", label: "Appointments", icon: CalendarIcon },
     { id: "Report", label: "Reports", icon: FileText },
     { id: "Chatbot", label: "AI Chatbot", icon: MessageCircle },
+    { id: "Notifications", label: "Notifications", icon: Bell },
     { id: "Settings", label: "Settings", icon: Settings },
   ];
 
