@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { TouchableOpacity } from "react-native";
+import { Pressable, Text, View, Platform } from "react-native";
 import {
   Users,
   Activity,
