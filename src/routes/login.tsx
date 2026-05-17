@@ -61,11 +61,11 @@ export default function LoginScreen() {
         
         // --- AUTO-ROUTING FOR TESTING ---
         const userEmail = email.toLowerCase();
-        if (userEmail.includes("anjali") || userEmail.includes("doctor") || userEmail.includes("doc")) {
+        if (userEmail.includes("doctor") || userEmail.includes("doc")) {
           role = "doctor";
-        } else if (userEmail.includes("sunita") || userEmail.includes("admin")) {
+        } else if (userEmail.includes("admin")) {
           role = "admin";
-        } else if (userEmail.includes("patient") || userEmail.includes("prathyusha")) {
+        } else if (userEmail.includes("patient")) {
           role = "patient";
         }
         

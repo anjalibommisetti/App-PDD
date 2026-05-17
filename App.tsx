@@ -182,11 +182,11 @@ export default function App() {
           const email = currentSession.user.email?.toLowerCase() || "";
           let role = currentSession.user.user_metadata?.role;
           
-          if (email.includes("anjali") || email.includes("doctor") || email.includes("doc")) {
+          if (email.includes("doctor") || email.includes("doc")) {
             role = "doctor";
-          } else if (email.includes("sunita") || email.includes("admin")) {
+          } else if (email.includes("admin")) {
             role = "admin";
-          } else if (email.includes("patient") || email.includes("prathyusha")) {
+          } else if (email.includes("patient")) {
             role = "patient";
           }
           
@@ -239,11 +239,11 @@ export default function App() {
         const email = newSession.user.email?.toLowerCase() || "";
         let role = newSession.user.user_metadata?.role;
         
-        if (email.includes("anjali") || email.includes("doctor") || email.includes("doc")) {
+        if (email.includes("doctor") || email.includes("doc")) {
           role = "doctor";
-        } else if (email.includes("sunita") || email.includes("admin")) {
+        } else if (email.includes("admin")) {
           role = "admin";
-        } else if (email.includes("patient") || email.includes("prathyusha")) {
+        } else if (email.includes("patient")) {
           role = "patient";
         }
         
