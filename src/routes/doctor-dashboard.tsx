@@ -151,315 +151,347 @@ function DoctorDashboard() {
   };
 
   return (
-    <div className="font-sans p-4 md:p-8">
+    <div className="space-y-6 max-w-7xl mx-auto pb-10 font-sans">
       {/* Header */}
-      <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Doctor Portal</h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            Manage patients, review AI predictions, and analyze health trends.
-          </p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Doctor Dashboard</h1>
+          <p className="text-slate-500 dark:text-slate-400">Welcome back, Dr. Smith. Here is your daily overview.</p>
         </div>
-        <div className="flex gap-3">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3 flex items-center gap-3 shadow-sm">
-            <div className="bg-red-100 dark:bg-red-900/30 p-2 rounded-md">
-              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
-            </div>
-            <div>
-              <p className="text-xs text-slate-500 font-medium">High Risk Patients</p>
-              <p className="text-lg font-bold text-slate-900 dark:text-white">
-                {patients.filter(p => p.risk === "High").length} Alerts
-              </p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="bg-white dark:bg-slate-900 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-2 shadow-sm">
+            <Clock className="w-4 h-4 text-slate-400" />
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            </span>
           </div>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3 flex items-center gap-3 shadow-sm">
-            <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-md">
-              <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <p className="text-xs text-slate-500 font-medium">Pending Reviews</p>
-              <p className="text-lg font-bold text-slate-900 dark:text-white">
-                {patients.filter(p => p.status === "Pending Review").length} Scans
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Left Column: Patient List */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Controls */}
-          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row gap-4 shadow-sm">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search patients..."
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-slate-400" />
-              <select
-                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
-                value={filterRisk}
-                onChange={(e) => setFilterRisk(e.target.value)}
-              >
-                <option value="All">All Risks</option>
-                <option value="High">High Risk</option>
-                <option value="Medium">Medium Risk</option>
-                <option value="Low">Low Risk</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Table */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
-                  <tr>
-                    <th className="px-6 py-4 font-medium">Patient Name</th>
-                    <th className="px-6 py-4 font-medium">Last Visit</th>
-                    <th className="px-6 py-4 font-medium">Risk Level</th>
-                    <th className="px-6 py-4 font-medium">AI Diagnosis</th>
-                    <th className="px-6 py-4 font-medium">Status</th>
-                    <th className="px-6 py-4 font-medium text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                  {loading ? (
-                    <tr>
-                      <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
-                        Loading patients from database...
-                      </td>
-                    </tr>
-                  ) : filteredPatients.map((patient) => (
-                    <tr
-                      key={patient.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="font-medium text-slate-900 dark:text-white">
-                          {patient.name}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
-                        {patient.lastVisit}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                          ${
-                            patient.risk === "High"
-                              ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-                              : patient.risk === "Medium"
-                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                                : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                          }`}
-                        >
-                          {patient.risk}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
-                        {patient.confidence}%
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1 text-xs font-medium
-                          ${patient.status === "Approved" ? "text-green-600 dark:text-green-400" : patient.status === "Rejected" ? "text-red-600 dark:text-red-400" : "text-blue-600 dark:text-blue-400"}`}
-                        >
-                          {patient.status === "Approved" ? (
-                            <CheckCircle className="w-3 h-3" />
-                          ) : patient.status === "Rejected" ? (
-                            <XCircle className="w-3 h-3" />
-                          ) : (
-                            <Clock className="w-3 h-3" />
-                          )}
-                          {patient.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => setSelectedPatient(patient)}
-                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm inline-flex items-center"
-                        >
-                          Review <ChevronRight className="w-4 h-4 ml-1" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {!loading && filteredPatients.length === 0 && (
-              <div className="p-8 text-center text-slate-500">
-                No patients found matching your criteria.
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Column: AI Prediction Review Panel */}
-        <div className="lg:col-span-1">
-          {selectedPatient ? (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden sticky top-24"
-            >
-              <div className="bg-slate-50 dark:bg-slate-800/80 p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
-                <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-blue-500" />
-                  AI Prediction Review
-                </h3>
-                <button
-                  onClick={() => setSelectedPatient(null)}
-                  className="text-slate-400 hover:text-slate-600"
-                >
-                  <XCircle className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="p-6 space-y-6">
-                <div>
-                  <h4 className="text-sm font-medium text-slate-500 mb-1">Patient</h4>
-                  <p className="text-lg font-bold text-slate-900 dark:text-white">
-                    {selectedPatient.name}
-                  </p>
-                  <p className="text-sm text-slate-500">Scanned on: {selectedPatient.lastVisit}</p>
-                </div>
-
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-100 dark:border-slate-700/50">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                      AI Risk Score
-                    </span>
-                    <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded-full font-bold">
-                      {selectedPatient.confidence}% Score
-                    </span>
-                  </div>
-                  <p className="text-xl font-bold text-slate-900 dark:text-white mb-4">
-                    {selectedPatient.risk} Risk Profile
-                  </p>
-
-                  <div className="space-y-3">
-                    <div>
-                      <span className="text-xs text-slate-500 block mb-1">
-                        Risk Level Assessment
-                      </span>
-                      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full ${selectedPatient.risk === "High" ? "bg-red-500 w-[90%]" : selectedPatient.risk === "Medium" ? "bg-yellow-500 w-[60%]" : "bg-green-500 w-[20%]"}`}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <h4 className="text-sm font-medium text-slate-900 dark:text-white">
-                    Doctor Actions
-                  </h4>
-
-                  {selectedPatient.status === "Pending Review" ? (
-                    <div className="flex gap-3">
-                      <button
-                        onClick={handleApprove}
-                        className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-medium transition-colors flex justify-center items-center gap-2"
-                      >
-                        <CheckCircle className="w-4 h-4" /> Approve
-                      </button>
-                      <button
-                        onClick={handleReject}
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-medium transition-colors flex justify-center items-center gap-2"
-                      >
-                        <XCircle className="w-4 h-4" /> Reject
-                      </button>
-                    </div>
-                  ) : (
-                    <div className={`p-3 rounded-lg flex items-center justify-center gap-2 font-medium ${
-                      selectedPatient.status === "Approved" 
-                        ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400"
-                        : "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400"
-                    }`}>
-                      {selectedPatient.status === "Approved" ? (
-                        <><CheckCircle className="w-5 h-5" /> Diagnosis Approved</>
-                      ) : (
-                        <><XCircle className="w-5 h-5" /> Diagnosis Rejected</>
-                      )}
-                    </div>
-                  )}
-
-                  <button 
-                    onClick={() => setShowPrescriptionModal(true)}
-                    className="w-full flex items-center justify-center gap-2 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium mt-2"
-                  >
-                    <FileText className="w-4 h-4" /> Write Prescription & Export PDF
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          ) : (
-            <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 border-dashed rounded-xl h-full min-h-[400px] flex flex-col items-center justify-center text-slate-400 p-8 text-center">
-              <Users className="w-12 h-12 mb-4 text-slate-300 dark:text-slate-600" />
-              <p className="font-medium text-slate-600 dark:text-slate-300 mb-2">
-                No Patient Selected
-              </p>
-              <p className="text-sm">
-                Select a patient from the list to review their AI diagnosis, upload prescriptions,
-                and approve records.
-              </p>
-            </div>
-          )}
+          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition-colors flex items-center gap-2">
+            <Activity className="w-4 h-4" /> Start Teleconsultation
+          </button>
         </div>
       </div>
 
-      {/* Prescription Modal */}
-      {showPrescriptionModal && (
-        <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-800">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
-              <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <FileText className="w-5 h-5 text-blue-500" />
-                Write Prescription
-              </h3>
-              <button onClick={() => setShowPrescriptionModal(false)} className="text-slate-400 hover:text-slate-600">
-                <XCircle className="w-5 h-5" />
-              </button>
+      {/* Stats Cards (Dark Blue Theme) */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {[
+          { label: "Total Patients", value: "1,248", icon: Users, color: "text-blue-400", bg: "bg-blue-900/20" },
+          { label: "Pending Appointments", value: "12", icon: Clock, color: "text-amber-400", bg: "bg-amber-900/20" },
+          { label: "High-Risk Cases", value: "5", icon: AlertCircle, color: "text-red-400", bg: "bg-red-900/20" },
+          { label: "Predictions Reviewed", value: "48", icon: CheckCircle, color: "text-emerald-400", bg: "bg-emerald-900/20" },
+        ].map((stat, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-600/10 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="flex justify-between items-start relative z-10">
+              <div>
+                <p className="text-slate-400 text-sm font-medium mb-1">{stat.label}</p>
+                <h3 className="text-3xl font-bold text-white">{stat.value}</h3>
+              </div>
+              <div className={`p-3 rounded-xl ${stat.bg}`}>
+                <stat.icon className={`w-6 h-6 ${stat.color}`} />
+              </div>
             </div>
-            <div className="p-6">
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                Writing prescription for <strong>{selectedPatient?.name}</strong>. This will be exported as a printable PDF report.
-              </p>
-              <textarea
-                className="w-full h-40 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white resize-none"
-                placeholder="Type doctor's notes, recommended treatments, or medication here..."
-                value={prescriptionText}
-                onChange={(e) => setPrescriptionText(e.target.value)}
-              ></textarea>
-              <div className="flex gap-3 mt-6">
-                <button 
-                  onClick={() => setShowPrescriptionModal(false)}
-                  className="flex-1 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 font-medium"
+            {i === 2 && <div className="mt-4 text-xs font-medium text-red-400 flex items-center gap-1 relative z-10"><AlertCircle className="w-3 h-3"/> Action required immediately</div>}
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content Area */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          {/* Prediction Review Panel */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col h-[600px]">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Activity className="w-5 h-5 text-blue-500" /> Prediction Review Panel
+              </h2>
+              <div className="flex gap-2">
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search patients..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9 pr-4 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+                  />
+                </div>
+                <select
+                  value={filterRisk}
+                  onChange={(e) => setFilterRisk(e.target.value)}
+                  className="px-4 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  Cancel
-                </button>
-                <button 
-                  onClick={generatePDF}
-                  className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
-                >
-                  Generate PDF
-                </button>
+                  <option value="All">All Risks</option>
+                  <option value="High">High Risk</option>
+                  <option value="Medium">Medium Risk</option>
+                  <option value="Low">Low Risk</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-auto">
+              <table className="w-full text-left border-collapse">
+                <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900/95 backdrop-blur z-10 border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Patient Info</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Risk Level</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Confidence</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                  {loading ? (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-10 text-center text-slate-500">
+                        <div className="flex flex-col items-center justify-center">
+                          <Activity className="w-8 h-8 animate-spin text-blue-500 mb-2" />
+                          <p>Loading records...</p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : filteredPatients.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-10 text-center text-slate-500">No patients found matching your criteria.</td>
+                    </tr>
+                  ) : (
+                    filteredPatients.map((patient) => (
+                      <tr key={patient.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold mr-3">
+                              {patient.name.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="font-semibold text-slate-900 dark:text-white">{patient.name}</div>
+                              <div className="text-xs text-slate-500">{patient.lastVisit}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${patient.risk === "High" ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400" : ""}
+                            ${patient.risk === "Medium" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400" : ""}
+                            ${patient.risk === "Low" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400" : ""}
+                          `}>
+                            {patient.risk} Risk
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <div className="w-16 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                              <div 
+                                className={`h-full rounded-full ${patient.confidence > 80 ? 'bg-emerald-500' : 'bg-amber-500'}`} 
+                                style={{ width: `${patient.confidence}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{patient.confidence}%</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                            {patient.status === 'Pending Review' && <Clock className="w-3 h-3 text-amber-500"/>}
+                            {patient.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                          <button
+                            onClick={() => setSelectedPatient(patient)}
+                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm flex items-center justify-end w-full gap-1"
+                          >
+                            Review <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar / Analytics Area */}
+        <div className="space-y-6">
+          {/* Disease Analytics Charts */}
+          <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl p-6 relative overflow-hidden">
+            <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2 relative z-10">
+              <Activity className="w-5 h-5 text-emerald-400" /> Disease Analytics
+            </h3>
+            
+            {/* Fake Donut Chart */}
+            <div className="relative w-48 h-48 mx-auto mb-6 z-10">
+              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="16" fill="none" className="stroke-slate-800" strokeWidth="4"></circle>
+                <circle cx="18" cy="18" r="16" fill="none" className="stroke-red-500" strokeWidth="4" strokeDasharray="20 100" strokeDashoffset="0"></circle>
+                <circle cx="18" cy="18" r="16" fill="none" className="stroke-amber-400" strokeWidth="4" strokeDasharray="30 100" strokeDashoffset="-20"></circle>
+                <circle cx="18" cy="18" r="16" fill="none" className="stroke-emerald-400" strokeWidth="4" strokeDasharray="50 100" strokeDashoffset="-50"></circle>
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-3xl font-bold text-white">100%</span>
+                <span className="text-xs text-slate-400">Total Scans</span>
+              </div>
+            </div>
+            
+            <div className="space-y-3 relative z-10">
+              <div className="flex items-center justify-between text-sm bg-slate-800/50 p-2 rounded-lg border border-slate-700/50">
+                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-emerald-400"></div><span className="text-slate-300">Low Risk</span></div>
+                <span className="font-bold text-white">50%</span>
+              </div>
+              <div className="flex items-center justify-between text-sm bg-slate-800/50 p-2 rounded-lg border border-slate-700/50">
+                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-amber-400"></div><span className="text-slate-300">Medium Risk</span></div>
+                <span className="font-bold text-white">30%</span>
+              </div>
+              <div className="flex items-center justify-between text-sm bg-slate-800/50 p-2 rounded-lg border border-slate-700/50">
+                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500"></div><span className="text-slate-300">High Risk</span></div>
+                <span className="font-bold text-white">20%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions / Notifications */}
+          <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl p-6">
+            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-amber-400" /> High-Risk Alerts
+            </h3>
+            <div className="space-y-4">
+              <div className="p-3 bg-red-900/20 border border-red-900/50 rounded-xl flex gap-3">
+                <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-red-400">Critical Patient Alert</p>
+                  <p className="text-xs text-slate-400 mt-1">John Doe's recent scan shows 98% probability of severe periodontitis.</p>
+                </div>
+              </div>
+              <div className="p-3 bg-blue-900/20 border border-blue-900/50 rounded-xl flex gap-3">
+                <Clock className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-blue-400">Upcoming Appointment</p>
+                  <p className="text-xs text-slate-400 mt-1">Teleconsultation with Sarah Smith starts in 15 minutes.</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
 
+      {/* Detail Modal */}
+      {selectedPatient && (
+        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 dark:border-slate-700"
+          >
+            <div className="flex justify-between items-center p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Review Assessment</h2>
+              <button 
+                onClick={() => setSelectedPatient(null)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+              >
+                <XCircle className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-[60vh] space-y-6">
+              <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                <div>
+                  <p className="text-sm text-slate-500">Patient</p>
+                  <p className="text-lg font-bold text-slate-900 dark:text-white">{selectedPatient.name}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-slate-500">Risk Level</p>
+                  <span className={`px-3 py-1 inline-flex text-sm font-bold rounded-full mt-1
+                    ${selectedPatient.risk === "High" ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400" : ""}
+                    ${selectedPatient.risk === "Medium" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400" : ""}
+                    ${selectedPatient.risk === "Low" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400" : ""}
+                  `}>
+                    {selectedPatient.risk} Risk ({selectedPatient.confidence}%)
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-white mb-3">AI Findings</h3>
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
+                  <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+                    Based on the patient's submitted questionnaire and historical data, the AI model predicts a {selectedPatient.risk.toLowerCase()} risk of dental complications. 
+                    {selectedPatient.risk === "High" && " Immediate clinical evaluation is recommended."}
+                  </p>
+                </div>
+              </div>
+
+              {/* Questionnaire Answers Preview */}
+              <div>
+                <h3 className="font-bold text-slate-900 dark:text-white mb-3">Questionnaire Highlights</h3>
+                <div className="space-y-2">
+                  {selectedPatient.answers && Object.entries(selectedPatient.answers).slice(0, 5).map(([key, value]: any) => (
+                    <div key={key} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-100 dark:border-slate-800">
+                      <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">{key}</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-white">{String(value)}</span>
+                    </div>
+                  ))}
+                  <button className="w-full text-center text-sm font-semibold text-blue-600 dark:text-blue-400 mt-2 hover:underline">
+                    View Full Medical History & Questionnaire
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  onClick={() => setShowPrescriptionModal(!showPrescriptionModal)}
+                  className="flex items-center justify-center w-full gap-2 py-3 rounded-xl border-2 border-dashed border-blue-300 dark:border-blue-800 text-blue-600 dark:text-blue-400 font-semibold mb-4 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                >
+                  <FileText className="w-5 h-5" />
+                  {showPrescriptionModal ? "Cancel Prescription" : "Write Digital Prescription"}
+                </button>
+                
+                {showPrescriptionModal && (
+                  <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}}>
+                    <textarea
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none mb-4"
+                      rows={5}
+                      placeholder="Enter prescription details, medications, and clinical notes here. This will be exported as a PDF..."
+                      value={prescriptionText}
+                      onChange={(e) => setPrescriptionText(e.target.value)}
+                    />
+                  </motion.div>
+                )}
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex flex-col-reverse sm:flex-row justify-end gap-3">
+              <button 
+                onClick={handleReject}
+                className="px-6 py-3 rounded-xl font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors w-full sm:w-auto text-center"
+              >
+                Reject Analysis
+              </button>
+              
+              {showPrescriptionModal ? (
+                <button 
+                  onClick={generatePDF}
+                  className="px-6 py-3 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
+                >
+                  <FileText className="w-5 h-5" /> Generate PDF
+                </button>
+              ) : (
+                <button 
+                  onClick={handleApprove}
+                  className="px-6 py-3 rounded-xl font-semibold bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
+                >
+                  <CheckCircle className="w-5 h-5" /> Approve & Verify
+                </button>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
