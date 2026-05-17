@@ -14,7 +14,7 @@ import {
   Menu,
 } from "lucide-react";
 import { useNavigation } from "@react-navigation/native";
-import { Platform, View } from "react-native";
+
 import DoctorDashboard from "./doctor-dashboard";
 import AnalyticsDashboard from "./analytics";
 import ProfileScreen from "./profile";
@@ -152,9 +152,27 @@ export default function DoctorPortal() {
                 <p className="text-sm font-bold text-slate-900 dark:text-white">{userName}</p>
                 <p className="text-xs text-slate-500">Chief Orthodontist</p>
               </div>
-              <TouchableOpacity onPress={() => setActiveTab("Settings")} className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold uppercase">
-                {initials}
-              </TouchableOpacity>
+              <Pressable
+                  onPress={() => setActiveTab("Settings")}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 9999,
+                    backgroundColor: "#bfdbfe",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "#1e40af",
+                      fontWeight: "700",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {initials}
+                  </Text>
+                </Pressable>
             </div>
           </div>
         </header>
