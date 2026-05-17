@@ -44,12 +44,12 @@ export default function AdminPortal() {
     { id: "ManageUsers", icon: Users, label: "Manage Users" },
     { id: "ManageDoctors", icon: UserCheck, label: "Manage Doctors" },
     { id: "Analytics", icon: BarChart2, label: "Platform Analytics" },
-    { id: "Monitoring", icon: Database, label: "Database Monitoring" },
     { id: "Reports", icon: FileText, label: "Reports" },
+    { id: "Monitoring", icon: Database, label: "Database Monitoring" },
     { id: "Security", icon: Lock, label: "Security Management" },
     { id: "Notifications", icon: Bell, label: "Notifications" },
-    { id: "Settings", icon: Settings, label: "System Settings" },
     { id: "ActivityLogs", icon: Activity, label: "Activity Logs" },
+    { id: "Settings", icon: Settings, label: "System Settings" },
   ];
 
   const MOCK_USERS = [
@@ -150,82 +150,143 @@ export default function AdminPortal() {
           {/* Dynamic View Content */}
           <div className="flex-1 overflow-y-auto p-8">
             {activeTab === "Dashboard" && (
-              <div className="space-y-6 max-w-6xl mx-auto">
-                <div>
-                  <h1 className="text-3xl font-bold text-slate-900 dark:text-white">System Overview</h1>
-                  <p className="text-slate-500 dark:text-slate-400">Monitor overall platform health and prediction statistics.</p>
+              <div className="space-y-6 max-w-7xl mx-auto pb-10">
+                {/* Enterprise Header */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                  <div>
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Enterprise Overview</h1>
+                    <p className="text-slate-500 dark:text-slate-400">System metrics, security, and platform analytics.</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-slate-900 border border-purple-500/30 px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm shadow-purple-900/20">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                      <span className="text-sm font-medium text-purple-100">System Online</span>
+                    </div>
+                  </div>
                 </div>
 
+                {/* Dark Purple Stat Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl w-fit mb-4">
-                      <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  {[
+                    { label: "Total Users", value: "24,892", icon: Users, color: "text-purple-400", bg: "bg-purple-900/30" },
+                    { label: "Active Doctors", value: "450", icon: UserCheck, color: "text-blue-400", bg: "bg-blue-900/30" },
+                    { label: "Total Predictions", value: "148,291", icon: Activity, color: "text-pink-400", bg: "bg-pink-900/30" },
+                    { label: "System Health", value: "99.99%", icon: CheckCircle, color: "text-emerald-400", bg: "bg-emerald-900/30" },
+                  ].map((stat, i) => (
+                    <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-600/10 to-transparent rounded-full -translate-y-16 translate-x-16 group-hover:scale-110 transition-transform"></div>
+                      <div className="flex justify-between items-start relative z-10">
+                        <div>
+                          <p className="text-slate-400 text-sm font-medium mb-1 uppercase tracking-wider">{stat.label}</p>
+                          <h3 className="text-3xl font-bold text-white">{stat.value}</h3>
+                        </div>
+                        <div className={`p-3 rounded-xl border border-slate-700/50 ${stat.bg}`}>
+                          <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase">Total Users</p>
-                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white">1,248</h3>
-                  </div>
-                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl w-fit mb-4">
-                      <Activity className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase">AI Predictions</p>
-                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white">3,892</h3>
-                  </div>
-                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl w-fit mb-4">
-                      <UserCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-                    </div>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase">Active Doctors</p>
-                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white">45</h3>
-                  </div>
-                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-xl w-fit mb-4">
-                      <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-                    </div>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase">System Health</p>
-                    <h3 className="text-3xl font-bold text-green-600 dark:text-green-400">99.9%</h3>
-                  </div>
+                  ))}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-                  {/* Activity Log */}
-                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Recent Activity Logs</h3>
-                    <div className="space-y-4">
-                      {[
-                        "New user registered: Anjali (Patient)",
-                        "AI Scan Completed: High Risk (94%)",
-                        "Doctor Account Pending Approval: Dr. Michael Jones",
-                        "System Database Backup Completed",
-                        "New OTP Verification Sent"
-                      ].map((log, i) => (
-                        <div key={i} className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-3 last:border-0">
-                          <div className="w-2 h-2 rounded-full bg-purple-500" />
-                          <span>{log}</span>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+                  {/* Server load / Analytics fake chart */}
+                  <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                      <BarChart2 className="w-5 h-5 text-purple-400" /> Platform Analytics & Server Load
+                    </h3>
+                    <div className="h-64 flex items-end gap-2 justify-between px-4">
+                      {/* Generates a fake bar chart */}
+                      {[40, 70, 45, 90, 65, 85, 40, 55, 75, 50, 80, 60].map((h, i) => (
+                        <div key={i} className="w-full bg-purple-900/20 rounded-t-sm relative group">
+                          <div 
+                            className="absolute bottom-0 w-full bg-gradient-to-t from-purple-600 to-purple-400 rounded-t-sm transition-all duration-1000 group-hover:opacity-80" 
+                            style={{ height: `${h}%` }}
+                          ></div>
                         </div>
                       ))}
                     </div>
+                    <div className="flex justify-between mt-4 text-xs text-slate-500 px-4">
+                      <span>12 AM</span><span>4 AM</span><span>8 AM</span><span>12 PM</span><span>4 PM</span><span>8 PM</span>
+                    </div>
                   </div>
                   
-                  {/* Database Health */}
-                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Database Monitoring</h3>
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-600 dark:text-slate-400">Auth Users Table</span>
-                        <span className="text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded text-xs font-bold">Online</span>
+                  {/* Database Health & Security */}
+                  <div className="space-y-6">
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                      <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <Database className="w-5 h-5 text-blue-400" /> Database Monitoring
+                      </h3>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
+                          <span className="text-sm text-slate-300 font-medium">PostgreSQL Cluster</span>
+                          <span className="text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded text-xs font-bold border border-emerald-800/50">Optimal</span>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
+                          <span className="text-sm text-slate-300 font-medium">Supabase Auth Node</span>
+                          <span className="text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded text-xs font-bold border border-emerald-800/50">Optimal</span>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
+                          <span className="text-sm text-slate-300 font-medium">AI Endpoint (Render)</span>
+                          <span className="text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded text-xs font-bold border border-emerald-800/50">Optimal</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-600 dark:text-slate-400">Assessments Table</span>
-                        <span className="text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded text-xs font-bold">Online</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-600 dark:text-slate-400">Python AI Endpoint (Render)</span>
-                        <span className="text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded text-xs font-bold">Sleeping (Cold Start)</span>
+                    </div>
+
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                      <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <Lock className="w-5 h-5 text-amber-400" /> Security Management
+                      </h3>
+                      <div className="p-4 bg-amber-900/10 border border-amber-900/30 rounded-xl flex gap-3">
+                        <ShieldCheck className="w-8 h-8 text-amber-400 shrink-0" />
+                        <div>
+                          <p className="text-sm font-bold text-amber-400">Zero Threats Detected</p>
+                          <p className="text-xs text-slate-400 mt-1">All encryption protocols are active. Firewall blocking 14 unauthorized attempts/hr.</p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+
+                {/* Recent Activity Log Table */}
+                <div className="mt-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+                  <div className="p-6 border-b border-slate-800 flex justify-between items-center">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                      <Activity className="w-5 h-5 text-pink-400" /> Live Activity Logs
+                    </h3>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-950 border-b border-slate-800">
+                          <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Timestamp</th>
+                          <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Event</th>
+                          <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">User / IP</th>
+                          <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/50">
+                        {[
+                          { time: "Just now", event: "Admin Login Successful", user: "Admin (192.168.1.1)", status: "Success", color: "emerald" },
+                          { time: "2 mins ago", event: "New Patient Registered", user: "prathyusha@demo.com", status: "Success", color: "emerald" },
+                          { time: "15 mins ago", event: "AI Prediction Generated", user: "System", status: "Success", color: "emerald" },
+                          { time: "1 hour ago", event: "Failed Login Attempt", user: "Unknown (104.28.x.x)", status: "Blocked", color: "red" },
+                        ].map((log, i) => (
+                          <tr key={i} className="hover:bg-slate-800/30 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{log.time}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-300">{log.event}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">{log.user}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`px-2 py-1 inline-flex text-xs font-semibold rounded-md border border-${log.color}-800/50 bg-${log.color}-900/20 text-${log.color}-400`}>
+                                {log.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
               </div>
             )}
 
