@@ -89,9 +89,13 @@ export default function SignupScreen() {
     } else {
       console.log("Signup successful:", data);
       Keyboard.dismiss();
+      
+      // Save role so auto-login routes correctly
+      await AsyncStorage.setItem("userRole", role);
+
       Alert.alert(
         "Success",
-        "Registration successful! Please check your email for a verification link before logging in.",
+        "Registration successful! You can now log in to access your portal.",
       );
       navigation.navigate("Login");
     }
