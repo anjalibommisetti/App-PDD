@@ -25,9 +25,10 @@ import ReportScreen from "./report";
 import ChatbotScreen from "./chatbot";
 import ProfileScreen from "./profile";
 import HistoryScreen from "./history";
+import AssessmentScreen from "./assessment";
 
 // --- Sub-components for Patient Dashboard Main View ---
-function PatientDashboardMain({ navigation }: any) {
+function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => void }) {
   const [userName, setUserName] = useState("User");
   const [initials, setInitials] = useState("U");
   const [riskLevel, setRiskLevel] = useState("Low");
@@ -103,11 +104,17 @@ function PatientDashboardMain({ navigation }: any) {
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-10">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Welcome back, {userName}</h1>
           <p className="text-slate-500 dark:text-slate-400">Here is a summary of your oral health.</p>
         </div>
+        <button 
+          onClick={() => setActiveTab("Assessment")}
+          className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition-colors flex items-center gap-2"
+        >
+          <FileText className="w-5 h-5" /> Take Risk Assessment
+        </button>
       </div>
 
       {/* Main Risk Card */}
@@ -192,6 +199,7 @@ export default function PatientPortal() {
 
   const navItems = [
     { id: "Dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "Assessment", label: "Take Assessment", icon: FileText },
     { id: "Scan", label: "Upload Scan", icon: UploadCloud },
     { id: "History", label: "Predictions", icon: Activity },
     { id: "Appointments", label: "Appointments", icon: CalendarIcon },
@@ -281,7 +289,13 @@ export default function PatientPortal() {
 
           {/* Dynamic View Content */}
           <div className="flex-1 overflow-y-auto p-4 md:p-8">
-            {activeTab === "Dashboard" && <PatientDashboardMain />}
+            {activeTab === "Dashboard" && <PatientDashboardMain setActiveTab={setActiveTab} />}
+            
+            {activeTab === "Assessment" && (
+              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+                <AssessmentScreen />
+              </div>
+            )}
             
             {activeTab === "Scan" && (
               <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
