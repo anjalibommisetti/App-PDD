@@ -57,7 +57,17 @@ export default function LoginScreen() {
         }
       } else if (data?.session) {
         // Fetch actual role from user metadata
-        const role = data.session.user.user_metadata?.role || "patient";
+        let role = data.session.user.user_metadata?.role || "patient";
+        
+        // --- AUTO-ROUTING FOR TESTING ---
+        const userEmail = email.toLowerCase();
+        if (userEmail.includes("anjali")) {
+          role = "doctor";
+        } else if (userEmail.includes("sunita")) {
+          role = "admin";
+        }
+        // --------------------------------
+
         await AsyncStorage.setItem("userRole", role);
         
         if (role === "admin") navigation.navigate("AdminDashboard");
