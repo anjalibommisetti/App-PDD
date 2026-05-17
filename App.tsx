@@ -179,7 +179,15 @@ export default function App() {
         } = await supabase.auth.getSession();
         
         if (currentSession) {
-          const role = await AsyncStorage.getItem("userRole");
+          const email = currentSession.user.email?.toLowerCase() || "";
+          let role = currentSession.user.user_metadata?.role;
+          
+          if (email.includes("anjali") || email.includes("doctor") || email.includes("doc")) {
+            role = "doctor";
+          } else if (email.includes("sunita") || email.includes("admin")) {
+            role = "admin";
+          }
+          
           if (role === "admin") setInitialRoute("AdminDashboard");
           else if (role === "doctor") setInitialRoute("DoctorDashboard");
           else setInitialRoute("Dashboard");
@@ -213,7 +221,15 @@ export default function App() {
           navigationRef.navigate("ForgotPassword", { step: 3 });
         }
       } else if (newSession && !isRecovery) {
-        const role = await AsyncStorage.getItem("userRole");
+        const email = newSession.user.email?.toLowerCase() || "";
+        let role = newSession.user.user_metadata?.role;
+        
+        if (email.includes("anjali") || email.includes("doctor") || email.includes("doc")) {
+          role = "doctor";
+        } else if (email.includes("sunita") || email.includes("admin")) {
+          role = "admin";
+        }
+        
         if (role === "admin") setInitialRoute("AdminDashboard");
         else if (role === "doctor") setInitialRoute("DoctorDashboard");
         else setInitialRoute("Dashboard");
