@@ -14,7 +14,8 @@ import {
   Settings,
   UserPlus,
   UserCheck,
-  UserX
+  UserX,
+  FileText
 } from "lucide-react";
 import { useNavigation } from "@react-navigation/native";
 import { Platform, View, ScrollView } from "react-native";
