@@ -13,70 +13,70 @@ export default function RoleSelectionScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F8FBFB", minHeight: "100vh" as any }}>
-      <div className="flex-1 flex flex-col px-6 py-12 max-w-md mx-auto w-full">
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#F8FBFB" }}>
+      <View style={{ flex: 1, paddingHorizontal: 24, paddingVertical: 48, maxWidth: 448, width: "100%", alignSelf: "center" }}>
         {/* Header */}
-        <button 
-          onClick={() => navigation.goBack()}
-          className="mb-8 p-2 -ml-2 rounded-full hover:bg-slate-100 self-start text-slate-500"
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()}
+          style={{ marginBottom: 32, padding: 8, marginLeft: -8, borderRadius: 999, alignSelf: "flex-start" }}
         >
-          <ArrowLeft className="w-6 h-6" />
-        </button>
+          <ArrowLeft className="w-6 h-6 text-slate-500" />
+        </TouchableOpacity>
 
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">Select Your Role</h1>
-        <p className="text-slate-500 mb-10">Choose how you want to use SmileGuard AI to get started with your account.</p>
+        <Text style={{ fontSize: 30, fontWeight: "700", color: "#0f172a", marginBottom: 8 }}>Select Your Role</Text>
+        <Text style={{ fontSize: 16, color: "#64748b", marginBottom: 40 }}>Choose how you want to use SmileGuard AI to get started with your account.</Text>
 
         {/* Role Cards */}
-        <div className="space-y-4">
-          <button
-            onClick={() => selectRole("patient")}
-            className="w-full bg-white p-6 rounded-2xl border-2 border-slate-100 hover:border-blue-500 hover:shadow-lg transition-all flex items-center gap-5 text-left group"
+        <View style={{ gap: 16 }}>
+          <TouchableOpacity
+            onPress={() => selectRole("patient")}
+            style={{ width: "100%", backgroundColor: "white", padding: 24, borderRadius: 16, borderWidth: 2, borderColor: "#f1f5f9", flexDirection: "row", alignItems: "center", gap: 20 }}
           >
-            <div className="w-14 h-14 rounded-full bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center shrink-0 transition-colors">
+            <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: "#eff6ff", alignItems: "center", justifyContent: "center" }}>
               <User className="w-7 h-7 text-blue-600" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 mb-1">Patient</h2>
-              <p className="text-sm text-slate-500">Scan your teeth, track oral health, and book appointments.</p>
-            </div>
-          </button>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 20, fontWeight: "700", color: "#0f172a", marginBottom: 4 }}>Patient</Text>
+              <Text style={{ fontSize: 14, color: "#64748b" }}>Scan your teeth, track oral health, and book appointments.</Text>
+            </View>
+          </TouchableOpacity>
 
-          <button
-            onClick={() => selectRole("doctor")}
-            className="w-full bg-white p-6 rounded-2xl border-2 border-slate-100 hover:border-emerald-500 hover:shadow-lg transition-all flex items-center gap-5 text-left group"
+          <TouchableOpacity
+            onPress={() => selectRole("doctor")}
+            style={{ width: "100%", backgroundColor: "white", padding: 24, borderRadius: 16, borderWidth: 2, borderColor: "#f1f5f9", flexDirection: "row", alignItems: "center", gap: 20 }}
           >
-            <div className="w-14 h-14 rounded-full bg-emerald-50 group-hover:bg-emerald-100 flex items-center justify-center shrink-0 transition-colors">
+            <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: "#ecfdf5", alignItems: "center", justifyContent: "center" }}>
               <Stethoscope className="w-7 h-7 text-emerald-600" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 mb-1">Doctor</h2>
-              <p className="text-sm text-slate-500">Review patient scans, manage appointments, and prescribe.</p>
-            </div>
-          </button>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 20, fontWeight: "700", color: "#0f172a", marginBottom: 4 }}>Doctor</Text>
+              <Text style={{ fontSize: 14, color: "#64748b" }}>Review patient scans, manage appointments, and prescribe.</Text>
+            </View>
+          </TouchableOpacity>
 
-          <button
-            onClick={() => selectRole("admin")}
-            className="w-full bg-white p-6 rounded-2xl border-2 border-slate-100 hover:border-purple-500 hover:shadow-lg transition-all flex items-center gap-5 text-left group"
+          <TouchableOpacity
+            onPress={() => selectRole("admin")}
+            style={{ width: "100%", backgroundColor: "white", padding: 24, borderRadius: 16, borderWidth: 2, borderColor: "#f1f5f9", flexDirection: "row", alignItems: "center", gap: 20 }}
           >
-            <div className="w-14 h-14 rounded-full bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center shrink-0 transition-colors">
+            <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: "#faf5ff", alignItems: "center", justifyContent: "center" }}>
               <ShieldCheck className="w-7 h-7 text-purple-600" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 mb-1">Administrator</h2>
-              <p className="text-sm text-slate-500">Manage system settings, verify doctors, and view overall metrics.</p>
-            </div>
-          </button>
-        </div>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 20, fontWeight: "700", color: "#0f172a", marginBottom: 4 }}>Administrator</Text>
+              <Text style={{ fontSize: 14, color: "#64748b" }}>Manage system settings, verify doctors, and view overall metrics.</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
 
-        <div className="mt-auto pt-8 flex justify-center">
-          <p className="text-slate-500">
+        <View style={{ marginTop: "auto", paddingTop: 32, alignItems: "center" }}>
+          <Text style={{ color: "#64748b" }}>
             Already have an account?{" "}
-            <button onClick={() => navigation.navigate("Login")} className="text-blue-600 font-bold hover:underline">
+            <Text onPress={() => navigation.navigate("Login")} style={{ color: "#2563eb", fontWeight: "700" }}>
               Log in
-            </button>
-          </p>
-        </div>
-      </div>
-    </View>
+            </Text>
+          </Text>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
