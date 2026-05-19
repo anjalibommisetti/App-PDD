@@ -224,6 +224,7 @@ export default function ScanScreen() {
   const [result, setResult] = useState<ReturnType<typeof simulateAIAnalysis> | null>(null);
   const [autoSaved, setAutoSaved] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
+  const [demoMode, setDemoMode] = useState(true); // Default to true for the presentation
   const [showCamera, setShowCamera] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -356,15 +357,81 @@ export default function ScanScreen() {
 
     // Try real API first, fall back to simulation
     let analysis: ReturnType<typeof simulateAIAnalysis>;
-    const apiResult = imageFile ? await callPredictAPI(imageFile) : null;
 
-    if (apiResult) {
-      analysis = apiResult;
-      setOfflineMode(false);
+    if (demoMode) {
+      // Force severe caries result for demo
+      analysis = {
+        score: 88,
+        level: "High",
+        predictedClass: "Early Childhood Caries",
+        confidence: 94,
+        findings: [
+          {
+            label: "Early Childhood Caries",
+            detected: true,
+            severity: "Severe",
+            color: "#EF4444",
+            description: DISEASE_INFO["Early Childhood Caries"].description,
+            urgency: DISEASE_INFO["Early Childhood Caries"].urgency,
+          },
+          {
+            label: "Tooth Discoloration",
+            detected: true,
+            severity: "Moderate",
+            color: "#F59E0B",
+            description: DISEASE_INFO["Tooth Discoloration"].description,
+            urgency: DISEASE_INFO["Tooth Discoloration"].urgency,
+          },
+          {
+            label: "Gingivitis",
+            detected: true,
+            severity: "Mild",
+            color: "#F59E0B",
+            description: DISEASE_INFO["Gingivitis"].description,
+            urgency: DISEASE_INFO["Gingivitis"].urgency,
+          },
+          {
+            label: "Calculus",
+            detected: false,
+            severity: "None",
+            color: "#10B981",
+            description: DISEASE_INFO["Calculus"].description,
+            urgency: DISEASE_INFO["Calculus"].urgency,
+          },
+          {
+            label: "Ulcers",
+            detected: false,
+            severity: "None",
+            color: "#10B981",
+            description: DISEASE_INFO["Ulcers"].description,
+            urgency: DISEASE_INFO["Ulcers"].urgency,
+          },
+          {
+            label: "Hypodontia",
+            detected: false,
+            severity: "None",
+            color: "#10B981",
+            description: DISEASE_INFO["Hypodontia"].description,
+            urgency: DISEASE_INFO["Hypodontia"].urgency,
+          }
+        ],
+        suggestions: [
+          "Immediate dental consultation required",
+          "Prompt filling/restoration treatment needed",
+          "Brush twice daily with fluoride toothpaste (2 min each)",
+          "Reduce sugary foods and drinks immediately"
+        ]
+      };
     } else {
-      // Backend unreachable — use offline simulation
-      analysis = simulateAIAnalysis(imageSeed);
-      setOfflineMode(true);
+      const apiResult = imageFile ? await callPredictAPI(imageFile) : null;
+      if (apiResult) {
+        analysis = apiResult;
+        setOfflineMode(false);
+      } else {
+        // Backend unreachable — use offline simulation
+        analysis = simulateAIAnalysis(imageSeed);
+        setOfflineMode(true);
+      }
     }
 
     // Wait for progress bar animation to complete
@@ -550,6 +617,20 @@ export default function ScanScreen() {
                   <Text style={styles.openCamText}>Take Photo</Text>
                 </TouchableOpacity>
               </View>
+
+              {/* Demo Mode Toggle */}
+              <TouchableOpacity
+                onPress={() => setDemoMode(!demoMode)}
+                style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12 }}
+                activeOpacity={0.8}
+              >
+                <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: "#157A6E", backgroundColor: demoMode ? "#157A6E" : "transparent", alignItems: "center", justifyContent: "center" }}>
+                  {demoMode && <Feather name="check" size={12} color="#FFF" />}
+                </View>
+                <Text style={{ fontSize: 12, color: "#64748B", fontWeight: "600" }}>
+                  Demo Mode: Force High Risk Caries
+                </Text>
+              </TouchableOpacity>
             </div>
           )}
         </View>
