@@ -389,8 +389,9 @@ export default function ScanScreen() {
                   style={
                     {
                       width: "100%",
-                      height: 200,
-                      objectFit: "cover",
+                      height: 250,
+                      objectFit: "contain",
+                      backgroundColor: "#000",
                       display: "block",
                     } as any
                   }
