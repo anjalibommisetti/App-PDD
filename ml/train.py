@@ -17,7 +17,7 @@ import os
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers, models, callbacks
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator # type: ignore
 from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 

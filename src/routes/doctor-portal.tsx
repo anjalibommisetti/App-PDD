@@ -42,7 +42,7 @@ export default function DoctorPortal() {
           name = `Dr. ${name}`;
         }
         setUserName(name);
-        const init = name.replace(/^Dr\.\s*/, "").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+        const init = name.replace(/^Dr\.\s*/, "").split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
         setInitials(init);
       }
     };

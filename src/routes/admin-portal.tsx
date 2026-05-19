@@ -31,6 +31,21 @@ export default function AdminPortal() {
   const navigation = useNavigation<any>();
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [userName, setUserName] = useState("Admin");
+  const [initials, setInitials] = useState("AD");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        let name = session.user.user_metadata?.full_name || session.user.email?.split("@")[0] || "Admin";
+        setUserName(name);
+        const init = name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
+        setInitials(init);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handleLogout = async () => {
     try {
