@@ -54,7 +54,7 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
 
         let { data: assessment } = await supabase
           .from("assessments")
-          .select("score, level, patient_name, created_at")
+          .select("score, level, patient_name, created_at, answers")
           .eq("user_id", userId)
           .order("created_at", { ascending: false })
           .limit(1)
@@ -71,20 +71,24 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
 
         let { data: recent } = await supabase
           .from("assessments")
-          .select("id, score, level, patient_name, created_at")
+          .select("id, score, level, patient_name, created_at, answers")
           .eq("user_id", userId)
           .order("created_at", { ascending: false })
           .limit(3);
 
         if (recent && recent.length > 0) {
-          setActivities(recent.map((r: any) => ({
-            id: r.id,
-            level: r.level,
-            score: r.score,
-            title: `Risk Assessment — ${r.level ?? "Unknown"} (${r.score ?? 0}%)`,
-            subtitle: r.patient_name || "Anonymous",
-            time: new Date(r.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }),
-          })));
+          setActivities(recent.map((r: any) => {
+            const isScan = r.patient_name?.startsWith("[Scan]");
+            const scanClass = r.answers?.predictedClass || r.level;
+            return {
+              id: r.id,
+              level: r.level,
+              score: r.score,
+              title: isScan ? `Teeth Scan — ${scanClass} (${r.score ?? 0}%)` : `Risk Assessment — ${r.level ?? "Unknown"} (${r.score ?? 0}%)`,
+              subtitle: isScan ? r.patient_name.replace("[Scan] ", "") : (r.patient_name || "Anonymous"),
+              time: new Date(r.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }),
+            };
+          }));
         }
       }
     } catch (err) {}
