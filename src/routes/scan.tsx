@@ -224,7 +224,7 @@ export default function ScanScreen() {
   const [result, setResult] = useState<ReturnType<typeof simulateAIAnalysis> | null>(null);
   const [autoSaved, setAutoSaved] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
-  const [demoMode, setDemoMode] = useState(true); // Default to true for the presentation
+  const [demoMode, setDemoMode] = useState(false); // Default to false so results are dynamic
   const [showCamera, setShowCamera] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
