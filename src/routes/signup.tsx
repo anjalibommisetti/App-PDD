@@ -211,6 +211,9 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "center",
     gap: 16,
+    maxWidth: 448,
+    width: "100%",
+    alignSelf: "center",
   },
   title: {
     fontSize: 24,

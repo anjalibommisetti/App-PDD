@@ -182,14 +182,6 @@ export default function App() {
           const email = currentSession.user.email?.toLowerCase() || "";
           let role = currentSession.user.user_metadata?.role;
           
-          if (email.includes("doctor") || email.includes("doc")) {
-            role = "doctor";
-          } else if (email.includes("admin")) {
-            role = "admin";
-          } else if (email.includes("patient")) {
-            role = "patient";
-          }
-          
           if (role === "admin") setInitialRoute("AdminDashboard");
           else if (role === "doctor") setInitialRoute("DoctorDashboard");
           else setInitialRoute("Dashboard");
@@ -238,14 +230,6 @@ export default function App() {
       } else if (newSession && !isRecovery) {
         const email = newSession.user.email?.toLowerCase() || "";
         let role = newSession.user.user_metadata?.role;
-        
-        if (email.includes("doctor") || email.includes("doc")) {
-          role = "doctor";
-        } else if (email.includes("admin")) {
-          role = "admin";
-        } else if (email.includes("patient")) {
-          role = "patient";
-        }
         
         if (role === "admin") setInitialRoute("AdminDashboard");
         else if (role === "doctor") setInitialRoute("DoctorDashboard");
