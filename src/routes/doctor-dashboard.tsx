@@ -38,7 +38,7 @@ function DoctorDashboard() {
 
       if (data) {
         // Map Supabase columns to our UI structure
-        const mappedData = data.map((item) => ({
+        const mappedData = data.map((item: any) => ({
           id: item.id,
           name: item.patient_name || "Unknown Patient",
           age: "N/A", // Not currently stored in assessments table
@@ -58,7 +58,7 @@ function DoctorDashboard() {
     }
   };
 
-  const filteredPatients = patients.filter((p) => {
+  const filteredPatients = patients.filter((p: any) => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRisk = filterRisk === "All" || p.risk === filterRisk;
     return matchesSearch && matchesRisk;
@@ -151,7 +151,7 @@ function DoctorDashboard() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10 font-sans">
+    <div className="space-y-6 w-full p-6 pb-10 font-sans">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
@@ -218,13 +218,13 @@ function DoctorDashboard() {
                     type="text"
                     placeholder="Search patients..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e: any) => setSearchTerm(e.target.value)}
                     className="pl-9 pr-4 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
                   />
                 </div>
                 <select
                   value={filterRisk}
-                  onChange={(e) => setFilterRisk(e.target.value)}
+                  onChange={(e: any) => setFilterRisk(e.target.value)}
                   className="px-4 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="All">All Risks</option>
@@ -261,7 +261,7 @@ function DoctorDashboard() {
                       <td colSpan={5} className="px-6 py-10 text-center text-slate-500">No patients found matching your criteria.</td>
                     </tr>
                   ) : (
-                    filteredPatients.map((patient) => (
+                    filteredPatients.map((patient: any) => (
                       <tr key={patient.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
@@ -458,7 +458,7 @@ function DoctorDashboard() {
                       rows={5}
                       placeholder="Enter prescription details, medications, and clinical notes here. This will be exported as a PDF..."
                       value={prescriptionText}
-                      onChange={(e) => setPrescriptionText(e.target.value)}
+                      onChange={(e: any) => setPrescriptionText(e.target.value)}
                     />
                   </motion.div>
                 )}
