@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Platform.OS === "web" ? "#E2E8F0" : "#F8FAFC",
     alignItems: "stretch",
-    height: Platform.OS === "web" ? Dimensions.get("window").height : undefined,
+    height: Platform.OS === "web" ? "100%" : undefined,
   },
   safeArea: {
     flex: 1,
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   webSafeArea: {
     width: "100%",
     maxWidth: "100%", // Changed to 100% for full desktop layout
-    height: Platform.OS === "web" ? Dimensions.get("window").height : "100%", // Critical for web visibility
+    height: "100%", // Critical for web visibility
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,

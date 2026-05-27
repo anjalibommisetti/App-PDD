@@ -166,7 +166,7 @@ export default function AdminPortal() {
           {/* Dynamic View Content */}
           <div className="flex-1 overflow-y-auto p-8">
             {activeTab === "Dashboard" && (
-              <div className="space-y-6 max-w-7xl mx-auto pb-10">
+              <div className="space-y-6 w-full pb-10">
                 {/* Enterprise Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                   <div>
@@ -307,7 +307,7 @@ export default function AdminPortal() {
             )}
 
             {(activeTab === "ManageUsers" || activeTab === "ManageDoctors") && (
-              <div className="space-y-6 max-w-6xl mx-auto">
+              <div className="space-y-6 w-full">
                 <div className="flex justify-between items-center mb-6">
                   <div>
                     <h1 className="text-3xl font-bold text-slate-900 dark:text-white">{activeTab === "ManageUsers" ? "Manage Users" : "Manage Doctors"}</h1>
