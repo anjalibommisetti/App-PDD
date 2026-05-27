@@ -106,30 +106,30 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
   };
 
   return (
-    <div className="space-y-6 w-full pb-10">
+    <div className="space-y-6 w-full max-w-[1400px] mx-auto pb-10">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Welcome back, {userName}</h1>
-          <p className="text-slate-500 dark:text-slate-400">Here is a summary of your oral health.</p>
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white">Welcome back, {userName}</h1>
+          <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 mt-2">Here is a summary of your oral health.</p>
         </div>
         <button 
           onClick={() => setActiveTab("Assessment")}
-          className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition-colors flex items-center gap-2"
+          className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-4 rounded-xl font-bold shadow-md transition-colors flex items-center gap-2 text-base sm:text-lg"
         >
-          <FileText className="w-5 h-5" /> Take Risk Assessment
+          <FileText className="w-5 h-5 sm:w-6 sm:h-6" /> Take Risk Assessment
         </button>
       </div>
 
       {/* Main Risk Card */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 flex flex-col md:flex-row items-center justify-between gap-8">
         <div className="flex-1">
-          <p className="text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">Current Oral Health Status</p>
+          <p className="text-base font-semibold text-slate-500 mb-2 uppercase tracking-wider">Current Oral Health Status</p>
           <div className="flex items-baseline gap-4 mb-4">
-            <h2 className="text-5xl font-black text-slate-900 dark:text-white">{riskScore}%</h2>
-            <span className={`px-4 py-1 rounded-full text-sm font-bold ${getRiskColor(riskLevel)}`}>{riskLevel} Risk</span>
+            <h2 className="text-6xl sm:text-7xl font-black text-slate-900 dark:text-white">{riskScore}%</h2>
+            <span className={`px-6 py-2 rounded-full text-base font-bold ${getRiskColor(riskLevel)}`}>{riskLevel} Risk</span>
           </div>
-          <p className="text-slate-600 dark:text-slate-400 text-sm">Last assessed on {assessedAt || "Never"}</p>
+          <p className="text-slate-600 dark:text-slate-400 text-base">Last assessed on {assessedAt || "Never"}</p>
         </div>
         <div className="flex-1 w-full relative h-4 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
            <div className={`absolute left-0 top-0 h-full rounded-full ${getRiskBarColor(riskLevel)} transition-all duration-1000`} style={{ width: `${riskScore}%` }}></div>
@@ -139,25 +139,25 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Recent Activity */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-blue-500" /> Recent Predictions
+          <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+            <Activity className="w-6 h-6 text-blue-500" /> Recent Predictions
           </h3>
           <div className="space-y-4">
             {activities.length === 0 ? (
-              <p className="text-slate-500 text-sm">No recent activity.</p>
+              <p className="text-slate-500 text-base">No recent activity.</p>
             ) : (
               activities.map((act) => (
                 <div key={act.id} className="flex items-center justify-between p-4 border border-slate-100 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50">
                   <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getRiskColor(act.level)}`}>
-                      <Activity className="w-5 h-5" />
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getRiskColor(act.level)}`}>
+                      <Activity className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">{act.title}</h4>
-                      <p className="text-xs text-slate-500">{act.subtitle}</p>
+                      <h4 className="font-bold text-slate-900 dark:text-white text-base">{act.title}</h4>
+                      <p className="text-sm text-slate-500 mt-0.5">{act.subtitle}</p>
                     </div>
                   </div>
-                  <span className="text-xs text-slate-400 font-medium">{act.time}</span>
+                  <span className="text-sm text-slate-400 font-medium">{act.time}</span>
                 </div>
               ))
             )}
@@ -166,22 +166,22 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
 
         {/* Reminders */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-            <Bell className="w-5 h-5 text-purple-500" /> Notifications & Reminders
+          <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+            <Bell className="w-6 h-6 text-purple-500" /> Notifications & Reminders
           </h3>
           <div className="space-y-4">
              <div className="flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/50 rounded-xl">
-               <CalendarIcon className="w-6 h-6 text-blue-600 dark:text-blue-400 shrink-0" />
+               <CalendarIcon className="w-8 h-8 text-blue-600 dark:text-blue-400 shrink-0" />
                <div>
-                 <h4 className="font-bold text-blue-900 dark:text-blue-100 text-sm">Upcoming Dental Appointment</h4>
-                 <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">Tomorrow at 10:00 AM with Dr. Sarah Smith.</p>
+                 <h4 className="font-bold text-blue-900 dark:text-blue-100 text-base">Upcoming Dental Appointment</h4>
+                 <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">Tomorrow at 10:00 AM with Dr. Sarah Smith.</p>
                </div>
              </div>
              <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl">
-               <FileText className="w-6 h-6 text-slate-500 shrink-0" />
+               <FileText className="w-8 h-8 text-slate-500 shrink-0" />
                <div>
-                 <h4 className="font-bold text-slate-900 dark:text-white text-sm">New Report Available</h4>
-                 <p className="text-xs text-slate-500 mt-1">Your latest scan report is ready to download.</p>
+                 <h4 className="font-bold text-slate-900 dark:text-white text-base">New Report Available</h4>
+                 <p className="text-sm text-slate-500 mt-1">Your latest scan report is ready to download.</p>
                </div>
              </div>
           </div>
