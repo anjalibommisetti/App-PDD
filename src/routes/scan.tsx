@@ -122,6 +122,228 @@ function simulateAIAnalysis(seed: number) {
   };
 }
 
+// ─── Offline Image-Based Pixel Analyzer ───────────────────────────────────────
+async function runOfflineAnalysis(uri: string, seed: number): Promise<ReturnType<typeof simulateAIAnalysis>> {
+  if (Platform.OS !== "web" || typeof window === "undefined") {
+    return simulateAIAnalysis(seed);
+  }
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.crossOrigin = "anonymous";
+    img.src = uri;
+    img.onload = () => {
+      try {
+        const canvas = window.document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(simulateAIAnalysis(seed));
+          return;
+        }
+        canvas.width = 64;
+        canvas.height = 64;
+        ctx.drawImage(img, 0, 0, 64, 64);
+        const imgData = ctx.getImageData(0, 0, 64, 64);
+        const data = imgData.data;
+
+        let redCount = 0;
+        let yellowCount = 0;
+        let darkCount = 0;
+        
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i+1];
+          const b = data[i+2];
+
+          // Red gums / blood (gingivitis/ulcer indication)
+          if (r > 130 && g < 100 && b < 100 && (r - g > 50)) {
+            redCount++;
+          }
+          // Yellow calculus / discoloration
+          if (r > 120 && g > 110 && b < 100 && (r - b > 40)) {
+            yellowCount++;
+          }
+          // Dark/Black decay / cavities / gaps
+          if (r < 80 && g < 80 && b < 80) {
+            darkCount++;
+          }
+        }
+
+        const total = 64 * 64;
+        const redRatio = redCount / total;
+        const yellowRatio = yellowCount / total;
+        const darkRatio = darkCount / total;
+
+        // Calculate risk score based on detected coloration
+        let score = 33 + Math.floor(redRatio * 350) + Math.floor(yellowRatio * 250) + Math.floor(darkRatio * 200);
+        score = Math.min(96, Math.max(30, score));
+
+        let level: "Low" | "Medium" | "High" = "Low";
+        if (score >= 70) level = "High";
+        else if (score >= 45) level = "Medium";
+
+        // Flags based on ratios
+        const hasCaries = score > 75 || darkRatio > 0.15 || (yellowRatio > 0.15 && darkRatio > 0.05);
+        const hasGingivitis = score > 50 || redRatio > 0.04;
+        const hasCalculus = score > 60 || yellowRatio > 0.12;
+        const hasDiscoloration = score > 40 || yellowRatio > 0.05;
+        const hasUlcers = redRatio > 0.08;
+        const hasHypodontia = darkRatio > 0.22 && (yellowRatio < 0.05);
+
+        const findings = [
+          {
+            label: "Early Childhood Caries (ECC) – Severe",
+            detected: hasCaries,
+            severity: hasCaries ? (score > 85 ? "Severe" : "Moderate") : "None",
+            color: "#EF4444",
+            description: DISEASE_INFO["Early Childhood Caries"].description,
+            urgency: DISEASE_INFO["Early Childhood Caries"].urgency,
+          },
+          {
+            label: "Gingivitis",
+            detected: hasGingivitis,
+            severity: hasGingivitis ? (redRatio > 0.10 ? "Severe" : "Mild") : "None",
+            color: "#F59E0B",
+            description: DISEASE_INFO["Gingivitis"].description,
+            urgency: DISEASE_INFO["Gingivitis"].urgency,
+          },
+          {
+            label: "Calculus",
+            detected: hasCalculus,
+            severity: hasCalculus ? "Moderate" : "None",
+            color: "#F59E0B",
+            description: DISEASE_INFO["Calculus"].description,
+            urgency: DISEASE_INFO["Calculus"].urgency,
+          },
+          {
+            label: "Tooth Discoloration",
+            detected: hasDiscoloration,
+            severity: hasDiscoloration ? "Mild" : "None",
+            color: "#10B981",
+            description: DISEASE_INFO["Tooth Discoloration"].description,
+            urgency: DISEASE_INFO["Tooth Discoloration"].urgency,
+          },
+          {
+            label: "Ulcers",
+            detected: hasUlcers,
+            severity: hasUlcers ? "Mild" : "None",
+            color: "#10B981",
+            description: DISEASE_INFO["Ulcers"].description,
+            urgency: DISEASE_INFO["Ulcers"].urgency,
+          },
+          {
+            label: "Hypodontia",
+            detected: hasHypodontia,
+            severity: hasHypodontia ? "Detected" : "None",
+            color: "#10B981",
+            description: DISEASE_INFO["Hypodontia"].description,
+            urgency: DISEASE_INFO["Hypodontia"].urgency,
+          },
+        ];
+
+        const suggestions = [
+          "Brush teeth twice daily",
+          "Use fluoride toothpaste"
+        ];
+        if (level === "High") suggestions.unshift("Immediate dental consultation required", "Dental filling/restoration advised");
+        else if (level === "Medium") suggestions.unshift("Schedule a routine checkup", "Reduce sugary foods and drinks");
+
+        const confidence = Math.min(99, 78 + Math.floor((redRatio + yellowRatio + darkRatio) * 100));
+
+        resolve({
+          score,
+          level,
+          findings,
+          suggestions,
+          predictedClass: hasCaries ? "Early Childhood Caries (ECC) – Severe" : hasCalculus ? "Calculus" : hasGingivitis ? "Gingivitis" : "Healthy",
+          confidence,
+        });
+      } catch (e) {
+        resolve(simulateAIAnalysis(seed));
+      }
+    };
+    img.onerror = () => {
+      resolve(simulateAIAnalysis(seed));
+    };
+  });
+}
+
+// ─── Image Quality / Blur Analyzer ──────────────────────────────────────────
+const checkImageQuality = (uri: string): Promise<{ isUnclear: boolean; reason: string | null; score: number }> => {
+  return new Promise((resolve) => {
+    if (Platform.OS !== "web" || typeof window === "undefined") {
+      resolve({ isUnclear: false, reason: null, score: 100 });
+      return;
+    }
+    const img = new window.Image();
+    img.crossOrigin = "anonymous";
+    img.src = uri;
+    img.onload = () => {
+      try {
+        const canvas = window.document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve({ isUnclear: false, reason: null, score: 100 });
+          return;
+        }
+        canvas.width = 64;
+        canvas.height = 64;
+        ctx.drawImage(img, 0, 0, 64, 64);
+        const imgData = ctx.getImageData(0, 0, 64, 64);
+        const data = imgData.data;
+
+        // Grayscale conversion
+        const gray = new Uint8Array(64 * 64);
+        let brightnessSum = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          const gVal = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
+          gray[i / 4] = gVal;
+          brightnessSum += gVal;
+        }
+        const avgBrightness = brightnessSum / (64 * 64);
+
+        // Laplacian variance calculation for blur
+        let laplacianSum = 0;
+        let count = 0;
+        for (let y = 1; y < 63; y++) {
+          for (let x = 1; x < 63; x++) {
+            const idx = y * 64 + x;
+            const val =
+              gray[idx - 64] +
+              gray[idx - 1] +
+              gray[idx + 1] +
+              gray[idx + 64] -
+              4 * gray[idx];
+            laplacianSum += val * val;
+            count++;
+          }
+        }
+        const variance = laplacianSum / count;
+
+        let isUnclear = false;
+        let reason: string | null = null;
+
+        if (variance < 60) {
+          isUnclear = true;
+          reason = "The uploaded photo is blurry or out of focus.";
+        } else if (avgBrightness < 45) {
+          isUnclear = true;
+          reason = "The photo is too dark/shadowy.";
+        } else if (avgBrightness > 225) {
+          isUnclear = true;
+          reason = "The photo is too bright or overexposed.";
+        }
+
+        resolve({ isUnclear, reason, score: variance });
+      } catch (e) {
+        resolve({ isUnclear: false, reason: null, score: 100 });
+      }
+    };
+    img.onerror = () => {
+      resolve({ isUnclear: false, reason: null, score: 100 });
+    };
+  });
+};
+
 // ─── Real API call ────────────────────────────────────────────────────────────
 async function callPredictAPI(
   imageFile: File,
@@ -227,6 +449,7 @@ export default function ScanScreen() {
   const [demoMode, setDemoMode] = useState(false); // Default to false so results are dynamic
   const [showCamera, setShowCamera] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [imageWarning, setImageWarning] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
@@ -241,6 +464,7 @@ export default function ScanScreen() {
     setImageSeed(file.size);
     setResult(null);
     setAutoSaved(false);
+    setImageWarning(null);
     setOfflineMode(false);
   };
 
@@ -265,6 +489,7 @@ export default function ScanScreen() {
     setImageSeed(file.size);
     setResult(null);
     setAutoSaved(false);
+    setImageWarning(null);
     setOfflineMode(false);
   };
 
@@ -313,6 +538,7 @@ export default function ScanScreen() {
         setImageFile(file);
         setImageSeed(file.size);
         setAutoSaved(false);
+        setImageWarning(null);
         setOfflineMode(false);
         stopCamera();
       },
@@ -332,6 +558,14 @@ export default function ScanScreen() {
     setResult(null);
     setAutoSaved(false);
     setOfflineMode(false);
+    setImageWarning(null);
+
+    // Image quality check
+    const quality = await checkImageQuality(imageUri);
+    if (quality.isUnclear) {
+      setImageWarning(quality.reason);
+    }
+
     progressAnim.setValue(0);
 
     Animated.timing(progressAnim, {
@@ -429,7 +663,7 @@ export default function ScanScreen() {
         setOfflineMode(false);
       } else {
         // Backend unreachable — use offline simulation
-        analysis = simulateAIAnalysis(imageSeed);
+        analysis = await runOfflineAnalysis(imageUri, imageSeed);
         setOfflineMode(true);
       }
     }
@@ -485,16 +719,15 @@ export default function ScanScreen() {
           {imageUri ? (
             <>
               {/* Image Preview using HTML img */}
-              <View style={{ position: "relative", overflow: "hidden", borderRadius: 16 }}>
+              <View style={{ position: "relative", overflow: "hidden", borderRadius: 24, maxWidth: 650, width: "100%", alignSelf: "center", shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 8 }}>
                 <img
                   src={imageUri}
                   alt="Teeth scan"
                   style={
                     {
                       width: "100%",
-                      height: 250,
-                      objectFit: "contain",
-                      backgroundColor: "#000",
+                      height: 380,
+                      objectFit: "cover",
                       display: "block",
                     } as any
                   }
@@ -687,10 +920,13 @@ export default function ScanScreen() {
 
         {/* Success / Real AI badge */}
         {result && (
-          <View style={[styles.realAIBanner]}>
-            <Feather name="check-circle" size={14} color="#157A6E" />
-            <Text style={styles.realAIText}>
-              AI analysis completed successfully · Confidence Score: {result.confidence}%
+          <View style={[offlineMode ? styles.offlineBanner : styles.realAIBanner]}>
+            <Feather name={offlineMode ? "info" : "check-circle"} size={14} color={offlineMode ? "#D97706" : "#157A6E"} />
+            <Text style={offlineMode ? styles.offlineText : styles.realAIText}>
+              {offlineMode 
+                ? `Demo Mode (Server waking up) · Results estimated based on visual analysis · Confidence Score: ${result.confidence}%`
+                : `AI analysis completed successfully · Confidence Score: ${result.confidence}%`
+              }
             </Text>
           </View>
         )}
@@ -698,24 +934,47 @@ export default function ScanScreen() {
         {/* Results */}
         {result && (
           <>
+            {imageWarning && (
+              <View style={styles.warningBanner}>
+                <Feather name="alert-triangle" size={18} color="#B45309" />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.warningTitle}>⚠️ Blur & Quality Alert</Text>
+                  <Text style={styles.warningText}>
+                    {imageWarning} For more accurate AI results, please retake the photo with better lighting and focus.
+                  </Text>
+                </View>
+              </View>
+            )}
+
             {/* Score Card */}
             <View style={[styles.scoreCard, { backgroundColor: riskColor }]}>
               <View style={styles.scoreTop}>
-                <Text style={styles.scoreLabel}>SCAN RESULT</Text>
+                <Text style={styles.scoreLabel}>ORAL HEALTH ANALYSIS</Text>
                 <View style={styles.scoreBadge}>
                   <Text style={styles.scoreBadgeText}>{result.level} Risk</Text>
                 </View>
               </View>
+              
               <View style={styles.scoreRow}>
-                <Text style={styles.scoreNum}>{result.score}</Text>
+                <Text style={styles.scoreNum}>{100 - result.score}</Text>
                 <Text style={styles.scoreUnit}>%</Text>
               </View>
+              <Text style={{ fontSize: 13, fontWeight: "bold", color: "rgba(255, 255, 255, 0.9)", marginTop: 4 }}>
+                Overall Health Score
+              </Text>
+              
+              <View style={{ height: 1, backgroundColor: "rgba(255,255,255,0.2)", marginVertical: 12 }} />
+              
+              <Text style={{ fontSize: 13, fontWeight: "700", color: "rgba(255,255,255,0.9)", textTransform: "uppercase", letterSpacing: 0.5 }}>
+                Risk Level: {result.level} Risk
+              </Text>
+              
               <Text style={styles.scoreDesc}>
                 {result.level === "Low"
-                  ? "✓ Your teeth look healthy!"
+                  ? "✓ Your teeth look healthy! Keep up the good oral hygiene."
                   : result.level === "Medium"
-                    ? "⚠ Some areas need attention"
-                    : "🚨 Immediate dental care advised"}
+                    ? "⚠ Moderate risk detected. Some areas require attention or professional cleaning."
+                    : "🚨 High risk detected. Immediate consultation with a dentist is recommended."}
               </Text>
             </View>
 
@@ -1172,4 +1431,28 @@ const styles = StyleSheet.create({
     borderColor: "#C7D2FE",
   },
   dentistBtnText: { fontSize: 14, fontWeight: "700", color: "#4F46E5" },
+
+  // Warning Alert Banner
+  warningBanner: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+    backgroundColor: "#FEF3C7", // Light amber/yellow
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#FCD34D",
+    marginBottom: 16,
+  },
+  warningTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#B45309", // Amber-700
+  },
+  warningText: {
+    fontSize: 12,
+    color: "#78350F", // Amber-900
+    marginTop: 4,
+    lineHeight: 18,
+  },
 });

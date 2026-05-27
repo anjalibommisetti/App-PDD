@@ -27,6 +27,7 @@ export default function ReportScreen() {
 
   const [user, setUser] = useState<any>(null);
   const [assessment, setAssessment] = useState<any>(null);
+  const [detailsAssessment, setDetailsAssessment] = useState<any>(null);
   const [trend, setTrend] = useState<{ score: number; date: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -73,6 +74,24 @@ export default function ReportScreen() {
         }
       }
       setAssessment(currentAssessment);
+
+      // Populate details fallback
+      let detailsAss = currentAssessment;
+      if (currentAssessment && (!currentAssessment.answers || !currentAssessment.answers.q1) && currentUser) {
+        const { data: qData } = await supabase
+          .from("assessments")
+          .select("*")
+          .eq("user_id", currentUser.id)
+          .order("created_at", { ascending: false })
+          .limit(10);
+        if (qData && qData.length > 0) {
+          const matching = qData.find((a: any) => a.answers && a.answers.q1);
+          if (matching) {
+            detailsAss = matching;
+          }
+        }
+      }
+      setDetailsAssessment(detailsAss);
 
       // Fetch trend — try user_id first, then fallback
       let historyData: any[] | null = null;
@@ -121,12 +140,13 @@ export default function ReportScreen() {
     .toUpperCase()
     .slice(0, 2);
   const answers = assessment?.answers || {};
+  const detailsAnswers = detailsAssessment?.answers || {};
   const patientName = assessment?.patient_name || fullName;
-  const patientAge = answers.q1 || "—";
-  const patientGender = answers.q2 || "—";
-  const patientArea = answers.q3 || "—";
-  const patientEducation = answers.q4 || "—";
-  const tobaccoUse = answers.q23 || "—";
+  const patientAge = detailsAnswers.q1 || "—";
+  const patientGender = detailsAnswers.q2 || "—";
+  const patientArea = detailsAnswers.q3 || "—";
+  const patientEducation = detailsAnswers.q4 || "—";
+  const tobaccoUse = detailsAnswers.q23 || "—";
   const assessmentDate = assessment?.created_at
     ? new Date(assessment.created_at).toLocaleDateString("en-IN", {
         day: "2-digit",

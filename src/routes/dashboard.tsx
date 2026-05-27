@@ -292,47 +292,53 @@ export default function PatientPortal() {
           </header>
 
           {/* Dynamic View Content */}
-          <div className="flex-1 overflow-y-auto p-4 md:p-8">
-            {activeTab === "Dashboard" && <PatientDashboardMain setActiveTab={setActiveTab} />}
+          <div className="flex-1 flex flex-col overflow-y-auto">
+            {activeTab === "Dashboard" && (
+              <div className="p-4 md:p-8 flex-1">
+                <PatientDashboardMain setActiveTab={setActiveTab} />
+              </div>
+            )}
             
             {activeTab === "Assessment" && (
-              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+              <div className="flex-1 w-full h-full">
                 <AssessmentScreen />
               </div>
             )}
             
             {activeTab === "Scan" && (
-              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+              <div className="flex-1 w-full h-full">
                 <ScanScreen />
               </div>
             )}
             
             {activeTab === "History" && (
-              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+              <div className="flex-1 w-full h-full">
                 <HistoryScreen />
               </div>
             )}
             
             {activeTab === "Appointments" && (
-              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+              <div className="flex-1 w-full h-full">
                 <DentistsScreen />
               </div>
             )}
             
             {activeTab === "Report" && (
-              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+              <div className="flex-1 w-full h-full">
                 <ReportScreen />
               </div>
             )}
             
             {activeTab === "Chatbot" && (
-              <div className="flex-1 w-full h-[800px] overflow-hidden border border-slate-200 rounded-2xl shadow-sm">
-                <ChatbotScreen />
+              <div className="flex-1 w-full h-full p-4 md:p-8">
+                <div className="w-full h-full min-h-[600px] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                  <ChatbotScreen />
+                </div>
               </div>
             )}
             
             {activeTab === "Settings" && (
-              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+              <div className="flex-1 w-full h-full">
                 <ProfileScreen />
               </div>
             )}
