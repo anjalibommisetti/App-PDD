@@ -9,7 +9,8 @@ import {
   FileText,
   ChevronRight,
   XCircle,
-  Clock
+  Clock,
+  Phone
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "../lib/supabase";
@@ -41,6 +42,7 @@ function DoctorDashboard() {
         const mappedData = data.map((item: any) => ({
           id: item.id,
           name: item.patient_name || "Unknown Patient",
+          phone: item.phone || "",
           age: "N/A", // Not currently stored in assessments table
           lastVisit: new Date(item.created_at).toLocaleDateString("en-IN"),
           risk: item.level || "Low",
@@ -151,11 +153,11 @@ function DoctorDashboard() {
   };
 
   return (
-    <div className="space-y-6 w-full p-6 pb-10 font-sans">
+    <div className="space-y-6 w-full min-h-screen p-6 pb-10 font-sans text-lg">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Doctor Dashboard</h1>
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-white">Doctor Dashboard</h1>
           <p className="text-slate-500 dark:text-slate-400">Welcome back, Dr. Smith. Here is your daily overview.</p>
         </div>
         <div className="flex items-center gap-3">
@@ -243,13 +245,14 @@ function DoctorDashboard() {
                     <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Risk Level</th>
                     <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Confidence</th>
                     <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Call</th>
                     <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
                   {loading ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-10 text-center text-slate-500">
+                      <td colSpan={6} className="px-6 py-10 text-center text-slate-500">
                         <div className="flex flex-col items-center justify-center">
                           <Activity className="w-8 h-8 animate-spin text-blue-500 mb-2" />
                           <p>Loading records...</p>
@@ -258,7 +261,7 @@ function DoctorDashboard() {
                     </tr>
                   ) : filteredPatients.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-10 text-center text-slate-500">No patients found matching your criteria.</td>
+                      <td colSpan={6} className="px-6 py-10 text-center text-slate-500">No patients found matching your criteria.</td>
                     </tr>
                   ) : (
                     filteredPatients.map((patient: any) => (
@@ -296,9 +299,16 @@ function DoctorDashboard() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                            {patient.status === 'Pending Review' && <Clock className="w-3 h-3 text-amber-500"/>}
                             {patient.status}
                           </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                          <button
+                            onClick={() => handleCall(patient)}
+                            className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 font-medium text-sm flex items-center gap-1 justify-end w-full"
+                          >
+                            Call <Phone className="w-4 h-4" />
+                          </button>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right">
                           <button
@@ -494,6 +504,10 @@ function DoctorDashboard() {
       )}
     </div>
   );
+const handleCall = (patient: any) => {
+  window.open(`tel:${patient.phone || '+1234567890'}`);
+};
+
 }
 
 export default DoctorDashboard;
