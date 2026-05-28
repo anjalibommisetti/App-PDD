@@ -853,6 +853,8 @@ export default function ScanScreen() {
         contentContainerStyle={s.content}
         showsVerticalScrollIndicator={false}
       >
+        {/* Centered container for desktop readability */}
+        <View style={s.centeredWrap}>
         {/* Upload Area */}
         <View style={s.uploadCard}>
           {imageUri ? (
@@ -1369,13 +1371,19 @@ export default function ScanScreen() {
             </TouchableOpacity>
           </Animated.View>
         )}
+        </View>{/* end centeredWrap */}
       </ScrollView>
     </PhoneShell>
   );
 }
 
 const s = StyleSheet.create({
-  content: { paddingHorizontal: 20, paddingBottom: 48, gap: 16 },
+  content: { paddingHorizontal: 16, paddingBottom: 48, alignItems: "center" },
+  centeredWrap: {
+    width: "100%",
+    maxWidth: 720,
+    gap: 16,
+  },
 
   // ── Upload ──
   uploadCard: {
@@ -1422,8 +1430,8 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  uploadTitle: { fontSize: 18, fontWeight: "700", color: "#0F172A" },
-  uploadSub: { fontSize: 13, color: "#64748B", textAlign: "center", lineHeight: 20 },
+  uploadTitle: { fontSize: 20, fontWeight: "700", color: "#0F172A" },
+  uploadSub: { fontSize: 14, color: "#64748B", textAlign: "center", lineHeight: 22 },
   uploadBtn: {
     flexDirection: "row",
     alignItems: "center",
@@ -1558,7 +1566,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#FDE68A",
   },
-  offlineText: { flex: 1, fontSize: 12, fontWeight: "600", color: "#D97706" },
+  offlineText: { flex: 1, fontSize: 13, fontWeight: "600", color: "#D97706" },
   realAIBanner: {
     flexDirection: "row",
     alignItems: "center",
@@ -1570,7 +1578,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(21,122,110,0.15)",
   },
-  realAIText: { flex: 1, fontSize: 12, fontWeight: "600", color: "#157A6E" },
+  realAIText: { flex: 1, fontSize: 13, fontWeight: "600", color: "#157A6E" },
   warningBanner: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -1612,8 +1620,8 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  healthyTitle: { fontSize: 16, fontWeight: "800", color: "#065F46" },
-  healthySub: { fontSize: 12, color: "#047857", lineHeight: 18, marginTop: 4 },
+  healthyTitle: { fontSize: 18, fontWeight: "800", color: "#065F46" },
+  healthySub: { fontSize: 14, color: "#047857", lineHeight: 20, marginTop: 4 },
 
   // ── Score Card ──
   scoreCardOuter: {
@@ -1623,7 +1631,7 @@ const s = StyleSheet.create({
   scoreCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 22,
-    padding: 22,
+    padding: 28,
     borderLeftWidth: 5,
     elevation: 3,
     shadowColor: "#0F172A",
@@ -1637,16 +1645,16 @@ const s = StyleSheet.create({
     alignItems: "flex-start",
   },
   scoreLabel: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: "700",
     color: "#94A3B8",
     textTransform: "uppercase",
     letterSpacing: 1.2,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   scoreRow: { flexDirection: "row", alignItems: "baseline", gap: 2 },
-  scoreNum: { fontSize: 48, fontWeight: "900", lineHeight: 52 },
-  scoreUnit: { fontSize: 18, fontWeight: "700", marginBottom: 4 },
+  scoreNum: { fontSize: 64, fontWeight: "900", lineHeight: 68 },
+  scoreUnit: { fontSize: 24, fontWeight: "700", marginBottom: 6 },
   scoreRightCol: { alignItems: "flex-end", gap: 6 },
   riskBadge: {
     flexDirection: "row",
@@ -1658,8 +1666,8 @@ const s = StyleSheet.create({
     borderWidth: 1,
   },
   riskDot: { width: 8, height: 8, borderRadius: 4 },
-  riskBadgeText: { fontSize: 12, fontWeight: "800" },
-  confText: { fontSize: 11, color: "#94A3B8", fontWeight: "600" },
+  riskBadgeText: { fontSize: 13, fontWeight: "800" },
+  confText: { fontSize: 12, color: "#94A3B8", fontWeight: "600" },
   scoreBarBg: {
     height: 8,
     backgroundColor: "#F1F5F9",
@@ -1678,14 +1686,14 @@ const s = StyleSheet.create({
     alignItems: "center",
     gap: 6,
   },
-  scoreMetaText: { fontSize: 12, color: "#64748B", fontWeight: "500" },
+  scoreMetaText: { fontSize: 13, color: "#64748B", fontWeight: "500" },
   scoreDesc: {
-    fontSize: 13,
+    fontSize: 14,
     color: "#475569",
-    marginTop: 14,
-    lineHeight: 20,
+    marginTop: 16,
+    lineHeight: 22,
     fontWeight: "500",
-    paddingTop: 14,
+    paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: "#F1F5F9",
   },
@@ -1736,7 +1744,7 @@ const s = StyleSheet.create({
   findingsCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 22,
-    padding: 20,
+    padding: 24,
     elevation: 2,
     shadowColor: "#0F172A",
     shadowOffset: { width: 0, height: 2 },
@@ -1757,15 +1765,15 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  findingsTitle: { fontSize: 15, fontWeight: "800", color: "#0F172A" },
-  findingsSub: { fontSize: 10, color: "#94A3B8", fontWeight: "600", marginTop: 2 },
+  findingsTitle: { fontSize: 17, fontWeight: "800", color: "#0F172A" },
+  findingsSub: { fontSize: 11, color: "#94A3B8", fontWeight: "600", marginTop: 2 },
   findingsList: { gap: 10 },
 
   findingItem: {
     borderRadius: 16,
-    padding: 14,
+    padding: 16,
     borderWidth: 1,
-    gap: 10,
+    gap: 12,
   },
   findingTop: {
     flexDirection: "row",
@@ -1779,15 +1787,15 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  findingLabel: { fontSize: 13, fontWeight: "700", color: "#0F172A" },
-  findingDescText: { fontSize: 11, lineHeight: 16, marginTop: 2 },
+  findingLabel: { fontSize: 15, fontWeight: "700", color: "#0F172A" },
+  findingDescText: { fontSize: 13, lineHeight: 18, marginTop: 3 },
   severityBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 10,
     borderWidth: 1,
   },
-  severityText: { fontSize: 11, fontWeight: "700" },
+  severityText: { fontSize: 12, fontWeight: "700" },
 
   // Confidence bar
   confBarRow: {
@@ -1795,19 +1803,19 @@ const s = StyleSheet.create({
     alignItems: "center",
     gap: 10,
   },
-  confBarLabel: { fontSize: 10, color: "#94A3B8", fontWeight: "600", width: 66 },
+  confBarLabel: { fontSize: 11, color: "#94A3B8", fontWeight: "600", width: 72 },
   confBarBg: {
-    height: 6,
+    height: 8,
     backgroundColor: "#F1F5F9",
-    borderRadius: 3,
+    borderRadius: 4,
     overflow: "hidden",
     flex: 1,
   },
   confBarFill: {
     height: "100%",
-    borderRadius: 3,
+    borderRadius: 4,
   },
-  confBarValue: { fontSize: 12, fontWeight: "800", width: 36, textAlign: "right" },
+  confBarValue: { fontSize: 14, fontWeight: "800", width: 42, textAlign: "right" },
 
   findingFooter: {
     flexDirection: "row",
@@ -1823,14 +1831,14 @@ const s = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 8,
   },
-  urgencyText: { fontSize: 10, fontWeight: "700" },
-  findingTip: { fontSize: 11, color: "#64748B", fontStyle: "italic", flex: 1 },
+  urgencyText: { fontSize: 11, fontWeight: "700" },
+  findingTip: { fontSize: 12, color: "#64748B", fontStyle: "italic", flex: 1 },
 
   // ── Recommendations ──
   recsCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 22,
-    padding: 20,
+    padding: 24,
     elevation: 2,
     shadowColor: "#0F172A",
     shadowOffset: { width: 0, height: 2 },
@@ -1851,15 +1859,15 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  recsTitle: { fontSize: 15, fontWeight: "800", color: "#0F172A" },
+  recsTitle: { fontSize: 17, fontWeight: "800", color: "#0F172A" },
   recsList: { gap: 10 },
   recItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 14,
     backgroundColor: "#FAFBFC",
-    borderRadius: 14,
-    padding: 14,
+    borderRadius: 16,
+    padding: 16,
     borderWidth: 1,
     borderColor: "#F1F5F9",
     borderLeftWidth: 3,
@@ -1871,8 +1879,8 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  recText: { fontSize: 13, color: "#1E293B", fontWeight: "600", lineHeight: 18 },
-  recAction: { fontSize: 11, color: "#4F46E5", fontWeight: "600", marginTop: 3 },
+  recText: { fontSize: 14, color: "#1E293B", fontWeight: "600", lineHeight: 20 },
+  recAction: { fontSize: 12, color: "#4F46E5", fontWeight: "600", marginTop: 4 },
 
   // ── Auto-saved ──
   autoSavedBanner: {
@@ -1902,9 +1910,9 @@ const s = StyleSheet.create({
   },
   disclaimerText: {
     flex: 1,
-    fontSize: 11,
+    fontSize: 12,
     color: "#94A3B8",
-    lineHeight: 17,
+    lineHeight: 18,
   },
 
   // ── Action Buttons ──
