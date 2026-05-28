@@ -153,7 +153,7 @@ function DoctorDashboard() {
   };
 
   return (
-    <div className="space-y-6 w-full min-h-screen p-6 pb-10 font-sans text-lg">
+    <div className="space-y-6 w-full min-h-screen p-6 pb-10 font-sans text-2xl">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
@@ -241,12 +241,12 @@ function DoctorDashboard() {
               <table className="w-full text-left border-collapse">
                 <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900/95 backdrop-blur z-10 border-b border-slate-200 dark:border-slate-800">
                   <tr>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Patient Info</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Risk Level</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Confidence</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Call</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Action</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Patient Info</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Risk Level</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Confidence</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Call</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
