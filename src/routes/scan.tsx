@@ -856,163 +856,165 @@ export default function ScanScreen() {
         {/* Centered container for desktop readability */}
         <View style={s.centeredWrap}>
         {/* Upload Area */}
-        <View style={s.uploadCard}>
-          {imageUri ? (
-            <>
-              {/* Image Preview */}
-              <View style={s.imagePreviewWrapper}>
-                <img
-                  src={imageUri}
-                  alt="Teeth scan"
+        {!result && (
+          <View style={s.uploadCard}>
+            {imageUri ? (
+              <>
+                {/* Image Preview */}
+                <View style={s.imagePreviewWrapper}>
+                  <img
+                    src={imageUri}
+                    alt="Teeth scan"
+                    style={
+                      {
+                        width: "100%",
+                        height: 340,
+                        objectFit: "cover",
+                        display: "block",
+                        borderRadius: 20,
+                      } as any
+                    }
+                  />
+                  {analyzing && (
+                    <Animated.View
+                      style={{
+                        position: "absolute",
+                        top: scanLineAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ["0%", "98%"],
+                        }),
+                        left: 0,
+                        right: 0,
+                        height: 3,
+                        backgroundColor: "#86F1D4",
+                        shadowColor: "#86F1D4",
+                        shadowOffset: { width: 0, height: 0 },
+                        shadowOpacity: 1,
+                        shadowRadius: 12,
+                        elevation: 10,
+                      }}
+                    />
+                  )}
+                  {analyzing && (
+                    <View
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: "rgba(21, 122, 110, 0.12)",
+                        borderRadius: 20,
+                      }}
+                    />
+                  )}
+                  {/* Image badge overlay */}
+                  <View style={s.imageBadge}>
+                    <Feather name="image" size={10} color="#FFF" />
+                    <Text style={s.imageBadgeText}>Uploaded</Text>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  style={s.retakeBtn}
+                  onPress={() => {
+                    setImageUri(null);
+                    setResult(null);
+                    setAutoSaved(false);
+                  }}
+                >
+                  <Feather name="refresh-cw" size={14} color="#64748B" />
+                  <Text style={s.retakeText}>Choose different image</Text>
+                </TouchableOpacity>
+              </>
+            ) : showCamera ? (
+              <View style={{ alignItems: "center", width: "100%" }}>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
                   style={
                     {
                       width: "100%",
-                      height: 340,
+                      height: 300,
                       objectFit: "cover",
+                      borderRadius: 16,
+                      backgroundColor: "#000",
                       display: "block",
-                      borderRadius: 20,
                     } as any
                   }
                 />
-                {analyzing && (
-                  <Animated.View
-                    style={{
-                      position: "absolute",
-                      top: scanLineAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: ["0%", "98%"],
-                      }),
-                      left: 0,
-                      right: 0,
-                      height: 3,
-                      backgroundColor: "#86F1D4",
-                      shadowColor: "#86F1D4",
-                      shadowOffset: { width: 0, height: 0 },
-                      shadowOpacity: 1,
-                      shadowRadius: 12,
-                      elevation: 10,
-                    }}
-                  />
-                )}
-                {analyzing && (
-                  <View
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      backgroundColor: "rgba(21, 122, 110, 0.12)",
-                      borderRadius: 20,
-                    }}
-                  />
-                )}
-                {/* Image badge overlay */}
-                <View style={s.imageBadge}>
-                  <Feather name="image" size={10} color="#FFF" />
-                  <Text style={s.imageBadgeText}>Uploaded</Text>
+                <View style={{ flexDirection: "row", gap: 12, marginTop: 16 }}>
+                  <TouchableOpacity style={s.cancelCamBtn} onPress={stopCamera}>
+                    <Text style={s.cancelCamText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={s.captureBtn} onPress={capturePhoto}>
+                    <Feather name="camera" size={16} color="#FFF" />
+                    <Text style={s.captureBtnText}>Snap Photo</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
-              <TouchableOpacity
-                style={s.retakeBtn}
-                onPress={() => {
-                  setImageUri(null);
-                  setResult(null);
-                  setAutoSaved(false);
+            ) : (
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  padding: "44px 24px",
+                  gap: "12px",
+                  border: isDragging ? "2px dashed #157A6E" : "2px dashed #CBD5E1",
+                  borderRadius: "20px",
+                  backgroundColor: isDragging ? "rgba(21, 122, 110, 0.06)" : "rgba(248, 250, 252, 0.6)",
+                  transition: "all 0.3s ease",
                 }}
               >
-                <Feather name="refresh-cw" size={14} color="#64748B" />
-                <Text style={s.retakeText}>Choose different image</Text>
-              </TouchableOpacity>
-            </>
-          ) : showCamera ? (
-            <View style={{ alignItems: "center", width: "100%" }}>
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                style={
-                  {
-                    width: "100%",
-                    height: 300,
-                    objectFit: "cover",
-                    borderRadius: 16,
-                    backgroundColor: "#000",
-                    display: "block",
-                  } as any
-                }
-              />
-              <View style={{ flexDirection: "row", gap: 12, marginTop: 16 }}>
-                <TouchableOpacity style={s.cancelCamBtn} onPress={stopCamera}>
-                  <Text style={s.cancelCamText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={s.captureBtn} onPress={capturePhoto}>
-                  <Feather name="camera" size={16} color="#FFF" />
-                  <Text style={s.captureBtnText}>Snap Photo</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : (
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                padding: "44px 24px",
-                gap: "12px",
-                border: isDragging ? "2px dashed #157A6E" : "2px dashed #CBD5E1",
-                borderRadius: "20px",
-                backgroundColor: isDragging ? "rgba(21, 122, 110, 0.06)" : "rgba(248, 250, 252, 0.6)",
-                transition: "all 0.3s ease",
-              }}
-            >
-              <View style={s.uploadIcon}>
-                <Feather name="camera" size={30} color="#157A6E" />
-              </View>
-              <Text style={s.uploadTitle}>Upload Teeth Photo</Text>
-              <Text style={s.uploadSub}>
-                Drag and drop your image here, or use the buttons below
-              </Text>
-
-              <View style={{ flexDirection: "row", gap: 12, marginTop: 16 }}>
-                <label style={{ cursor: "pointer" } as any}>
-                  <View style={s.uploadBtn}>
-                    <Feather name="upload" size={16} color="#0D4B42" />
-                    <Text style={s.uploadBtnText}>Upload File</Text>
-                  </View>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" } as any}
-                    onChange={handleImagePick}
-                  />
-                </label>
-
-                <TouchableOpacity style={s.openCamBtn} onPress={startCamera}>
-                  <Feather name="camera" size={16} color="#0D4B42" />
-                  <Text style={s.openCamText}>Take Photo</Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Demo Mode Toggle */}
-              <TouchableOpacity
-                onPress={() => setDemoMode(!demoMode)}
-                style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 14 }}
-                activeOpacity={0.8}
-              >
-                <View style={{ width: 18, height: 18, borderRadius: 5, borderWidth: 2, borderColor: "#157A6E", backgroundColor: demoMode ? "#157A6E" : "transparent", alignItems: "center", justifyContent: "center" }}>
-                  {demoMode && <Feather name="check" size={12} color="#FFF" />}
+                <View style={s.uploadIcon}>
+                  <Feather name="camera" size={30} color="#157A6E" />
                 </View>
-                <Text style={{ fontSize: 12, color: "#64748B", fontWeight: "600" }}>
-                  Demo Mode: Force High Risk Caries
+                <Text style={s.uploadTitle}>Upload Teeth Photo</Text>
+                <Text style={s.uploadSub}>
+                  Drag and drop your image here, or use the buttons below
                 </Text>
-              </TouchableOpacity>
-            </div>
-          )}
-        </View>
+
+                <View style={{ flexDirection: "row", gap: 12, marginTop: 16 }}>
+                  <label style={{ cursor: "pointer" } as any}>
+                    <View style={s.uploadBtn}>
+                      <Feather name="upload" size={16} color="#0D4B42" />
+                      <Text style={s.uploadBtnText}>Upload File</Text>
+                    </View>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" } as any}
+                      onChange={handleImagePick}
+                    />
+                  </label>
+
+                  <TouchableOpacity style={s.openCamBtn} onPress={startCamera}>
+                    <Feather name="camera" size={16} color="#0D4B42" />
+                    <Text style={s.openCamText}>Take Photo</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Demo Mode Toggle */}
+                <TouchableOpacity
+                  onPress={() => setDemoMode(!demoMode)}
+                  style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 14 }}
+                  activeOpacity={0.8}
+                >
+                  <View style={{ width: 18, height: 18, borderRadius: 5, borderWidth: 2, borderColor: "#157A6E", backgroundColor: demoMode ? "#157A6E" : "transparent", alignItems: "center", justifyContent: "center" }}>
+                    {demoMode && <Feather name="check" size={12} color="#FFF" />}
+                  </View>
+                  <Text style={{ fontSize: 12, color: "#64748B", fontWeight: "600" }}>
+                    Demo Mode: Force High Risk Caries
+                  </Text>
+                </TouchableOpacity>
+              </div>
+            )}
+          </View>
+        )}
 
         {/* Tips */}
         {!imageUri && (
