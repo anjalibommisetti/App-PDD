@@ -16,3 +16,7 @@ ml/dataset/
 *.sublime-workspace
 *.vscode/
 node_modules/
+node_modules/
+
+dist/
+app-backend/
