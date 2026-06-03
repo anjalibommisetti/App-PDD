@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { ScreenHeader } from "../components/ScreenHeader";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { supabase } from "../lib/supabase";
 
 // ─── Backend URL ──────────────────────────────────────────────────────────────
@@ -877,21 +877,23 @@ export default function ScanScreen() {
                 </View>
               </View>
             ) : (
-              <View
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  padding: "44px 24px",
-                  gap: "12px",
-                  border: isDragging ? "2px dashed #157A6E" : "2px dashed #CBD5E1",
-                  borderRadius: "20px",
-                  backgroundColor: isDragging ? "rgba(21, 122, 110, 0.06)" : "rgba(248, 250, 252, 0.6)",
-                  transition: "all 0.3s ease",
-                }}
+            <View
+              {...({ onDragOver: handleDragOver, onDragLeave: handleDragLeave, onDrop: handleDrop } as any)}
+              style={{
+                flexDirection: "column",
+                alignItems: "center",
+                paddingTop: 44,
+                paddingHorizontal: 24,
+                borderWidth: 2,
+                borderStyle: "dashed",
+                borderColor: isDragging ? "#157A6E" : "#CBD5E1",
+                borderRadius: 20,
+                backgroundColor: isDragging
+                  ? "rgba(21, 122, 110, 0.06)"
+                  : "rgba(248, 250, 252, 0.6)",
+              }}
+            >
+
               >
                 <View style={s.uploadIcon}>
                   <Feather name="camera" size={30} color="#157A6E" />
@@ -983,7 +985,7 @@ export default function ScanScreen() {
           <Feather name={offlineMode ? "wifi-off" : "check-circle"} size={14} color={offlineMode ? "#D97706" : "#157A6E"} />
           <Text style={offlineMode ? s.offlineText : s.realAIText}>
             {offlineMode
-              ? `Offline Mode — Results estimated via local analysis · Confidence: ${result?.confidence ?? "-"}%`
+              ? `Offline Mode — Results estimated via local analysis`
               : result
               ? `AI analysis completed · Model Confidence: ${result.confidence}%`
               : `Analyzing image...`}
@@ -1067,7 +1069,7 @@ export default function ScanScreen() {
                   <View style={s.scoreRightCol}>
                     <View style={[s.riskBadge, { backgroundColor: riskColor + "18", borderColor: riskColor + "40" }]}>
                       <View style={[s.riskDot, { backgroundColor: riskColor }]} />
-                      <Feather name="tooth" size={16} color={riskColor} style={{ marginRight: 4 }} />
+                      <MaterialCommunityIcons name="tooth" size={16} color={riskColor} style={{ marginRight: 4 }} />
                       <Text style={[s.riskBadgeText, { color: riskColor }]}>{`🦷 ${result.level} Risk`}</Text>
                     </View>
                     <Text style={s.confText}>Confidence: {result.confidence}%</Text>
@@ -1108,7 +1110,7 @@ export default function ScanScreen() {
                   <Text style={s.resultImageTitle}>Scanned Image</Text>
                 </View>
                 <View style={s.resultImageWrap}>
-                <Image source={require('../../assets/dental_care_hero.png')} accessibilityLabel="Dental Care" style={{ width: "100%", height: 200, resizeMode: "cover", borderRadius: 14 }} />
+                <Image source={{ uri: imageUri }} accessibilityLabel="Scanned Image" style={{ width: "100%", height: 200, resizeMode: "cover", borderRadius: 14 }} />
                 </View>
               </View>
             )}
