@@ -849,7 +849,7 @@ export default function ScanScreen() {
         {/* Upload Area */}
         {!result && (
           <View style={s.uploadCard}>
- : showCamera ? (
+            {showCamera ? (
               <View style={{ alignItems: "center", width: "100%" }}>
                 <video
                   ref={videoRef}
@@ -877,7 +877,7 @@ export default function ScanScreen() {
                 </View>
               </View>
             ) : (
-              <div
+              <View
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
@@ -934,7 +934,7 @@ export default function ScanScreen() {
                     Demo Mode: Force High Risk Caries
                   </Text>
                 </TouchableOpacity>
-              </div>
+              </View>
             )}
           </View>
         )}
