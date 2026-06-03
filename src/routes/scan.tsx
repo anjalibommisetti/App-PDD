@@ -892,9 +892,7 @@ export default function ScanScreen() {
                   ? "rgba(21, 122, 110, 0.06)"
                   : "rgba(248, 250, 252, 0.6)",
               }}
-            >
 
-              >
                 <View style={s.uploadIcon}>
                   <Feather name="camera" size={30} color="#157A6E" />
                 </View>
