@@ -1,13 +1,4 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  Animated,
-  Platform,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Animated, Platform, Image } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
@@ -1111,7 +1102,7 @@ export default function ScanScreen() {
                     style={{
                       width: "100%",
                       height: 200,
-                  <img src={require('../assets/dental_care_hero.png')} alt="Dental Care" style={{ width: "100%", height: 200, objectFit: "cover", borderRadius: 14, display: "block" }} />
+                <Image source={require('../assets/dental_care_hero.png')} accessibilityLabel="Dental Care" style={{ width: "100%", height: 200, resizeMode: "cover", borderRadius: 14 }} />
                 </View>
               </View>
             )}
