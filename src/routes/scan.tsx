@@ -1096,7 +1096,7 @@ export default function ScanScreen() {
                   <Text style={s.resultImageTitle}>Scanned Image</Text>
                 </View>
                 <View style={s.resultImageWrap}>
-                <Image source={require('../assets/dental_care_hero.png')} accessibilityLabel="Dental Care" style={{ width: "100%", height: 200, resizeMode: "cover", borderRadius: 14 }} />
+                <Image source={require('../../assets/dental_care_hero.png')} accessibilityLabel="Dental Care" style={{ width: "100%", height: 200, resizeMode: "cover", borderRadius: 14 }} />
                 </View>
               </View>
             )}
