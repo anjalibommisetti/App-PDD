@@ -1265,7 +1265,7 @@ export default function ScanScreen() {
                   setImageUri(null);
                   setResult(null);
                   setAutoSaved(false);
-                }}
+                }}>>>
                 activeOpacity={0.8}
               >
                 <Feather name="refresh-cw" size={16} color="#157A6E" />
