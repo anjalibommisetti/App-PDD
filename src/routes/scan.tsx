@@ -858,75 +858,7 @@ export default function ScanScreen() {
         {/* Upload Area */}
         {!result && (
           <View style={s.uploadCard}>
-            {imageUri ? (
-              <>
-                {/* Image Preview */}
-                <View style={s.imagePreviewWrapper}>
-                  <img
-                    src={imageUri}
-                    alt="Teeth scan"
-                    style={
-                      {
-                        width: "100%",
-                        height: 340,
-                        objectFit: "cover",
-                        display: "block",
-                        borderRadius: 20,
-                      } as any
-                    }
-                  />
-                  {analyzing && (
-                    <Animated.View
-                      style={{
-                        position: "absolute",
-                        top: scanLineAnim.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: ["0%", "98%"],
-                        }),
-                        left: 0,
-                        right: 0,
-                        height: 3,
-                        backgroundColor: "#86F1D4",
-                        shadowColor: "#86F1D4",
-                        shadowOffset: { width: 0, height: 0 },
-                        shadowOpacity: 1,
-                        shadowRadius: 12,
-                        elevation: 10,
-                      }}
-                    />
-                  )}
-                  {analyzing && (
-                    <View
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: "rgba(21, 122, 110, 0.12)",
-                        borderRadius: 20,
-                      }}
-                    />
-                  )}
-                  {/* Image badge overlay */}
-                  <View style={s.imageBadge}>
-                    <Feather name="image" size={10} color="#FFF" />
-                    <Text style={s.imageBadgeText}>Uploaded</Text>
-                  </View>
-                </View>
-                <TouchableOpacity
-                  style={s.retakeBtn}
-                  onPress={() => {
-                    setImageUri(null);
-                    setResult(null);
-                    setAutoSaved(false);
-                  }}
-                >
-                  <Feather name="refresh-cw" size={14} color="#64748B" />
-                  <Text style={s.retakeText}>Choose different image</Text>
-                </TouchableOpacity>
-              </>
-            ) : showCamera ? (
+ : showCamera ? (
               <View style={{ alignItems: "center", width: "100%" }}>
                 <video
                   ref={videoRef}
@@ -1174,21 +1106,12 @@ export default function ScanScreen() {
                 </View>
                 <View style={s.resultImageWrap}>
                   <img
-                    src={imageUri}
+                    src={require('../assets/dental_care_hero.png')}
                     alt="Scanned teeth"
                     style={{
                       width: "100%",
                       height: 200,
-                      objectFit: "cover",
-                      borderRadius: 14,
-                      display: "block",
-                    } as any}
-                  />
-                  <View style={[s.resultImageOverlay, { borderColor: riskColor }]}>
-                    <Text style={[s.resultImageBadge, { backgroundColor: riskColor }]}>
-                      {result.level} Risk
-                    </Text>
-                  </View>
+                  <img src={require('../assets/dental_care_hero.png')} alt="Dental Care" style={{ width: "100%", height: 200, objectFit: "cover", borderRadius: 14, display: "block" }} />
                 </View>
               </View>
             )}
