@@ -1056,7 +1056,8 @@ export default function ScanScreen() {
                   <View style={s.scoreRightCol}>
                     <View style={[s.riskBadge, { backgroundColor: riskColor + "18", borderColor: riskColor + "40" }]}>
                       <View style={[s.riskDot, { backgroundColor: riskColor }]} />
-                      <Text style={[s.riskBadgeText, { color: riskColor }]}>{result.level} Risk</Text>
+                      <Feather name="tooth" size={16} color={riskColor} style={{ marginRight: 4 }} />
+                      <Text style={[s.riskBadgeText, { color: riskColor }]}>{`🦷 ${result.level} Risk`}</Text>
                     </View>
                     <Text style={s.confText}>Confidence: {result.confidence}%</Text>
                   </View>
