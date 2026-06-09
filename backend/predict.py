@@ -110,8 +110,18 @@ def predict(image_bytes: bytes) -> dict:
             "Mild"     if detected  else
             "None"
         )
+        display_label = cls
+        if cls == "Caries":
+            display_label = "Dental Caries (Tooth Decay)"
+        elif cls == "Calculus":
+            display_label = "Calculus (Tartar Build-up)"
+        elif cls == "Ulcers":
+            display_label = "Periodontal Disease"
+        elif cls == "Hypodontia":
+            display_label = "Missing Tooth / Tooth Loss"
+
         results.append({
-            "label":      cls,
+            "label":      display_label,
             "confidence": conf,
             "detected":   detected,
             "severity":   severity,

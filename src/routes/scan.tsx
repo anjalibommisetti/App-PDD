@@ -11,41 +11,41 @@ const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || "https://smileguard-a
 
 // ─── Disease metadata ─────────────────────────────────────────────────────────
 const DISEASE_INFO: Record<string, { description: string; urgency: string; icon: string; tip: string }> = {
-  "Early Childhood Caries": {
-    description: "Severe decay/cavities in primary teeth of young children",
+  "Dental Caries (Tooth Decay)": {
+    description: "Cavities or decay on the tooth enamel and dentin surface",
     urgency: "Immediate",
     icon: "alert-octagon",
-    tip: "Seek dental filling or restoration immediately",
+    tip: "Schedule a dental appointment for filling or restoration treatment",
   },
-  Calculus: {
-    description: "Hardened tartar/plaque buildup on tooth surfaces",
+  "Calculus (Tartar Build-up)": {
+    description: "Hardened mineral plaque deposit requiring professional removal",
     urgency: "Soon",
     icon: "layers",
-    tip: "Professional scaling & polishing recommended",
+    tip: "Schedule a professional scaling and polishing treatment with a dentist",
   },
   Gingivitis: {
-    description: "Gum inflammation — early stage periodontal disease",
+    description: "Early gum disease causing irritation, redness, and swelling",
     urgency: "Soon",
     icon: "droplet",
-    tip: "Use antibacterial mouthwash & improve flossing",
+    tip: "Improve brushing and flossing hygiene; use antibacterial mouthwash",
   },
   "Tooth Discoloration": {
-    description: "Staining or discolouration of tooth enamel/dentin",
+    description: "Surface staining or internal discoloration of the tooth enamel",
     urgency: "Routine",
     icon: "sun",
-    tip: "Consider whitening; reduce coffee/tea intake",
+    tip: "Consider professional whitening and limit stain-causing foods/drinks",
   },
-  Ulcers: {
-    description: "Oral ulcers or canker sores inside the mouth",
+  "Periodontal Disease": {
+    description: "Advanced gum infection that damages soft tissue and bone support",
     urgency: "Soon",
-    icon: "target",
-    tip: "Apply oral gel; avoid spicy & acidic foods",
+    icon: "alert-circle",
+    tip: "See a dentist for deep cleaning (scaling/root planing) and evaluation",
   },
-  Hypodontia: {
-    description: "One or more congenitally missing teeth",
+  "Missing Tooth / Tooth Loss": {
+    description: "Absence of one or more teeth due to extraction, trauma, or development",
     urgency: "Routine",
     icon: "minus-circle",
-    tip: "Consult orthodontist for treatment planning",
+    tip: "Consult a dentist about replacement options like implants, bridges, or dentures",
   },
 };
 
@@ -65,13 +65,13 @@ function simulateAIAnalysis(seed: number) {
 
   const findings = [
     {
-      label: "Early Childhood Caries",
+      label: "Dental Caries (Tooth Decay)",
       detected: hasCaries,
       severity: hasCaries ? "Severe" : "None",
       color: "#EF4444",
       confidence: hasCaries ? Math.floor(70 + pseudoRandom * 25) : Math.floor(5 + pseudoRandom * 15),
-      description: DISEASE_INFO["Early Childhood Caries"].description,
-      urgency: DISEASE_INFO["Early Childhood Caries"].urgency,
+      description: DISEASE_INFO["Dental Caries (Tooth Decay)"].description,
+      urgency: DISEASE_INFO["Dental Caries (Tooth Decay)"].urgency,
     },
     {
       label: "Gingivitis",
@@ -83,13 +83,13 @@ function simulateAIAnalysis(seed: number) {
       urgency: DISEASE_INFO["Gingivitis"].urgency,
     },
     {
-      label: "Calculus",
+      label: "Calculus (Tartar Build-up)",
       detected: hasCalculus,
       severity: hasCalculus ? "Moderate" : "None",
       color: "#F59E0B",
       confidence: hasCalculus ? Math.floor(50 + pseudoRandom * 25) : Math.floor(4 + pseudoRandom * 10),
-      description: DISEASE_INFO["Calculus"].description,
-      urgency: DISEASE_INFO["Calculus"].urgency,
+      description: DISEASE_INFO["Calculus (Tartar Build-up)"].description,
+      urgency: DISEASE_INFO["Calculus (Tartar Build-up)"].urgency,
     },
     {
       label: "Tooth Discoloration",
@@ -101,22 +101,22 @@ function simulateAIAnalysis(seed: number) {
       urgency: DISEASE_INFO["Tooth Discoloration"].urgency,
     },
     {
-      label: "Ulcers",
+      label: "Periodontal Disease",
       detected: false,
       severity: "None",
       color: "#10B981",
       confidence: Math.floor(1 + pseudoRandom * 6),
-      description: DISEASE_INFO["Ulcers"].description,
-      urgency: DISEASE_INFO["Ulcers"].urgency,
+      description: DISEASE_INFO["Periodontal Disease"].description,
+      urgency: DISEASE_INFO["Periodontal Disease"].urgency,
     },
     {
-      label: "Hypodontia",
+      label: "Missing Tooth / Tooth Loss",
       detected: false,
       severity: "None",
       color: "#10B981",
       confidence: Math.floor(1 + pseudoRandom * 4),
-      description: DISEASE_INFO["Hypodontia"].description,
-      urgency: DISEASE_INFO["Hypodontia"].urgency,
+      description: DISEASE_INFO["Missing Tooth / Tooth Loss"].description,
+      urgency: DISEASE_INFO["Missing Tooth / Tooth Loss"].urgency,
     },
   ];
 
@@ -132,7 +132,7 @@ function simulateAIAnalysis(seed: number) {
     level,
     findings,
     suggestions,
-    predictedClass: hasCaries ? "Early Childhood Caries" : "Healthy",
+    predictedClass: hasCaries ? "Dental Caries (Tooth Decay)" : "Healthy",
     confidence: Math.floor(75 + pseudoRandom * 20),
   };
 }
@@ -201,13 +201,13 @@ async function runOfflineAnalysis(uri: string, seed: number): Promise<ReturnType
 
         const findings = [
           {
-            label: "Early Childhood Caries",
+            label: "Dental Caries (Tooth Decay)",
             detected: hasCaries,
             severity: hasCaries ? (score > 85 ? "Severe" : "Moderate") : "None",
             color: "#EF4444",
             confidence: hasCaries ? Math.min(98, 68 + Math.floor(darkRatio * 300)) : Math.floor(5 + darkRatio * 80),
-            description: DISEASE_INFO["Early Childhood Caries"].description,
-            urgency: DISEASE_INFO["Early Childhood Caries"].urgency,
+            description: DISEASE_INFO["Dental Caries (Tooth Decay)"].description,
+            urgency: DISEASE_INFO["Dental Caries (Tooth Decay)"].urgency,
           },
           {
             label: "Gingivitis",
@@ -219,13 +219,13 @@ async function runOfflineAnalysis(uri: string, seed: number): Promise<ReturnType
             urgency: DISEASE_INFO["Gingivitis"].urgency,
           },
           {
-            label: "Calculus",
+            label: "Calculus (Tartar Build-up)",
             detected: hasCalculus,
             severity: hasCalculus ? "Moderate" : "None",
             color: "#F59E0B",
             confidence: hasCalculus ? Math.min(92, 50 + Math.floor(yellowRatio * 400)) : Math.floor(4 + yellowRatio * 80),
-            description: DISEASE_INFO["Calculus"].description,
-            urgency: DISEASE_INFO["Calculus"].urgency,
+            description: DISEASE_INFO["Calculus (Tartar Build-up)"].description,
+            urgency: DISEASE_INFO["Calculus (Tartar Build-up)"].urgency,
           },
           {
             label: "Tooth Discoloration",
@@ -237,22 +237,22 @@ async function runOfflineAnalysis(uri: string, seed: number): Promise<ReturnType
             urgency: DISEASE_INFO["Tooth Discoloration"].urgency,
           },
           {
-            label: "Ulcers",
+            label: "Periodontal Disease",
             detected: hasUlcers,
             severity: hasUlcers ? "Mild" : "None",
             color: "#10B981",
             confidence: hasUlcers ? Math.min(80, 35 + Math.floor(redRatio * 500)) : Math.floor(1 + redRatio * 40),
-            description: DISEASE_INFO["Ulcers"].description,
-            urgency: DISEASE_INFO["Ulcers"].urgency,
+            description: DISEASE_INFO["Periodontal Disease"].description,
+            urgency: DISEASE_INFO["Periodontal Disease"].urgency,
           },
           {
-            label: "Hypodontia",
+            label: "Missing Tooth / Tooth Loss",
             detected: hasHypodontia,
             severity: hasHypodontia ? "Detected" : "None",
             color: "#10B981",
             confidence: hasHypodontia ? Math.min(75, 30 + Math.floor(darkRatio * 200)) : Math.floor(1 + darkRatio * 30),
-            description: DISEASE_INFO["Hypodontia"].description,
-            urgency: DISEASE_INFO["Hypodontia"].urgency,
+            description: DISEASE_INFO["Missing Tooth / Tooth Loss"].description,
+            urgency: DISEASE_INFO["Missing Tooth / Tooth Loss"].urgency,
           },
         ];
 
@@ -270,7 +270,7 @@ async function runOfflineAnalysis(uri: string, seed: number): Promise<ReturnType
           level,
           findings,
           suggestions,
-          predictedClass: hasCaries ? "Early Childhood Caries" : hasCalculus ? "Calculus" : hasGingivitis ? "Gingivitis" : "Healthy",
+          predictedClass: hasCaries ? "Dental Caries (Tooth Decay)" : hasCalculus ? "Calculus (Tartar Build-up)" : hasGingivitis ? "Gingivitis" : "Healthy",
           confidence,
         });
       } catch (e) {
@@ -375,12 +375,22 @@ async function callPredictAPI(
     let topClass = "Healthy";
 
     const findings = (data.all_classes || []).map((c: any) => {
-      let label = c.label === "Caries" ? "Early Childhood Caries" : c.label;
+      let label = c.label;
+      if (c.label === "Caries" || c.label === "Early Childhood Caries") {
+        label = "Dental Caries (Tooth Decay)";
+      } else if (c.label === "Calculus") {
+        label = "Calculus (Tartar Build-up)";
+      } else if (c.label === "Ulcers") {
+        label = "Periodontal Disease";
+      } else if (c.label === "Hypodontia") {
+        label = "Missing Tooth / Tooth Loss";
+      }
+
       let conf = c.confidence;
       let detected = c.detected;
       let severity = c.severity || (c.detected ? "Detected" : "None");
 
-      if (c.label === "Caries") {
+      if (c.label === "Caries" || label === "Dental Caries (Tooth Decay)") {
          conf = Math.min(99, conf + 60);
          detected = conf >= 35;
          severity = conf >= 75 ? "Severe" : conf >= 50 ? "Moderate" : detected ? "Mild" : "None";
@@ -412,7 +422,7 @@ async function callPredictAPI(
     if (boostedCaries) {
       level = "High";
       score = Math.max(score, 88);
-      topClass = "Early Childhood Caries";
+      topClass = "Dental Caries (Tooth Decay)";
     }
 
     const suggestions: string[] = [];
@@ -420,16 +430,18 @@ async function callPredictAPI(
     else if (level === "Medium") suggestions.push("Schedule a dental check-up soon");
     else suggestions.push("Great oral health — keep it up!");
     const detected = findings.filter((f: any) => f.detected).map((f: any) => f.label);
-    if (detected.includes("Early Childhood Caries"))
+    if (detected.includes("Dental Caries (Tooth Decay)"))
       suggestions.push("Cavities detected — prompt filling treatment needed");
-    if (detected.includes("Calculus"))
+    if (detected.includes("Calculus (Tartar Build-up)"))
       suggestions.push("Professional scaling required to remove hardened tartar");
     if (detected.includes("Gingivitis"))
       suggestions.push("Use antibacterial mouthwash; focus on gum care & flossing");
     if (detected.includes("Tooth Discoloration"))
       suggestions.push("Consider whitening treatment; reduce coffee/tea/smoking");
-    if (detected.includes("Ulcers"))
-      suggestions.push("Apply oral gel; avoid spicy foods until ulcers heal");
+    if (detected.includes("Periodontal Disease"))
+      suggestions.push("Deep cleaning and periodontal therapy recommended");
+    if (detected.includes("Missing Tooth / Tooth Loss"))
+      suggestions.push("Consult dentist about prosthodontics options (implants/bridges)");
     suggestions.push("Brush twice daily with fluoride toothpaste (2 min each)");
     suggestions.push("Floss daily to remove interdental plaque buildup");
 
@@ -651,17 +663,17 @@ export default function ScanScreen() {
       analysis = {
         score: 88,
         level: "High",
-        predictedClass: "Early Childhood Caries",
+        predictedClass: "Dental Caries (Tooth Decay)",
         confidence: 94,
         findings: [
           {
-            label: "Early Childhood Caries",
+            label: "Dental Caries (Tooth Decay)",
             detected: true,
             severity: "Severe",
             color: "#EF4444",
             confidence: 94,
-            description: DISEASE_INFO["Early Childhood Caries"].description,
-            urgency: DISEASE_INFO["Early Childhood Caries"].urgency,
+            description: DISEASE_INFO["Dental Caries (Tooth Decay)"].description,
+            urgency: DISEASE_INFO["Dental Caries (Tooth Decay)"].urgency,
           },
           {
             label: "Tooth Discoloration",
@@ -682,31 +694,31 @@ export default function ScanScreen() {
             urgency: DISEASE_INFO["Gingivitis"].urgency,
           },
           {
-            label: "Calculus",
+            label: "Calculus (Tartar Build-up)",
             detected: false,
             severity: "None",
             color: "#10B981",
             confidence: 12,
-            description: DISEASE_INFO["Calculus"].description,
-            urgency: DISEASE_INFO["Calculus"].urgency,
+            description: DISEASE_INFO["Calculus (Tartar Build-up)"].description,
+            urgency: DISEASE_INFO["Calculus (Tartar Build-up)"].urgency,
           },
           {
-            label: "Ulcers",
+            label: "Periodontal Disease",
             detected: false,
             severity: "None",
             color: "#10B981",
             confidence: 5,
-            description: DISEASE_INFO["Ulcers"].description,
-            urgency: DISEASE_INFO["Ulcers"].urgency,
+            description: DISEASE_INFO["Periodontal Disease"].description,
+            urgency: DISEASE_INFO["Periodontal Disease"].urgency,
           },
           {
-            label: "Hypodontia",
+            label: "Missing Tooth / Tooth Loss",
             detected: false,
             severity: "None",
             color: "#10B981",
             confidence: 3,
-            description: DISEASE_INFO["Hypodontia"].description,
-            urgency: DISEASE_INFO["Hypodontia"].urgency,
+            description: DISEASE_INFO["Missing Tooth / Tooth Loss"].description,
+            urgency: DISEASE_INFO["Missing Tooth / Tooth Loss"].urgency,
           }
         ],
         suggestions: [

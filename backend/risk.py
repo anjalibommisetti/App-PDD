@@ -9,12 +9,12 @@ Combines:
 
 # ─── Disease severity weights (higher = more dangerous) ──────────────────────
 DISEASE_WEIGHTS: dict[str, float] = {
-    "Caries":              0.30,
-    "Gingivitis":          0.25,
-    "Calculus":            0.20,
-    "Ulcers":              0.15,
-    "Tooth Discoloration": 0.07,
-    "Hypodontia":          0.03,
+    "Dental Caries (Tooth Decay)": 0.30,
+    "Gingivitis":                  0.25,
+    "Calculus (Tartar Build-up)":  0.20,
+    "Periodontal Disease":         0.15,
+    "Tooth Discoloration":         0.07,
+    "Missing Tooth / Tooth Loss":  0.03,
 }
 
 # ─── Risk level thresholds ────────────────────────────────────────────────────
