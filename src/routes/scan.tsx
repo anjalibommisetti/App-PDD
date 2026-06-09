@@ -1092,7 +1092,7 @@ export default function ScanScreen() {
                   <Text style={s.resultImageTitle}>Scanned Image</Text>
                 </View>
                 <View style={s.resultImageWrap}>
-                  <Image source={{ uri: "https://via.placeholder.com/400x200.png?text=Dental+Scan" }} accessibilityLabel="Scanned Image" style={{ width: "100%", height: 200, resizeMode: "cover", borderRadius: 14 }} />
+                  <Image source={{ uri: imageUri }} accessibilityLabel="Scanned Image" style={{ width: "100%", height: 200, resizeMode: "cover", borderRadius: 14 }} />
                 </View>
               </View>
             )}
