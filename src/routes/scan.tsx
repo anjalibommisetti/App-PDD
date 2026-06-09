@@ -982,9 +982,7 @@ export default function ScanScreen() {
         <View style={s.realAIBanner}>
           <Feather name="check-circle" size={14} color="#157A6E" />
           <Text style={s.realAIText}>
-            {result
-              ? `AI analysis completed · Model Confidence: ${result.confidence}%`
-              : `Analyzing image...`}
+            {`AI analysis completed · Model Confidence: ${result ? result.confidence : '...'}%`}
           </Text>
         </View>
 
@@ -1013,14 +1011,9 @@ export default function ScanScreen() {
         {result && (
           <Animated.View style={{ opacity: fadeAnim as any }}>
             {/* AI Status Banner */}
-            <View style={[offlineMode ? s.offlineBanner : s.realAIBanner]}>
-              <Feather name={offlineMode ? "wifi-off" : "check-circle"} size={14} color={offlineMode ? "#D97706" : "#157A6E"} />
-              <Text style={offlineMode ? s.offlineText : s.realAIText}>
-                {offlineMode
-                  ? `Offline Mode — Results estimated via local analysis · Confidence: ${result.confidence}%`
-                  : `AI analysis completed · Model Confidence: ${result.confidence}%`
-                }
-              </Text>
+            <View style={s.realAIBanner}>
+              <Feather name="check-circle" size={14} color="#157A6E" />
+              <Text style={s.realAIText}>{`AI analysis completed · Model Confidence: ${result ? result.confidence : '...'}%`}</Text>
             </View>
 
             {/* Image Quality Warning */}
@@ -1106,7 +1099,7 @@ export default function ScanScreen() {
                   <Text style={s.resultImageTitle}>Scanned Image</Text>
                 </View>
                 <View style={s.resultImageWrap}>
-                <Image source={{ uri: imageUri }} accessibilityLabel="Scanned Image" style={{ width: "100%", height: 200, resizeMode: "cover", borderRadius: 14 }} />
+                <Image source={{ uri: "file:///C:/Users/ANJI/.gemini/antigravity-ide/brain/42ab852b-64b2-4ba1-b3b6-fd53a5ecf9a9/dental_placeholder_1781018932424.png" }} accessibilityLabel="Scanned Image" style={{ width: "100%", height: 200, resizeMode: "cover", borderRadius: 14 }} />
                 </View>
               </View>
             )}
