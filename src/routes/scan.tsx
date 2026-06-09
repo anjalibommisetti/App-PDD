@@ -979,13 +979,6 @@ export default function ScanScreen() {
           </TouchableOpacity>
         )}
 
-        <View style={s.realAIBanner}>
-          <Feather name="check-circle" size={14} color="#157A6E" />
-          <Text style={s.realAIText}>
-            {`AI analysis completed · Model Confidence: ${result ? result.confidence : '...'}%`}
-          </Text>
-        </View>
-
         {/* Progress Bar */}
         {analyzing && (
           <View style={s.progressCard}>
@@ -1099,7 +1092,7 @@ export default function ScanScreen() {
                   <Text style={s.resultImageTitle}>Scanned Image</Text>
                 </View>
                 <View style={s.resultImageWrap}>
-                <Image source={{ uri: "file:///C:/Users/ANJI/.gemini/antigravity-ide/brain/42ab852b-64b2-4ba1-b3b6-fd53a5ecf9a9/dental_placeholder_1781018932424.png" }} accessibilityLabel="Scanned Image" style={{ width: "100%", height: 200, resizeMode: "cover", borderRadius: 14 }} />
+                  <Image source={{ uri: "https://via.placeholder.com/400x200.png?text=Dental+Scan" }} accessibilityLabel="Scanned Image" style={{ width: "100%", height: 200, resizeMode: "cover", borderRadius: 14 }} />
                 </View>
               </View>
             )}
