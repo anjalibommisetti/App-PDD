@@ -979,7 +979,7 @@ export default function ScanScreen() {
           </TouchableOpacity>
         )}
 
-        <View style={[offlineMode ? s.offlineBanner : s.realAIBanner]}>
+        <View style={offlineMode ? s.offlineBanner : s.realAIBanner}>
           <Feather name={offlineMode ? "wifi-off" : "check-circle"} size={14} color={offlineMode ? "#D97706" : "#157A6E"} />
           <Text style={offlineMode ? s.offlineText : s.realAIText}>
             {offlineMode
@@ -988,6 +988,11 @@ export default function ScanScreen() {
               ? `AI analysis completed · Model Confidence: ${result.confidence}%`
               : `Analyzing image...`}
           </Text>
+          {offlineMode && (
+            <TouchableOpacity onPress={runAnalysis} style={s.retryButton}>
+              <Text style={s.retryButtonText}>Retry Online</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Progress Bar */}
