@@ -205,70 +205,15 @@ export default function LandingPage() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8 }}
-                className="relative hidden lg:block"
+                className="relative hidden lg:flex items-center justify-center"
               >
-                <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 to-teal-400 rounded-[3rem] transform rotate-3 opacity-20 blur-2xl"></div>
-                <div className="relative bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-2xl w-full">
-                  {/* Dashboard Mockup UI */}
-                  <div className="flex items-center justify-between mb-8">
-                    <div>
-                      <h3 className="text-xl font-bold text-white">Welcome back, Sarah</h3>
-                      <p className="text-sm text-slate-400">Here is a summary of your oral health.</p>
-                    </div>
-                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
-                      SA
-                    </div>
-                  </div>
-                  
-                  <div className="bg-slate-900 rounded-xl p-5 border border-slate-800 mb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-semibold text-slate-400 tracking-wider">CURRENT ORAL HEALTH STATUS</span>
-                    </div>
-                    <div className="flex items-end gap-4 mb-4">
-                      <h4 className="text-4xl font-bold text-white">94%</h4>
-                      <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-bold mb-1">
-                        High Risk
-                      </span>
-                    </div>
-                    
-                    <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
-                      <div className="h-full bg-red-500 w-[94%] rounded-full"></div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-900 rounded-xl p-4 border border-slate-800">
-                      <div className="flex items-center gap-2 mb-3 text-slate-400">
-                        <Activity className="w-4 h-4" />
-                        <span className="text-xs font-bold">Recent Predictions</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-400">
-                          <Activity className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-white">High (94%)</p>
-                          <p className="text-xs text-slate-500">15 May</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-slate-900 rounded-xl p-4 border border-slate-800">
-                      <div className="flex items-center gap-2 mb-3 text-slate-400">
-                        <Bell className="w-4 h-4" />
-                        <span className="text-xs font-bold">Reminders</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
-                          <Calendar className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-white">Dental Appt</p>
-                          <p className="text-xs text-slate-500">Tomorrow</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-tr from-blue-500 to-teal-400 rounded-full transform opacity-10 blur-3xl"></div>
+                <img
+                  src="/tooth_hero.png"
+                  alt="Healthy tooth illustration"
+                  className="relative w-[420px] h-auto drop-shadow-2xl"
+                  style={{ filter: 'drop-shadow(0 20px 40px rgba(59, 130, 246, 0.15))' }}
+                />
               </motion.div>
             </div>
           </div>
