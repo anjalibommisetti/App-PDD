@@ -1015,11 +1015,7 @@ export default function ScanScreen() {
         {/* ═══════════════════ RESULTS SECTION ═══════════════════ */}
         {result && (
           <Animated.View style={{ opacity: fadeAnim as any }}>
-            {/* AI Status Banner */}
-            <View style={s.realAIBanner}>
-              <Feather name="check-circle" size={14} color="#157A6E" />
-              <Text style={s.realAIText}>{`AI analysis completed · Model Confidence: ${result ? result.confidence : '...'}%`}</Text>
-            </View>
+
 
             {/* Image Quality Warning */}
             {imageWarning && (
