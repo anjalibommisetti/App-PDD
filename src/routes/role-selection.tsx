@@ -24,7 +24,7 @@ export default function RoleSelectionScreen() {
         </TouchableOpacity>
 
         <Text style={{ fontSize: 30, fontWeight: "700", color: "#0f172a", marginBottom: 8 }}>Select Your Role</Text>
-        <Text style={{ fontSize: 16, color: "#64748b", marginBottom: 40 }}>Choose how you want to use SmileGuard AI to get started with your account.</Text>
+        <Text style={{ fontSize: 16, color: "#64748b", marginBottom: 40 }}>Choose how you want to use SmileGuard to get started with your account.</Text>
 
         {/* Role Cards */}
         <View style={{ gap: 16 }}>

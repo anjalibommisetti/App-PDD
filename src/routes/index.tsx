@@ -170,7 +170,7 @@ export default function LandingPage() {
                   className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 mb-6"
                 >
                   <Sparkles className="h-4 w-4" />
-                  <span className="text-sm font-semibold">AI-Powered Oral Healthcare</span>
+                  <span className="text-sm font-semibold">Smart Oral Healthcare</span>
                 </motion.div>
                 <motion.h1
                   variants={fadeInUp}
@@ -185,7 +185,7 @@ export default function LandingPage() {
                   variants={fadeInUp}
                   className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed"
                 >
-                  Advanced risk assessment and disease detection using state-of-the-art AI.
+                  Advanced risk assessment and disease detection for better dental outcomes.
                   Transforming dental care from reactive treatment to proactive prevention.
                 </motion.p>
                 <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4">
@@ -225,7 +225,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
                 { label: "Patients Analyzed", value: "10,000+", icon: Users },
-                { label: "AI Accuracy", value: "98.5%", icon: Target },
+                { label: "Detection Accuracy", value: "98.5%", icon: Target },
                 { label: "Risk Detections", value: "45,000+", icon: ActivitySquare },
                 { label: "Partner Clinics", value: "250+", icon: Heart },
               ].map((stat, idx) => (
@@ -254,7 +254,7 @@ export default function LandingPage() {
         <section id="workflow" className="py-24 relative">
           <div className="w-full px-4 sm:px-6 lg:px-8">
             <div className="text-center w-full mx-auto mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">How SmileGuard AI Works</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">How SmileGuard Works</h2>
               <p className="text-lg text-slate-600 dark:text-slate-400">
                 A seamless 4-step process to predict, detect, and prevent oral diseases before they
                 become severe.
@@ -271,8 +271,8 @@ export default function LandingPage() {
                   icon: Upload,
                 },
                 {
-                  title: "AI Analysis",
-                  desc: "Our CNN model analyzes the image for microscopic signs of decay.",
+                  title: "Smart Analysis",
+                  desc: "Your image is analyzed for microscopic signs of decay and disease.",
                   icon: Brain,
                 },
                 {
@@ -312,7 +312,7 @@ export default function LandingPage() {
               Ready to prioritize your oral health?
             </h2>
             <p className="text-xl text-blue-100 mb-10">
-              Join thousands of patients and clinics using SmileGuard AI for predictive dental care.
+              Join thousands of patients and clinics using SmileGuard for predictive dental care.
             </p>
             <button
               onClick={() => navigation.navigate("RoleSelection")}

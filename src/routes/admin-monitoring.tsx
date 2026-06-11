@@ -45,7 +45,7 @@ export default function AdminMonitoring() {
               { name: "PostgreSQL Master Database", status: "Healthy", ping: "12ms", storage: "32% full" },
               { name: "Supabase Auth Service", status: "Healthy", ping: "45ms", storage: "N/A" },
               { name: "Image Storage Bucket", status: "Healthy", ping: "28ms", storage: "68% full" },
-              { name: "Python AI Endpoint (Render)", status: "Warning", ping: "140ms", storage: "Cold Start Detected" },
+              { name: "Python Backend Endpoint (Render)", status: "Warning", ping: "140ms", storage: "Cold Start Detected" },
             ].map((db, i) => (
               <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-slate-100 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <div className="mb-2 sm:mb-0">

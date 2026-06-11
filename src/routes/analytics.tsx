@@ -51,7 +51,7 @@ function AnalyticsDashboard() {
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Platform Analytics</h1>
         <p className="text-slate-600 dark:text-slate-400">
-          Comprehensive overview of oral disease statistics, patient trends, and AI accuracy.
+          Comprehensive overview of oral disease statistics, patient trends, and detection accuracy.
         </p>
       </header>
 
@@ -75,7 +75,7 @@ function AnalyticsDashboard() {
             bg: "bg-teal-100 dark:bg-teal-900/30",
           },
           {
-            label: "AI Accuracy Avg",
+            label: "Accuracy Avg",
             value: "98.5%",
             icon: Target,
             change: "+2.1%",
@@ -210,7 +210,7 @@ function AnalyticsDashboard() {
           className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
         >
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">
-            AI Prediction Accuracy Trend
+            Prediction Accuracy Trend
           </h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">

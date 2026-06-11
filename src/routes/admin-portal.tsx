@@ -242,7 +242,7 @@ export default function AdminPortal() {
                           <span className="text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded text-xs font-bold border border-emerald-800/50">Optimal</span>
                         </div>
                         <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
-                          <span className="text-sm text-slate-300 font-medium">AI Endpoint (Render)</span>
+                          <span className="text-sm text-slate-300 font-medium">Backend Endpoint (Render)</span>
                           <span className="text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded text-xs font-bold border border-emerald-800/50">Optimal</span>
                         </div>
                       </div>
@@ -284,7 +284,7 @@ export default function AdminPortal() {
                         {[
                           { time: "Just now", event: "Admin Login Successful", user: "Admin (192.168.1.1)", status: "Success", color: "emerald" },
                           { time: "2 mins ago", event: "New Patient Registered", user: "prathyusha@demo.com", status: "Success", color: "emerald" },
-                          { time: "15 mins ago", event: "AI Prediction Generated", user: "System", status: "Success", color: "emerald" },
+                          { time: "15 mins ago", event: "Prediction Generated", user: "System", status: "Success", color: "emerald" },
                           { time: "1 hour ago", event: "Failed Login Attempt", user: "Unknown (104.28.x.x)", status: "Blocked", color: "red" },
                         ].map((log, i) => (
                           <tr key={i} className="hover:bg-slate-800/30 transition-colors">

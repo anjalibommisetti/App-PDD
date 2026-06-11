@@ -11,7 +11,7 @@ export default function ChatbotScreen() {
   const navigation = useNavigation<any>();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([
-    { id: "1", text: "Hi there! I am your SmileGuard AI assistant. How can I help you with your dental health today?", sender: "bot" }
+    { id: "1", text: "Hi there! I am your SmileGuard assistant. How can I help you with your dental health today?", sender: "bot" }
   ]);
   const [loading, setLoading] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -24,7 +24,7 @@ export default function ChatbotScreen() {
     setInput("");
     setLoading(true);
 
-    // Simulate AI response
+    // Generate response
     setTimeout(() => {
       let reply = "I'm sorry, I couldn't understand that. Could you please rephrase?";
       const lower = userMsg.text.toLowerCase();
@@ -36,7 +36,7 @@ export default function ChatbotScreen() {
       } else if (lower.includes("appointment") || lower.includes("book")) {
         reply = "You can book an appointment easily! Just return to the dashboard and click on the 'Book Visit' icon.";
       } else if (lower.includes("risk") || lower.includes("score")) {
-        reply = "Your risk score is calculated by analyzing your dental scan or assessment answers using our AI model. A score above 60% indicates high risk and requires professional attention.";
+        reply = "Your risk score is calculated by analyzing your dental scan or assessment answers. A score above 60% indicates high risk and requires professional attention.";
       } else if (lower.includes("hello") || lower.includes("hi")) {
         reply = "Hello! How can I assist you with your oral care today?";
       }
@@ -48,7 +48,7 @@ export default function ChatbotScreen() {
 
   return (
     <PhoneShell>
-      <ScreenHeader title="AI Assistant" subtitle="Your dental health advisor" back="Dashboard" />
+      <ScreenHeader title="Chat Assistant" subtitle="Your dental health advisor" back="Dashboard" />
       
       <View style={styles.container}>
         <ScrollView 

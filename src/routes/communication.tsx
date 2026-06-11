@@ -57,7 +57,7 @@ export default function CommunicationModule() {
         <div className="flex-1 p-6 overflow-y-auto space-y-4">
           <div className="flex justify-start">
             <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[70%] border border-slate-100 dark:border-slate-800">
-              <p className="text-slate-800 dark:text-slate-200">Hi Doctor, I saw my AI risk score is 94%. Is it serious?</p>
+              <p className="text-slate-800 dark:text-slate-200">Hi Doctor, I saw my risk score is 94%. Is it serious?</p>
               <span className="text-xs text-slate-400 mt-1 block">10:28 AM</span>
             </div>
           </div>

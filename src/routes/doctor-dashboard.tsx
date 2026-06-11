@@ -46,7 +46,7 @@ function DoctorDashboard() {
           age: "N/A", // Not currently stored in assessments table
           lastVisit: new Date(item.created_at).toLocaleDateString("en-IN"),
           risk: item.level || "Low",
-          aiDiagnosis: "AI Predicted Result",
+          aiDiagnosis: "Predicted Result",
           confidence: item.score || 0,
           status: item.status || "Pending Review",
           answers: item.answers,
@@ -107,7 +107,7 @@ function DoctorDashboard() {
       printWindow.document.write(`
         <html>
           <head>
-            <title>SmileGuard AI - Prescription</title>
+            <title>SmileGuard - Prescription</title>
             <style>
               body { font-family: system-ui, sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; }
               .header { text-align: center; border-bottom: 2px solid #86F1D4; padding-bottom: 20px; margin-bottom: 30px; }
@@ -119,7 +119,7 @@ function DoctorDashboard() {
           </head>
           <body>
             <div class="header">
-              <div class="logo">🦷 SmileGuard AI</div>
+              <div class="logo">🦷 SmileGuard</div>
               <p>Official Dental Prescription Report</p>
             </div>
             
@@ -128,7 +128,7 @@ function DoctorDashboard() {
               <div><strong>Date:</strong> ${new Date().toLocaleDateString('en-IN')}</div>
             </div>
             <div class="row">
-              <div><strong>AI Assessed Risk:</strong> ${selectedPatient.risk} (${selectedPatient.confidence}% Score)</div>
+              <div><strong>Assessed Risk:</strong> ${selectedPatient.risk} (${selectedPatient.confidence}% Score)</div>
             </div>
             
             <div class="prescription-box">
@@ -427,10 +427,10 @@ function DoctorDashboard() {
               </div>
 
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-white mb-3">AI Findings</h3>
+                <h3 className="font-bold text-slate-900 dark:text-white mb-3">Diagnostic Findings</h3>
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
                   <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-                    Based on the patient's submitted questionnaire and historical data, the AI model predicts a {selectedPatient.risk.toLowerCase()} risk of dental complications. 
+                    Based on the patient's submitted questionnaire and historical data, the analysis predicts a {selectedPatient.risk.toLowerCase()} risk of dental complications. 
                     {selectedPatient.risk === "High" && " Immediate clinical evaluation is recommended."}
                   </p>
                 </div>

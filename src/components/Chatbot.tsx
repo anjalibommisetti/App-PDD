@@ -15,7 +15,7 @@ export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
-      text: "Hi there! I'm your SmileGuard AI Assistant. How can I help you with your oral hygiene today?",
+      text: "Hi there! I'm your SmileGuard Assistant. How can I help you with your oral hygiene today?",
       isBot: true,
     },
   ]);
@@ -28,7 +28,7 @@ export function Chatbot() {
     setMessages([...messages, { text: userMsg, isBot: false }]);
     setInput("");
 
-    // Simulate AI response
+    // Generate response
     setTimeout(() => {
       let botResponse =
         "I can help you with oral hygiene tips, cavity prevention, and booking appointments.";
@@ -104,7 +104,7 @@ export function Chatbot() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <Feather name="message-square" size={20} color="#86F1D4" />
-                <span style={{ fontWeight: "bold" }}>AI Assistant</span>
+                <span style={{ fontWeight: "bold" }}>Chat Assistant</span>
               </div>
               <TouchableOpacity onPress={() => setIsOpen(false)}>
                 <Feather name="x" size={20} color="white" />

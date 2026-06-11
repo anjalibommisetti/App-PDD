@@ -90,7 +90,7 @@ export default function ResultsScreen() {
 
   return (
     <PhoneShell showNav={false}>
-      <ScreenHeader title="Risk Results" subtitle="AI analysis complete" back="Dashboard" />
+      <ScreenHeader title="Risk Results" subtitle="Analysis complete" back="Dashboard" />
 
       <ScrollView
         style={{ flex: 1 }}
@@ -174,13 +174,13 @@ export default function ResultsScreen() {
           </View>
         )}
 
-        {/* AI Insight */}
+        {/* Health Insight */}
         <View style={styles.cardBeige}>
           <View style={styles.insightHeader}>
             <View style={styles.insightIcon}>
               <Feather name="cpu" size={16} color="#157A6E" />
             </View>
-            <Text style={styles.cardTitle}>AI Insight</Text>
+            <Text style={styles.cardTitle}>Health Insight</Text>
             <View style={styles.confBadge}>
               <Text style={styles.confText}>92% confidence</Text>
             </View>

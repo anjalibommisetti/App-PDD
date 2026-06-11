@@ -356,7 +356,7 @@ export default function ReportScreen() {
         </View>
 
         <View style={styles.cardBeige}>
-          <Text style={styles.cardTitle}>AI Explanation</Text>
+          <Text style={styles.cardTitle}>Health Explanation</Text>
           <Text style={styles.explanationText}>
             {assessment?.explanation ||
               "The model analysis identifies risk drivers based on your reported dental symptoms and habits. Maintain regular checkups to monitor progression."}
