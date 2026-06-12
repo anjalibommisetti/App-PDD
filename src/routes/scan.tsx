@@ -386,15 +386,17 @@ async function callPredictAPI(
         label = "Missing Tooth / Tooth Loss";
       }
 
-      let conf = c.confidence;
+      let conf = c.confidence * 100;
       let detected = c.detected;
       let severity = c.severity || (c.detected ? "Detected" : "None");
 
       if (c.label === "Caries" || label === "Dental Caries (Tooth Decay)") {
-         conf = Math.min(99, conf + 60);
          detected = conf >= 35;
+         if (detected) {
+            conf = Math.min(99, conf + 60);
+            boostedCaries = true;
+         }
          severity = conf >= 75 ? "Severe" : conf >= 50 ? "Moderate" : detected ? "Mild" : "None";
-         if (detected) boostedCaries = true;
       }
 
       if (conf > maxConf) {
