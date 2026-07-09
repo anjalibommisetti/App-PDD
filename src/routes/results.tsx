@@ -211,7 +211,7 @@ export default function ResultsScreen() {
                       <Feather
                         name={icon as any}
                         size={16}
-                        color={isDentist ? "#4F46E5" : "#10B981"}
+                        color={isDentist ? "#157A6E" : "#10B981"}
                       />
                     </View>
                     <Text style={styles.recText}>{r}</Text>

@@ -851,7 +851,22 @@ export default function ScanScreen() {
 
   return (
     <PhoneShell>
-      <ScreenHeader title="Teeth Scan" subtitle="Advanced dental analysis" back="Dashboard" />
+      <ScreenHeader
+        title="Teeth Scan"
+        subtitle="Advanced dental analysis"
+        onBack={
+          (result || imageUri)
+            ? () => {
+                setImageUri(null);
+                setResult(null);
+                setAutoSaved(false);
+                setImageWarning(null);
+                setOfflineMode(false);
+              }
+            : undefined
+        }
+        back={!(result || imageUri) ? "Dashboard" : undefined}
+      />
 
       <ScrollView
         style={{ flex: 1 }}
@@ -1198,7 +1213,7 @@ export default function ScanScreen() {
             <View style={s.recsCard}>
               <View style={s.recsHeader}>
                 <View style={s.recsIconWrap}>
-                  <Feather name="heart" size={14} color="#4F46E5" />
+                  <Feather name="heart" size={14} color="#157A6E" />
                 </View>
                 <Text style={s.recsTitle}>Personalized Recommendations</Text>
               </View>
@@ -1206,8 +1221,8 @@ export default function ScanScreen() {
                 {result.suggestions.map((sug, i) => {
                   const isDentist = sug.toLowerCase().includes("dentist") || sug.toLowerCase().includes("visit") || sug.toLowerCase().includes("appointment") || sug.toLowerCase().includes("consultation");
                   const isUrgent = sug.toLowerCase().includes("immediate") || sug.toLowerCase().includes("urgent");
-                  const recColor = isUrgent ? "#EF4444" : isDentist ? "#4F46E5" : "#10B981";
-                  const recBg = isUrgent ? "#FEF2F2" : isDentist ? "#EEF2FF" : "#F0FDF4";
+                  const recColor = isUrgent ? "#EF4444" : isDentist ? "#157A6E" : "#10B981";
+                  const recBg = isUrgent ? "#FEF2F2" : isDentist ? "#ECFDF5" : "#F0FDF4";
                   const recIcon = isUrgent ? "alert-circle" : isDentist ? "calendar" : "check-circle";
 
                   return (
@@ -1281,9 +1296,9 @@ export default function ScanScreen() {
               onPress={() => navigation.navigate("Dentists")}
               activeOpacity={0.8}
             >
-              <Feather name="calendar" size={16} color="#4F46E5" />
+              <Feather name="calendar" size={16} color="#157A6E" />
               <Text style={s.dentistBtnText}>Book a Dentist Appointment</Text>
-              <Feather name="arrow-right" size={14} color="#4F46E5" />
+              <Feather name="arrow-right" size={14} color="#157A6E" />
             </TouchableOpacity>
           </Animated.View>
         )}
@@ -1771,7 +1786,7 @@ const s = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: "#EEF2FF",
+    backgroundColor: "#ECFDF5",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1796,7 +1811,7 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   recText: { fontSize: 14, color: "#1E293B", fontWeight: "600", lineHeight: 20 },
-  recAction: { fontSize: 12, color: "#4F46E5", fontWeight: "600", marginTop: 4 },
+  recAction: { fontSize: 12, color: "#157A6E", fontWeight: "600", marginTop: 4 },
 
   // ── Auto-saved ──
   autoSavedBanner: {
@@ -1870,11 +1885,11 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#EEF2FF",
+    backgroundColor: "#ECFDF5",
     paddingVertical: 16,
     borderRadius: 16,
     borderWidth: 1.5,
-    borderColor: "#C7D2FE",
+    borderColor: "#86F1D4",
   },
-  dentistBtnText: { fontSize: 14, fontWeight: "700", color: "#4F46E5" },
+  dentistBtnText: { fontSize: 14, fontWeight: "700", color: "#157A6E" },
 });
