@@ -969,34 +969,9 @@ export default function ScanScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
-
-              {/* Demo Mode Toggle */}
-              <TouchableOpacity
-                onPress={() => setDemoMode(!demoMode)}
-                style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12 }}
-                activeOpacity={0.8}
-              >
-                <View
-                  style={{
-                    width: 16,
-                    height: 16,
-                    borderRadius: 4,
-                    borderWidth: 2,
-                    borderColor: "#157A6E",
-                    backgroundColor: demoMode ? "#157A6E" : "transparent",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  {demoMode && <Feather name="check" size={12} color="#FFF" />}
-                </View>
-                <Text style={{ fontSize: 12, color: "#64748B", fontWeight: "600" }}>
-                  Demo Mode: Force High Risk Caries
-                </Text>
-              </TouchableOpacity>
-            </div>
-          )}
-        </View>
+            )}
+          </View>
+        )}
 
         {/* Tips */}
         {!imageUri && (
