@@ -58,7 +58,7 @@ export default function LoginScreen() {
       } else if (data?.session) {
         // Fetch actual role from user metadata
         let role = data.session.user.user_metadata?.role;
-        
+
         // --- AUTO-ROUTING FOR TESTING ---
         const userEmail = email.toLowerCase();
         if (userEmail.includes("doctor") || userEmail.includes("doc")) {
@@ -68,7 +68,7 @@ export default function LoginScreen() {
         } else if (userEmail.includes("patient")) {
           role = "patient";
         }
-        
+
         // Fallback
         if (!role) {
           role = "patient";
@@ -76,7 +76,7 @@ export default function LoginScreen() {
         // --------------------------------
 
         await AsyncStorage.setItem("userRole", role);
-        
+
         if (role === "admin") navigation.navigate("AdminDashboard");
         else if (role === "doctor") navigation.navigate("DoctorDashboard");
         else navigation.navigate("Dashboard");
@@ -130,7 +130,9 @@ export default function LoginScreen() {
             style={{ alignSelf: "flex-end", marginTop: -8, marginBottom: 16 }}
             onPress={() => navigation.navigate("ForgotPassword")}
           >
-            <Text style={{ color: "#64748B", fontWeight: "500", fontSize: 14 }}>Forgot Password?</Text>
+            <Text style={{ color: "#64748B", fontWeight: "500", fontSize: 14 }}>
+              Forgot Password?
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>

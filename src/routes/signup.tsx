@@ -25,7 +25,7 @@ export default function SignupScreen() {
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  
+
   // Role specific state
   const [role, setRole] = useState("patient");
   const [specialization, setSpecialization] = useState("");
@@ -33,7 +33,7 @@ export default function SignupScreen() {
   const [adminCode, setAdminCode] = useState("");
 
   React.useEffect(() => {
-    AsyncStorage.getItem("selectedSignupRole").then(r => {
+    AsyncStorage.getItem("selectedSignupRole").then((r) => {
       if (r) setRole(r);
     });
   }, []);
@@ -54,12 +54,12 @@ export default function SignupScreen() {
       setErrorMessage("Password must be at least 6 characters");
       return;
     }
-    
+
     if (role === "doctor" && (!specialization || !licenseNumber)) {
       setErrorMessage("Please fill in your medical credentials");
       return;
     }
-    
+
     if (role === "admin" && adminCode !== "ADMIN2026") {
       setErrorMessage("Invalid Admin Registration Code");
       return;
@@ -89,14 +89,11 @@ export default function SignupScreen() {
     } else {
       console.log("Signup successful:", data);
       Keyboard.dismiss();
-      
+
       // Save role so auto-login routes correctly
       await AsyncStorage.setItem("userRole", role);
 
-      Alert.alert(
-        "Success",
-        "Registration successful! You can now log in to access your portal.",
-      );
+      Alert.alert("Success", "Registration successful! You can now log in to access your portal.");
       navigation.navigate("Login");
     }
   };
@@ -106,7 +103,11 @@ export default function SignupScreen() {
       <View style={{ flex: 1 }}>
         <View style={styles.container}>
           <Text style={styles.title}>
-            {role === "doctor" ? "Doctor Registration" : role === "admin" ? "Admin Registration" : "Create Account"}
+            {role === "doctor"
+              ? "Doctor Registration"
+              : role === "admin"
+                ? "Admin Registration"
+                : "Create Account"}
           </Text>
 
           {errorMessage ? (

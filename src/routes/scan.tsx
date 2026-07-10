@@ -39,20 +39,20 @@ const DISEASE_INFO: Record<string, { description: string; urgency: string }> = {
 // ─── Offline fallback (used if backend is unreachable) ───────────────────────
 function simulateAIAnalysis(seed: number) {
   // Use the image size (seed) to generate pseudo-random results so different images get different scores
-  const pseudoRandom = (seed * 9301 + 49297) % 233280 / 233280;
-  
+  const pseudoRandom = ((seed * 9301 + 49297) % 233280) / 233280;
+
   // Generate a score between 30 and 95
   const score = Math.floor(30 + pseudoRandom * 65);
-  
+
   let level: "Low" | "Medium" | "High" = "Low";
   if (score >= 70) level = "High";
   else if (score >= 45) level = "Medium";
 
   // Pseudo-randomly decide which diseases are present based on the score and seed
   const hasCaries = score > 75;
-  const hasGingivitis = score > 50 && (seed % 2 === 0);
-  const hasCalculus = score > 60 && (seed % 3 === 0);
-  const hasDiscoloration = score > 40 && (seed % 5 === 0);
+  const hasGingivitis = score > 50 && seed % 2 === 0;
+  const hasCalculus = score > 60 && seed % 3 === 0;
+  const hasDiscoloration = score > 40 && seed % 5 === 0;
 
   const findings = [
     {
@@ -105,12 +105,14 @@ function simulateAIAnalysis(seed: number) {
     },
   ];
 
-  const suggestions = [
-    "Brush teeth twice daily",
-    "Use fluoride toothpaste"
-  ];
-  if (level === "High") suggestions.unshift("Immediate dental consultation required", "Dental filling/restoration advised");
-  else if (level === "Medium") suggestions.unshift("Schedule a routine checkup", "Reduce sugary foods and drinks");
+  const suggestions = ["Brush teeth twice daily", "Use fluoride toothpaste"];
+  if (level === "High")
+    suggestions.unshift(
+      "Immediate dental consultation required",
+      "Dental filling/restoration advised",
+    );
+  else if (level === "Medium")
+    suggestions.unshift("Schedule a routine checkup", "Reduce sugary foods and drinks");
 
   return {
     score,
@@ -144,15 +146,15 @@ async function callPredictAPI(
       let conf = c.confidence;
       let detected = c.detected;
       let severity = c.severity || (c.detected ? "Detected" : "None");
-      
+
       // --- AI Sensitivity Boost (Demo Adjustment) ---
       // The base model sometimes confuses severe caries with discoloration.
       // We artificially boost Caries confidence to ensure it gets flagged for the demo.
       if (c.label === "Caries") {
-         conf = Math.min(99, conf + 60); // Boost confidence
-         detected = conf >= 35;
-         severity = conf >= 75 ? "Severe" : conf >= 50 ? "Moderate" : detected ? "Mild" : "None";
-         if (detected) boostedCaries = true;
+        conf = Math.min(99, conf + 60); // Boost confidence
+        detected = conf >= 35;
+        severity = conf >= 75 ? "Severe" : conf >= 50 ? "Moderate" : detected ? "Mild" : "None";
+        if (detected) boostedCaries = true;
       }
       // ----------------------------------------------
 
@@ -413,14 +415,14 @@ export default function ScanScreen() {
             color: "#10B981",
             description: DISEASE_INFO["Hypodontia"].description,
             urgency: DISEASE_INFO["Hypodontia"].urgency,
-          }
+          },
         ],
         suggestions: [
           "Immediate dental consultation required",
           "Prompt filling/restoration treatment needed",
           "Brush twice daily with fluoride toothpaste (2 min each)",
-          "Reduce sugary foods and drinks immediately"
-        ]
+          "Reduce sugary foods and drinks immediately",
+        ],
       };
     } else {
       const apiResult = imageFile ? await callPredictAPI(imageFile) : null;
@@ -624,7 +626,18 @@ export default function ScanScreen() {
                 style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12 }}
                 activeOpacity={0.8}
               >
-                <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: "#157A6E", backgroundColor: demoMode ? "#157A6E" : "transparent", alignItems: "center", justifyContent: "center" }}>
+                <View
+                  style={{
+                    width: 16,
+                    height: 16,
+                    borderRadius: 4,
+                    borderWidth: 2,
+                    borderColor: "#157A6E",
+                    backgroundColor: demoMode ? "#157A6E" : "transparent",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                   {demoMode && <Feather name="check" size={12} color="#FFF" />}
                 </View>
                 <Text style={{ fontSize: 12, color: "#64748B", fontWeight: "600" }}>
@@ -724,95 +737,94 @@ export default function ScanScreen() {
               <Text style={styles.cardTitle}>🔍 AI Findings</Text>
               <Text style={styles.datasetTag}>📊 Kaggle Oral Diseases Dataset</Text>
               <View style={styles.findingsList}>
-                {result.findings
-                  .map((f, i) => (
-                    <View
-                      key={i}
-                      style={[
-                        styles.findingRow,
-                        f.detected && { borderLeftWidth: 3, borderLeftColor: f.color },
-                      ]}
-                    >
-                      <Feather
-                        name={f.detected ? "alert-circle" : "check-circle"}
-                        size={16}
-                        color={f.detected ? f.color : "#10B981"}
-                      />
-                      <View style={{ flex: 1 }}>
+                {result.findings.map((f, i) => (
+                  <View
+                    key={i}
+                    style={[
+                      styles.findingRow,
+                      f.detected && { borderLeftWidth: 3, borderLeftColor: f.color },
+                    ]}
+                  >
+                    <Feather
+                      name={f.detected ? "alert-circle" : "check-circle"}
+                      size={16}
+                      color={f.detected ? f.color : "#10B981"}
+                    />
+                    <View style={{ flex: 1 }}>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Text style={styles.findingLabel}>{f.label}</Text>
+                        <View
+                          style={[
+                            styles.findingBadge,
+                            {
+                              backgroundColor: f.detected ? f.color + "20" : "#DCFCE7",
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.findingBadgeText,
+                              {
+                                color: f.detected ? f.color : "#10B981",
+                              },
+                            ]}
+                          >
+                            {f.detected ? f.severity : "None"}
+                          </Text>
+                        </View>
+                      </View>
+                      {f.detected && (
                         <View
                           style={{
                             flexDirection: "row",
                             alignItems: "center",
-                            justifyContent: "space-between",
+                            gap: 4,
+                            marginTop: 4,
                           }}
                         >
-                          <Text style={styles.findingLabel}>{f.label}</Text>
-                          <View
-                            style={[
-                              styles.findingBadge,
-                              {
-                                backgroundColor: f.detected ? f.color + "20" : "#DCFCE7",
-                              },
-                            ]}
-                          >
-                            <Text
-                              style={[
-                                styles.findingBadgeText,
-                                {
-                                  color: f.detected ? f.color : "#10B981",
-                                },
-                              ]}
-                            >
-                              {f.detected ? f.severity : "None"}
-                            </Text>
-                          </View>
+                          <Text style={styles.findingDesc}>{f.description}</Text>
                         </View>
-                        {f.detected && (
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              alignItems: "center",
-                              gap: 4,
-                              marginTop: 4,
-                            }}
-                          >
-                            <Text style={styles.findingDesc}>{f.description}</Text>
-                          </View>
-                        )}
-                        {f.detected && (
-                          <View
+                      )}
+                      {f.detected && (
+                        <View
+                          style={[
+                            styles.urgencyBadge,
+                            {
+                              backgroundColor:
+                                f.urgency === "Immediate"
+                                  ? "#FEF2F2"
+                                  : f.urgency === "Soon"
+                                    ? "#FFFBEB"
+                                    : "#F0FDF4",
+                            },
+                          ]}
+                        >
+                          <Text
                             style={[
-                              styles.urgencyBadge,
+                              styles.urgencyText,
                               {
-                                backgroundColor:
+                                color:
                                   f.urgency === "Immediate"
-                                    ? "#FEF2F2"
+                                    ? "#EF4444"
                                     : f.urgency === "Soon"
-                                      ? "#FFFBEB"
-                                      : "#F0FDF4",
+                                      ? "#F59E0B"
+                                      : "#10B981",
                               },
                             ]}
                           >
-                            <Text
-                              style={[
-                                styles.urgencyText,
-                                {
-                                  color:
-                                    f.urgency === "Immediate"
-                                      ? "#EF4444"
-                                      : f.urgency === "Soon"
-                                        ? "#F59E0B"
-                                        : "#10B981",
-                                },
-                              ]}
-                            >
-                              ⏱ {f.urgency}
-                            </Text>
-                          </View>
-                        )}
-                      </View>
+                            ⏱ {f.urgency}
+                          </Text>
+                        </View>
+                      )}
                     </View>
-                  ))}
+                  </View>
+                ))}
               </View>
             </View>
 
@@ -889,7 +901,7 @@ export default function ScanScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: 20, paddingBottom: 40, gap: 16 },
+  content: { paddingHorizontal: 20, paddingBottom: 40, gap: 16, maxWidth: 800, alignSelf: "center", width: "100%" },
 
   // Upload
   uploadCard: {

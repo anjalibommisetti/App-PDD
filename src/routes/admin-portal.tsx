@@ -15,7 +15,7 @@ import {
   UserPlus,
   UserCheck,
   UserX,
-  FileText
+  FileText,
 } from "lucide-react";
 import { useNavigation } from "@react-navigation/native";
 import { Platform, View, ScrollView } from "react-native";
@@ -36,11 +36,19 @@ export default function AdminPortal() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (session?.user) {
-        let name = session.user.user_metadata?.full_name || session.user.email?.split("@")[0] || "Admin";
+        let name =
+          session.user.user_metadata?.full_name || session.user.email?.split("@")[0] || "Admin";
         setUserName(name);
-        const init = name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
+        const init = name
+          .split(" ")
+          .map((n: string) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2);
         setInitials(init);
       }
     };
@@ -71,7 +79,13 @@ export default function AdminPortal() {
   const MOCK_USERS = [
     { id: "1", name: "Dr. Sarah Smith", role: "Doctor", status: "Active", joined: "May 10, 2026" },
     { id: "2", name: "Emily Chen", role: "Patient", status: "Active", joined: "May 12, 2026" },
-    { id: "3", name: "Dr. Michael Jones", role: "Doctor", status: "Pending Approval", joined: "May 14, 2026" },
+    {
+      id: "3",
+      name: "Dr. Michael Jones",
+      role: "Doctor",
+      status: "Pending Approval",
+      joined: "May 14, 2026",
+    },
     { id: "4", name: "John Doe", role: "Patient", status: "Active", joined: "May 15, 2026" },
   ];
 
@@ -90,7 +104,9 @@ export default function AdminPortal() {
                 <div className="bg-purple-600 p-1.5 rounded-lg">
                   <ShieldCheck className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-bold text-lg text-slate-900 dark:text-white">Admin Portal</span>
+                <span className="font-bold text-lg text-slate-900 dark:text-white">
+                  Admin Portal
+                </span>
               </div>
             )}
             <button
@@ -114,7 +130,9 @@ export default function AdminPortal() {
                       : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                   }`}
                 >
-                  <tab.icon className={`w-5 h-5 ${isActive ? "text-purple-600" : "text-slate-400"}`} />
+                  <tab.icon
+                    className={`w-5 h-5 ${isActive ? "text-purple-600" : "text-slate-400"}`}
+                  />
                   {sidebarOpen && <span>{tab.label}</span>}
                 </button>
               );
@@ -166,12 +184,16 @@ export default function AdminPortal() {
           {/* Dynamic View Content */}
           <div className="flex-1 overflow-y-auto p-8">
             {activeTab === "Dashboard" && (
-              <div className="space-y-6 max-w-7xl mx-auto pb-10">
+              <div className="space-y-6 w-full max-w-[1600px] mx-auto pb-10">
                 {/* Enterprise Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                   <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Enterprise Overview</h1>
-                    <p className="text-slate-500 dark:text-slate-400">System metrics, security, and platform analytics.</p>
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+                      Enterprise Overview
+                    </h1>
+                    <p className="text-slate-500 dark:text-slate-400">
+                      System metrics, security, and platform analytics.
+                    </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="bg-slate-900 border border-purple-500/30 px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm shadow-purple-900/20">
@@ -184,16 +206,45 @@ export default function AdminPortal() {
                 {/* Dark Purple Stat Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   {[
-                    { label: "Total Users", value: "24,892", icon: Users, color: "text-purple-400", bg: "bg-purple-900/30" },
-                    { label: "Active Doctors", value: "450", icon: UserCheck, color: "text-blue-400", bg: "bg-blue-900/30" },
-                    { label: "Total Predictions", value: "148,291", icon: Activity, color: "text-pink-400", bg: "bg-pink-900/30" },
-                    { label: "System Health", value: "99.99%", icon: CheckCircle, color: "text-emerald-400", bg: "bg-emerald-900/30" },
+                    {
+                      label: "Total Users",
+                      value: "24,892",
+                      icon: Users,
+                      color: "text-purple-400",
+                      bg: "bg-purple-900/30",
+                    },
+                    {
+                      label: "Active Doctors",
+                      value: "450",
+                      icon: UserCheck,
+                      color: "text-blue-400",
+                      bg: "bg-blue-900/30",
+                    },
+                    {
+                      label: "Total Predictions",
+                      value: "148,291",
+                      icon: Activity,
+                      color: "text-pink-400",
+                      bg: "bg-pink-900/30",
+                    },
+                    {
+                      label: "System Health",
+                      value: "99.99%",
+                      icon: CheckCircle,
+                      color: "text-emerald-400",
+                      bg: "bg-emerald-900/30",
+                    },
                   ].map((stat, i) => (
-                    <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
+                    <div
+                      key={i}
+                      className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group"
+                    >
                       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-600/10 to-transparent rounded-full -translate-y-16 translate-x-16 group-hover:scale-110 transition-transform"></div>
                       <div className="flex justify-between items-start relative z-10">
                         <div>
-                          <p className="text-slate-400 text-sm font-medium mb-1 uppercase tracking-wider">{stat.label}</p>
+                          <p className="text-slate-400 text-sm font-medium mb-1 uppercase tracking-wider">
+                            {stat.label}
+                          </p>
                           <h3 className="text-3xl font-bold text-white">{stat.value}</h3>
                         </div>
                         <div className={`p-3 rounded-xl border border-slate-700/50 ${stat.bg}`}>
@@ -208,24 +259,33 @@ export default function AdminPortal() {
                   {/* Server load / Analytics fake chart */}
                   <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
                     <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                      <BarChart2 className="w-5 h-5 text-purple-400" /> Platform Analytics & Server Load
+                      <BarChart2 className="w-5 h-5 text-purple-400" /> Platform Analytics & Server
+                      Load
                     </h3>
                     <div className="h-64 flex items-end gap-2 justify-between px-4">
                       {/* Generates a fake bar chart */}
                       {[40, 70, 45, 90, 65, 85, 40, 55, 75, 50, 80, 60].map((h, i) => (
-                        <div key={i} className="w-full bg-purple-900/20 rounded-t-sm relative group">
-                          <div 
-                            className="absolute bottom-0 w-full bg-gradient-to-t from-purple-600 to-purple-400 rounded-t-sm transition-all duration-1000 group-hover:opacity-80" 
+                        <div
+                          key={i}
+                          className="w-full bg-purple-900/20 rounded-t-sm relative group"
+                        >
+                          <div
+                            className="absolute bottom-0 w-full bg-gradient-to-t from-purple-600 to-purple-400 rounded-t-sm transition-all duration-1000 group-hover:opacity-80"
                             style={{ height: `${h}%` }}
                           ></div>
                         </div>
                       ))}
                     </div>
                     <div className="flex justify-between mt-4 text-xs text-slate-500 px-4">
-                      <span>12 AM</span><span>4 AM</span><span>8 AM</span><span>12 PM</span><span>4 PM</span><span>8 PM</span>
+                      <span>12 AM</span>
+                      <span>4 AM</span>
+                      <span>8 AM</span>
+                      <span>12 PM</span>
+                      <span>4 PM</span>
+                      <span>8 PM</span>
                     </div>
                   </div>
-                  
+
                   {/* Database Health & Security */}
                   <div className="space-y-6">
                     <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
@@ -234,16 +294,28 @@ export default function AdminPortal() {
                       </h3>
                       <div className="space-y-4">
                         <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
-                          <span className="text-sm text-slate-300 font-medium">PostgreSQL Cluster</span>
-                          <span className="text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded text-xs font-bold border border-emerald-800/50">Optimal</span>
+                          <span className="text-sm text-slate-300 font-medium">
+                            PostgreSQL Cluster
+                          </span>
+                          <span className="text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded text-xs font-bold border border-emerald-800/50">
+                            Optimal
+                          </span>
                         </div>
                         <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
-                          <span className="text-sm text-slate-300 font-medium">Supabase Auth Node</span>
-                          <span className="text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded text-xs font-bold border border-emerald-800/50">Optimal</span>
+                          <span className="text-sm text-slate-300 font-medium">
+                            Supabase Auth Node
+                          </span>
+                          <span className="text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded text-xs font-bold border border-emerald-800/50">
+                            Optimal
+                          </span>
                         </div>
                         <div className="flex justify-between items-center p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
-                          <span className="text-sm text-slate-300 font-medium">AI Endpoint (Render)</span>
-                          <span className="text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded text-xs font-bold border border-emerald-800/50">Optimal</span>
+                          <span className="text-sm text-slate-300 font-medium">
+                            AI Endpoint (Render)
+                          </span>
+                          <span className="text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded text-xs font-bold border border-emerald-800/50">
+                            Optimal
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -256,7 +328,10 @@ export default function AdminPortal() {
                         <ShieldCheck className="w-8 h-8 text-amber-400 shrink-0" />
                         <div>
                           <p className="text-sm font-bold text-amber-400">Zero Threats Detected</p>
-                          <p className="text-xs text-slate-400 mt-1">All encryption protocols are active. Firewall blocking 14 unauthorized attempts/hr.</p>
+                          <p className="text-xs text-slate-400 mt-1">
+                            All encryption protocols are active. Firewall blocking 14 unauthorized
+                            attempts/hr.
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -274,25 +349,65 @@ export default function AdminPortal() {
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr className="bg-slate-950 border-b border-slate-800">
-                          <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Timestamp</th>
-                          <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Event</th>
-                          <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">User / IP</th>
-                          <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
+                          <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                            Timestamp
+                          </th>
+                          <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                            Event
+                          </th>
+                          <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                            User / IP
+                          </th>
+                          <th className="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                            Status
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-800/50">
                         {[
-                          { time: "Just now", event: "Admin Login Successful", user: "Admin (192.168.1.1)", status: "Success", color: "emerald" },
-                          { time: "2 mins ago", event: "New Patient Registered", user: "prathyusha@demo.com", status: "Success", color: "emerald" },
-                          { time: "15 mins ago", event: "AI Prediction Generated", user: "System", status: "Success", color: "emerald" },
-                          { time: "1 hour ago", event: "Failed Login Attempt", user: "Unknown (104.28.x.x)", status: "Blocked", color: "red" },
+                          {
+                            time: "Just now",
+                            event: "Admin Login Successful",
+                            user: "Admin (192.168.1.1)",
+                            status: "Success",
+                            color: "emerald",
+                          },
+                          {
+                            time: "2 mins ago",
+                            event: "New Patient Registered",
+                            user: "prathyusha@demo.com",
+                            status: "Success",
+                            color: "emerald",
+                          },
+                          {
+                            time: "15 mins ago",
+                            event: "AI Prediction Generated",
+                            user: "System",
+                            status: "Success",
+                            color: "emerald",
+                          },
+                          {
+                            time: "1 hour ago",
+                            event: "Failed Login Attempt",
+                            user: "Unknown (104.28.x.x)",
+                            status: "Blocked",
+                            color: "red",
+                          },
                         ].map((log, i) => (
                           <tr key={i} className="hover:bg-slate-800/30 transition-colors">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{log.time}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-300">{log.event}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">{log.user}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                              {log.time}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-300">
+                              {log.event}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
+                              {log.user}
+                            </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`px-2 py-1 inline-flex text-xs font-semibold rounded-md border border-${log.color}-800/50 bg-${log.color}-900/20 text-${log.color}-400`}>
+                              <span
+                                className={`px-2 py-1 inline-flex text-xs font-semibold rounded-md border border-${log.color}-800/50 bg-${log.color}-900/20 text-${log.color}-400`}
+                              >
                                 {log.status}
                               </span>
                             </td>
@@ -302,16 +417,20 @@ export default function AdminPortal() {
                     </table>
                   </div>
                 </div>
-
               </div>
             )}
 
             {(activeTab === "ManageUsers" || activeTab === "ManageDoctors") && (
-              <div className="space-y-6 max-w-6xl mx-auto">
+              <div className="space-y-6 w-full max-w-[1600px] mx-auto">
                 <div className="flex justify-between items-center mb-6">
                   <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">{activeTab === "ManageUsers" ? "Manage Users" : "Manage Doctors"}</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Manage {activeTab === "ManageUsers" ? "Patients" : "Doctors"} and Access Controls.</p>
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+                      {activeTab === "ManageUsers" ? "Manage Users" : "Manage Doctors"}
+                    </h1>
+                    <p className="text-slate-500 dark:text-slate-400">
+                      Manage {activeTab === "ManageUsers" ? "Patients" : "Doctors"} and Access
+                      Controls.
+                    </p>
                   </div>
                   <button className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700">
                     <UserPlus className="w-4 h-4" /> Add User
@@ -322,40 +441,71 @@ export default function AdminPortal() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                        <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">Name</th>
-                        <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">Role</th>
-                        <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">Joined</th>
-                        <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">Status</th>
-                        <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">Action</th>
+                        <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                          Name
+                        </th>
+                        <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                          Role
+                        </th>
+                        <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                          Joined
+                        </th>
+                        <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                          Status
+                        </th>
+                        <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                          Action
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {MOCK_USERS.map((user) => (
-                        <tr key={user.id} className="border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                          <td className="p-4 text-slate-900 dark:text-white font-medium">{user.name}</td>
+                        <tr
+                          key={user.id}
+                          className="border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                        >
+                          <td className="p-4 text-slate-900 dark:text-white font-medium">
+                            {user.name}
+                          </td>
                           <td className="p-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                              user.role === 'Doctor' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
-                            }`}>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                user.role === "Doctor"
+                                  ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                                  : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
+                              }`}
+                            >
                               {user.role}
                             </span>
                           </td>
-                          <td className="p-4 text-slate-500 dark:text-slate-400 text-sm">{user.joined}</td>
+                          <td className="p-4 text-slate-500 dark:text-slate-400 text-sm">
+                            {user.joined}
+                          </td>
                           <td className="p-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                              user.status === 'Active' ? 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'
-                            }`}>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                user.status === "Active"
+                                  ? "bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+                                  : "bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400"
+                              }`}
+                            >
                               {user.status}
                             </span>
                           </td>
                           <td className="p-4">
                             {user.status === "Pending Approval" ? (
                               <div className="flex gap-2">
-                                <button className="p-1.5 bg-green-50 text-green-600 rounded hover:bg-green-100"><UserCheck className="w-4 h-4" /></button>
-                                <button className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100"><UserX className="w-4 h-4" /></button>
+                                <button className="p-1.5 bg-green-50 text-green-600 rounded hover:bg-green-100">
+                                  <UserCheck className="w-4 h-4" />
+                                </button>
+                                <button className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100">
+                                  <UserX className="w-4 h-4" />
+                                </button>
                               </div>
                             ) : (
-                              <button className="text-purple-600 text-sm font-semibold hover:underline">Edit Access</button>
+                              <button className="text-purple-600 text-sm font-semibold hover:underline">
+                                Edit Access
+                              </button>
                             )}
                           </td>
                         </tr>

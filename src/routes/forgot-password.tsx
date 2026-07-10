@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+} from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { supabase } from "../lib/supabase";
@@ -83,7 +91,7 @@ export default function ForgotPasswordScreen() {
       type: "recovery",
     });
     setLoading(false);
-    
+
     if (error) {
       setErrorMsg(error.message);
     } else if (data?.session) {
@@ -126,16 +134,16 @@ export default function ForgotPasswordScreen() {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft className="w-6 h-6 text-slate-500" />
         </TouchableOpacity>
-        
+
         <Text style={styles.title}>
           {step === 1 ? "Reset Password" : step === 2 ? "Verify OTP" : "New Password"}
         </Text>
         <Text style={styles.subtitle}>
-          {step === 1 
+          {step === 1
             ? "Enter the email associated with your account and we'll send you an OTP."
             : step === 2
-            ? `Enter the 6-digit OTP sent to ${email}`
-            : "Enter your new password to secure your account."}
+              ? `Enter the 6-digit OTP sent to ${email}`
+              : "Enter your new password to secure your account."}
         </Text>
 
         {errorMsg ? (
@@ -161,7 +169,11 @@ export default function ForgotPasswordScreen() {
               onChangeText={setEmail}
             />
             <TouchableOpacity style={styles.button} onPress={handleSendOtp} disabled={loading}>
-              {loading ? <ActivityIndicator color="#0D4B42" /> : <Text style={styles.buttonText}>Send OTP</Text>}
+              {loading ? (
+                <ActivityIndicator color="#0D4B42" />
+              ) : (
+                <Text style={styles.buttonText}>Send OTP</Text>
+              )}
             </TouchableOpacity>
           </>
         )}
@@ -176,7 +188,11 @@ export default function ForgotPasswordScreen() {
               onChangeText={setOtp}
             />
             <TouchableOpacity style={styles.button} onPress={handleVerifyOtp} disabled={loading}>
-              {loading ? <ActivityIndicator color="#0D4B42" /> : <Text style={styles.buttonText}>Verify OTP</Text>}
+              {loading ? (
+                <ActivityIndicator color="#0D4B42" />
+              ) : (
+                <Text style={styles.buttonText}>Verify OTP</Text>
+              )}
             </TouchableOpacity>
 
             <View style={styles.resendContainer}>
@@ -186,7 +202,7 @@ export default function ForgotPasswordScreen() {
                 </TouchableOpacity>
               ) : (
                 <Text style={styles.timerText}>
-                  Resend OTP in {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}
+                  Resend OTP in {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, "0")}
                 </Text>
               )}
             </View>
@@ -209,8 +225,16 @@ export default function ForgotPasswordScreen() {
               value={confirmPassword}
               onChangeText={setConfirmPassword}
             />
-            <TouchableOpacity style={styles.button} onPress={handleResetPassword} disabled={loading}>
-              {loading ? <ActivityIndicator color="#0D4B42" /> : <Text style={styles.buttonText}>Update Password</Text>}
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleResetPassword}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#0D4B42" />
+              ) : (
+                <Text style={styles.buttonText}>Update Password</Text>
+              )}
             </TouchableOpacity>
           </>
         )}
@@ -227,7 +251,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 40,
     left: 20,
     padding: 8,
@@ -237,11 +261,11 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 8,
-    color: '#0f172a',
+    color: "#0f172a",
   },
   subtitle: {
     fontSize: 15,
-    color: '#64748b',
+    color: "#64748b",
     marginBottom: 24,
     lineHeight: 22,
   },
@@ -293,15 +317,15 @@ const styles = StyleSheet.create({
   },
   resendContainer: {
     marginTop: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
   resendText: {
-    color: '#0D4B42',
-    fontWeight: '600',
+    color: "#0D4B42",
+    fontWeight: "600",
     fontSize: 14,
   },
   timerText: {
-    color: '#64748b',
+    color: "#64748b",
     fontSize: 14,
   },
 });

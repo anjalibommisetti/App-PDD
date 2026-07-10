@@ -422,7 +422,7 @@ export default function AssessmentScreen() {
           recommendations,
           patientName: answers.q0 || "",
         });
-        
+
         setTimeout(() => {
           setSectionIndex(0);
           setAnswers({});
@@ -647,7 +647,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   progressFill: { height: "100%", backgroundColor: "#157A6E", borderRadius: 3 },
-  body: { paddingHorizontal: 20, paddingBottom: 30, gap: 20, paddingTop: 12 },
+  body: { paddingHorizontal: 20, paddingBottom: 30, gap: 20, paddingTop: 12, maxWidth: 800, alignSelf: "center", width: "100%" },
   questionBlock: {
     backgroundColor: "#FFFFFF",
     borderRadius: 20,

@@ -252,6 +252,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 40,
     gap: 16,
+    maxWidth: 800,
+    alignSelf: "center",
+    width: "100%",
   },
   patientRow: {
     flexDirection: "row",

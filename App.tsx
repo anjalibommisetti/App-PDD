@@ -15,11 +15,11 @@ import React from "react";
 // Disable native screens on web to prevent aria-hidden and focus warnings
 if (Platform.OS === "web") {
   enableScreens(false);
-  
+
   // Inject Tailwind CSS for web rendering
-  if (typeof document !== 'undefined') {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.tailwindcss.com';
+  if (typeof document !== "undefined") {
+    const script = document.createElement("script");
+    script.src = "https://cdn.tailwindcss.com";
     document.head.appendChild(script);
   }
 }
@@ -28,7 +28,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "./src/lib/supabase";
 import { useEffect, useState, useRef } from "react";
-import { createNavigationContainerRef } from '@react-navigation/native';
+import { createNavigationContainerRef } from "@react-navigation/native";
 
 // IndexScreen removed — app starts on Login
 import SignupScreen from "./src/routes/signup";
@@ -177,11 +177,11 @@ export default function App() {
         const {
           data: { session: currentSession },
         } = await supabase.auth.getSession();
-        
+
         if (currentSession) {
           const email = currentSession.user.email?.toLowerCase() || "";
           let role = currentSession.user.user_metadata?.role;
-          
+
           if (email.includes("doctor") || email.includes("doc")) {
             role = "doctor";
           } else if (email.includes("admin")) {
@@ -189,11 +189,11 @@ export default function App() {
           } else if (email.includes("patient")) {
             role = "patient";
           }
-          
+
           if (role === "admin") setInitialRoute("AdminDashboard");
           else if (role === "doctor") setInitialRoute("DoctorDashboard");
           else setInitialRoute("Dashboard");
-          
+
           setTimeout(() => {
             if (navigationRef.isReady()) {
               if (role === "admin") navigationRef.navigate("AdminDashboard");
@@ -209,7 +209,7 @@ export default function App() {
             }
           }, 200);
         }
-        
+
         // Set session AFTER initialRoute is determined so Navigator mounts correctly
         setSession(currentSession ?? null);
       } catch (err) {
@@ -238,7 +238,7 @@ export default function App() {
       } else if (newSession && !isRecovery) {
         const email = newSession.user.email?.toLowerCase() || "";
         let role = newSession.user.user_metadata?.role;
-        
+
         if (email.includes("doctor") || email.includes("doc")) {
           role = "doctor";
         } else if (email.includes("admin")) {
@@ -246,11 +246,11 @@ export default function App() {
         } else if (email.includes("patient")) {
           role = "patient";
         }
-        
+
         if (role === "admin") setInitialRoute("AdminDashboard");
         else if (role === "doctor") setInitialRoute("DoctorDashboard");
         else setInitialRoute("Dashboard");
-        
+
         // Force navigation to the correct route after React Navigation hot-swaps screens
         setTimeout(() => {
           if (navigationRef.isReady()) {
@@ -302,7 +302,13 @@ export default function App() {
   }
 
   return (
-    <View style={{ flex: 1, width: (Platform.OS === "web" ? "100vw" : "100%") as any, height: (Platform.OS === "web" ? "100vh" : "100%") as any }}>
+    <View
+      style={{
+        flex: 1,
+        width: (Platform.OS === "web" ? "100vw" : "100%") as any,
+        height: (Platform.OS === "web" ? "100vh" : "100%") as any,
+      }}
+    >
       <NavigationContainer ref={navigationRef}>
         <Stack.Navigator
           screenOptions={{
@@ -327,10 +333,10 @@ export default function App() {
               <Stack.Screen name="Analytics" component={AnalyticsDashboard} />
               <Stack.Screen name="DoctorDashboard" component={DoctorPortal} />
               <Stack.Screen name="AdminDashboard" component={AdminPortal} />
-              <Stack.Screen 
-                name="ForgotPassword" 
-                component={ForgotPasswordScreen} 
-                initialParams={{ step: isRecovery ? 3 : 1 }} 
+              <Stack.Screen
+                name="ForgotPassword"
+                component={ForgotPasswordScreen}
+                initialParams={{ step: isRecovery ? 3 : 1 }}
               />
             </>
           ) : (
@@ -340,10 +346,10 @@ export default function App() {
               <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Signup" component={SignupScreen} />
-              <Stack.Screen 
-                name="ForgotPassword" 
-                component={ForgotPasswordScreen} 
-                initialParams={{ step: isRecovery ? 3 : 1 }} 
+              <Stack.Screen
+                name="ForgotPassword"
+                component={ForgotPasswordScreen}
+                initialParams={{ step: isRecovery ? 3 : 1 }}
               />
             </>
           )}

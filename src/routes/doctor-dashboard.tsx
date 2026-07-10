@@ -9,7 +9,7 @@ import {
   FileText,
   ChevronRight,
   XCircle,
-  Clock
+  Clock,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "../lib/supabase";
@@ -98,9 +98,9 @@ function DoctorDashboard() {
 
   const generatePDF = () => {
     if (!selectedPatient) return;
-    
+
     // Create a simple printable window for the prescription
-    const printWindow = window.open('', '_blank');
+    const printWindow = window.open("", "_blank");
     if (printWindow) {
       printWindow.document.write(`
         <html>
@@ -123,7 +123,7 @@ function DoctorDashboard() {
             
             <div class="row">
               <div><strong>Patient Name:</strong> ${selectedPatient.name}</div>
-              <div><strong>Date:</strong> ${new Date().toLocaleDateString('en-IN')}</div>
+              <div><strong>Date:</strong> ${new Date().toLocaleDateString("en-IN")}</div>
             </div>
             <div class="row">
               <div><strong>AI Assessed Risk:</strong> ${selectedPatient.risk} (${selectedPatient.confidence}% Score)</div>
@@ -131,7 +131,7 @@ function DoctorDashboard() {
             
             <div class="prescription-box">
               <h3>Doctor's Prescription & Notes</h3>
-              <p>${prescriptionText.replace(/\n/g, '<br/>') || "No specific notes provided."}</p>
+              <p>${prescriptionText.replace(/\n/g, "<br/>") || "No specific notes provided."}</p>
             </div>
             
             <div class="footer">
@@ -151,18 +151,24 @@ function DoctorDashboard() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10 font-sans">
+    <div className="p-6 md:p-8 space-y-6 w-full max-w-[1600px] mx-auto pb-10 font-sans">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Doctor Dashboard</h1>
-          <p className="text-slate-500 dark:text-slate-400">Welcome back, Dr. Smith. Here is your daily overview.</p>
+          <p className="text-slate-500 dark:text-slate-400">
+            Welcome back, Dr. Smith. Here is your daily overview.
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="bg-white dark:bg-slate-900 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center gap-2 shadow-sm">
             <Clock className="w-4 h-4 text-slate-400" />
             <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+              {new Date().toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+              })}
             </span>
           </div>
           <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition-colors flex items-center gap-2">
@@ -174,10 +180,34 @@ function DoctorDashboard() {
       {/* Stats Cards (Dark Blue Theme) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { label: "Total Patients", value: "1,248", icon: Users, color: "text-blue-400", bg: "bg-blue-900/20" },
-          { label: "Pending Appointments", value: "12", icon: Clock, color: "text-amber-400", bg: "bg-amber-900/20" },
-          { label: "High-Risk Cases", value: "5", icon: AlertCircle, color: "text-red-400", bg: "bg-red-900/20" },
-          { label: "Predictions Reviewed", value: "48", icon: CheckCircle, color: "text-emerald-400", bg: "bg-emerald-900/20" },
+          {
+            label: "Total Patients",
+            value: "1,248",
+            icon: Users,
+            color: "text-blue-400",
+            bg: "bg-blue-900/20",
+          },
+          {
+            label: "Pending Appointments",
+            value: "12",
+            icon: Clock,
+            color: "text-amber-400",
+            bg: "bg-amber-900/20",
+          },
+          {
+            label: "High-Risk Cases",
+            value: "5",
+            icon: AlertCircle,
+            color: "text-red-400",
+            bg: "bg-red-900/20",
+          },
+          {
+            label: "Predictions Reviewed",
+            value: "48",
+            icon: CheckCircle,
+            color: "text-emerald-400",
+            bg: "bg-emerald-900/20",
+          },
         ].map((stat, i) => (
           <motion.div
             key={i}
@@ -196,7 +226,11 @@ function DoctorDashboard() {
                 <stat.icon className={`w-6 h-6 ${stat.color}`} />
               </div>
             </div>
-            {i === 2 && <div className="mt-4 text-xs font-medium text-red-400 flex items-center gap-1 relative z-10"><AlertCircle className="w-3 h-3"/> Action required immediately</div>}
+            {i === 2 && (
+              <div className="mt-4 text-xs font-medium text-red-400 flex items-center gap-1 relative z-10">
+                <AlertCircle className="w-3 h-3" /> Action required immediately
+              </div>
+            )}
           </motion.div>
         ))}
       </div>
@@ -204,7 +238,6 @@ function DoctorDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content Area */}
         <div className="lg:col-span-2 space-y-6">
-          
           {/* Prediction Review Panel */}
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col h-[600px]">
             <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex justify-between items-center">
@@ -239,11 +272,21 @@ function DoctorDashboard() {
               <table className="w-full text-left border-collapse">
                 <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900/95 backdrop-blur z-10 border-b border-slate-200 dark:border-slate-800">
                   <tr>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Patient Info</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Risk Level</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Confidence</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Action</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      Patient Info
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      Risk Level
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      Confidence
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">
+                      Action
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
@@ -258,45 +301,58 @@ function DoctorDashboard() {
                     </tr>
                   ) : filteredPatients.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-10 text-center text-slate-500">No patients found matching your criteria.</td>
+                      <td colSpan={5} className="px-6 py-10 text-center text-slate-500">
+                        No patients found matching your criteria.
+                      </td>
                     </tr>
                   ) : (
                     filteredPatients.map((patient) => (
-                      <tr key={patient.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group">
+                      <tr
+                        key={patient.id}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group"
+                      >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold mr-3">
                               {patient.name.substring(0, 2).toUpperCase()}
                             </div>
                             <div>
-                              <div className="font-semibold text-slate-900 dark:text-white">{patient.name}</div>
+                              <div className="font-semibold text-slate-900 dark:text-white">
+                                {patient.name}
+                              </div>
                               <div className="text-xs text-slate-500">{patient.lastVisit}</div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                          <span
+                            className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
                             ${patient.risk === "High" ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400" : ""}
                             ${patient.risk === "Medium" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400" : ""}
                             ${patient.risk === "Low" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400" : ""}
-                          `}>
+                          `}
+                          >
                             {patient.risk} Risk
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <div className="w-16 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full rounded-full ${patient.confidence > 80 ? 'bg-emerald-500' : 'bg-amber-500'}`} 
+                              <div
+                                className={`h-full rounded-full ${patient.confidence > 80 ? "bg-emerald-500" : "bg-amber-500"}`}
                                 style={{ width: `${patient.confidence}%` }}
                               ></div>
                             </div>
-                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{patient.confidence}%</span>
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                              {patient.confidence}%
+                            </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                            {patient.status === 'Pending Review' && <Clock className="w-3 h-3 text-amber-500"/>}
+                            {patient.status === "Pending Review" && (
+                              <Clock className="w-3 h-3 text-amber-500" />
+                            )}
                             {patient.status}
                           </span>
                         </td>
@@ -324,32 +380,75 @@ function DoctorDashboard() {
             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2 relative z-10">
               <Activity className="w-5 h-5 text-emerald-400" /> Disease Analytics
             </h3>
-            
+
             {/* Fake Donut Chart */}
             <div className="relative w-48 h-48 mx-auto mb-6 z-10">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="16" fill="none" className="stroke-slate-800" strokeWidth="4"></circle>
-                <circle cx="18" cy="18" r="16" fill="none" className="stroke-red-500" strokeWidth="4" strokeDasharray="20 100" strokeDashoffset="0"></circle>
-                <circle cx="18" cy="18" r="16" fill="none" className="stroke-amber-400" strokeWidth="4" strokeDasharray="30 100" strokeDashoffset="-20"></circle>
-                <circle cx="18" cy="18" r="16" fill="none" className="stroke-emerald-400" strokeWidth="4" strokeDasharray="50 100" strokeDashoffset="-50"></circle>
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="16"
+                  fill="none"
+                  className="stroke-slate-800"
+                  strokeWidth="4"
+                ></circle>
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="16"
+                  fill="none"
+                  className="stroke-red-500"
+                  strokeWidth="4"
+                  strokeDasharray="20 100"
+                  strokeDashoffset="0"
+                ></circle>
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="16"
+                  fill="none"
+                  className="stroke-amber-400"
+                  strokeWidth="4"
+                  strokeDasharray="30 100"
+                  strokeDashoffset="-20"
+                ></circle>
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="16"
+                  fill="none"
+                  className="stroke-emerald-400"
+                  strokeWidth="4"
+                  strokeDasharray="50 100"
+                  strokeDashoffset="-50"
+                ></circle>
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-3xl font-bold text-white">100%</span>
                 <span className="text-xs text-slate-400">Total Scans</span>
               </div>
             </div>
-            
+
             <div className="space-y-3 relative z-10">
               <div className="flex items-center justify-between text-sm bg-slate-800/50 p-2 rounded-lg border border-slate-700/50">
-                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-emerald-400"></div><span className="text-slate-300">Low Risk</span></div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-emerald-400"></div>
+                  <span className="text-slate-300">Low Risk</span>
+                </div>
                 <span className="font-bold text-white">50%</span>
               </div>
               <div className="flex items-center justify-between text-sm bg-slate-800/50 p-2 rounded-lg border border-slate-700/50">
-                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-amber-400"></div><span className="text-slate-300">Medium Risk</span></div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                  <span className="text-slate-300">Medium Risk</span>
+                </div>
                 <span className="font-bold text-white">30%</span>
               </div>
               <div className="flex items-center justify-between text-sm bg-slate-800/50 p-2 rounded-lg border border-slate-700/50">
-                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500"></div><span className="text-slate-300">High Risk</span></div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <span className="text-slate-300">High Risk</span>
+                </div>
                 <span className="font-bold text-white">20%</span>
               </div>
             </div>
@@ -365,14 +464,18 @@ function DoctorDashboard() {
                 <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-semibold text-red-400">Critical Patient Alert</p>
-                  <p className="text-xs text-slate-400 mt-1">John Doe's recent scan shows 98% probability of severe periodontitis.</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    John Doe's recent scan shows 98% probability of severe periodontitis.
+                  </p>
                 </div>
               </div>
               <div className="p-3 bg-blue-900/20 border border-blue-900/50 rounded-xl flex gap-3">
                 <Clock className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-semibold text-blue-400">Upcoming Appointment</p>
-                  <p className="text-xs text-slate-400 mt-1">Teleconsultation with Sarah Smith starts in 15 minutes.</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Teleconsultation with Sarah Smith starts in 15 minutes.
+                  </p>
                 </div>
               </div>
             </div>
@@ -383,14 +486,16 @@ function DoctorDashboard() {
       {/* Detail Modal */}
       {selectedPatient && (
         <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 dark:border-slate-700"
           >
             <div className="flex justify-between items-center p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Review Assessment</h2>
-              <button 
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                Review Assessment
+              </h2>
+              <button
                 onClick={() => setSelectedPatient(null)}
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
               >
@@ -402,15 +507,19 @@ function DoctorDashboard() {
               <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
                 <div>
                   <p className="text-sm text-slate-500">Patient</p>
-                  <p className="text-lg font-bold text-slate-900 dark:text-white">{selectedPatient.name}</p>
+                  <p className="text-lg font-bold text-slate-900 dark:text-white">
+                    {selectedPatient.name}
+                  </p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-slate-500">Risk Level</p>
-                  <span className={`px-3 py-1 inline-flex text-sm font-bold rounded-full mt-1
+                  <span
+                    className={`px-3 py-1 inline-flex text-sm font-bold rounded-full mt-1
                     ${selectedPatient.risk === "High" ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400" : ""}
                     ${selectedPatient.risk === "Medium" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400" : ""}
                     ${selectedPatient.risk === "Low" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400" : ""}
-                  `}>
+                  `}
+                  >
                     {selectedPatient.risk} Risk ({selectedPatient.confidence}%)
                   </span>
                 </div>
@@ -420,22 +529,36 @@ function DoctorDashboard() {
                 <h3 className="font-bold text-slate-900 dark:text-white mb-3">AI Findings</h3>
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
                   <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-                    Based on the patient's submitted questionnaire and historical data, the AI model predicts a {selectedPatient.risk.toLowerCase()} risk of dental complications. 
-                    {selectedPatient.risk === "High" && " Immediate clinical evaluation is recommended."}
+                    Based on the patient's submitted questionnaire and historical data, the AI model
+                    predicts a {selectedPatient.risk.toLowerCase()} risk of dental complications.
+                    {selectedPatient.risk === "High" &&
+                      " Immediate clinical evaluation is recommended."}
                   </p>
                 </div>
               </div>
 
               {/* Questionnaire Answers Preview */}
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-white mb-3">Questionnaire Highlights</h3>
+                <h3 className="font-bold text-slate-900 dark:text-white mb-3">
+                  Questionnaire Highlights
+                </h3>
                 <div className="space-y-2">
-                  {selectedPatient.answers && Object.entries(selectedPatient.answers).slice(0, 5).map(([key, value]: any) => (
-                    <div key={key} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-100 dark:border-slate-800">
-                      <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">{key}</span>
-                      <span className="text-sm font-bold text-slate-900 dark:text-white">{String(value)}</span>
-                    </div>
-                  ))}
+                  {selectedPatient.answers &&
+                    Object.entries(selectedPatient.answers)
+                      .slice(0, 5)
+                      .map(([key, value]: any) => (
+                        <div
+                          key={key}
+                          className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-100 dark:border-slate-800"
+                        >
+                          <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                            {key}
+                          </span>
+                          <span className="text-sm font-bold text-slate-900 dark:text-white">
+                            {String(value)}
+                          </span>
+                        </div>
+                      ))}
                   <button className="w-full text-center text-sm font-semibold text-blue-600 dark:text-blue-400 mt-2 hover:underline">
                     View Full Medical History & Questionnaire
                   </button>
@@ -450,9 +573,12 @@ function DoctorDashboard() {
                   <FileText className="w-5 h-5" />
                   {showPrescriptionModal ? "Cancel Prescription" : "Write Digital Prescription"}
                 </button>
-                
+
                 {showPrescriptionModal && (
-                  <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}}>
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                  >
                     <textarea
                       className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none mb-4"
                       rows={5}
@@ -466,22 +592,22 @@ function DoctorDashboard() {
             </div>
 
             <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex flex-col-reverse sm:flex-row justify-end gap-3">
-              <button 
+              <button
                 onClick={handleReject}
                 className="px-6 py-3 rounded-xl font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors w-full sm:w-auto text-center"
               >
                 Reject Analysis
               </button>
-              
+
               {showPrescriptionModal ? (
-                <button 
+                <button
                   onClick={generatePDF}
                   className="px-6 py-3 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
                 >
                   <FileText className="w-5 h-5" /> Generate PDF
                 </button>
               ) : (
-                <button 
+                <button
                   onClick={handleApprove}
                   className="px-6 py-3 rounded-xl font-semibold bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
                 >
