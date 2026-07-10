@@ -36,7 +36,7 @@ export default function ChatbotScreen() {
     setInput("");
     setLoading(true);
 
-    // Simulate AI response
+    // Generate response
     setTimeout(() => {
       let reply = "I'm sorry, I couldn't understand that. Could you please rephrase?";
       const lower = userMsg.text.toLowerCase();

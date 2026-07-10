@@ -142,9 +142,9 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
         </div>
         <button
           onClick={() => setActiveTab("Assessment")}
-          className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition-colors flex items-center gap-2"
+          className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-4 rounded-xl font-bold shadow-md transition-colors flex items-center gap-2 text-base sm:text-lg"
         >
-          <FileText className="w-5 h-5" /> Take Risk Assessment
+          <FileText className="w-5 h-5 sm:w-6 sm:h-6" /> Take Risk Assessment
         </button>
       </div>
 
@@ -175,12 +175,12 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Recent Activity */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-blue-500" /> Recent Predictions
+          <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+            <Activity className="w-6 h-6 text-blue-500" /> Recent Predictions
           </h3>
           <div className="space-y-4">
             {activities.length === 0 ? (
-              <p className="text-slate-500 text-sm">No recent activity.</p>
+              <p className="text-slate-500 text-base">No recent activity.</p>
             ) : (
               activities.map((act) => (
                 <div
@@ -200,7 +200,7 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
                       <p className="text-xs text-slate-500">{act.subtitle}</p>
                     </div>
                   </div>
-                  <span className="text-xs text-slate-400 font-medium">{act.time}</span>
+                  <span className="text-sm text-slate-400 font-medium">{act.time}</span>
                 </div>
               ))
             )}
@@ -209,8 +209,8 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
 
         {/* Reminders */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-            <Bell className="w-5 h-5 text-purple-500" /> Notifications & Reminders
+          <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+            <Bell className="w-6 h-6 text-purple-500" /> Notifications & Reminders
           </h3>
           <div className="space-y-4">
             <div className="flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/50 rounded-xl">
@@ -259,7 +259,7 @@ export default function PatientPortal() {
     { id: "History", label: "Predictions", icon: Activity },
     { id: "Appointments", label: "Appointments", icon: CalendarIcon },
     { id: "Report", label: "Reports", icon: FileText },
-    { id: "Chatbot", label: "AI Chatbot", icon: MessageCircle },
+    { id: "Chatbot", label: "Chat Assistant", icon: MessageCircle },
     { id: "Notifications", label: "Notifications", icon: Bell },
     { id: "Settings", label: "Settings", icon: Settings },
   ];
@@ -358,43 +358,45 @@ export default function PatientPortal() {
             {activeTab === "Dashboard" && <PatientDashboardMain setActiveTab={setActiveTab} />}
 
             {activeTab === "Assessment" && (
-              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+              <div className="flex-1 w-full h-full">
                 <AssessmentScreen />
               </div>
             )}
 
             {activeTab === "Scan" && (
-              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+              <div className="flex-1 w-full h-full">
                 <ScanScreen />
               </div>
             )}
 
             {activeTab === "History" && (
-              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+              <div className="flex-1 w-full h-full">
                 <HistoryScreen />
               </div>
             )}
 
             {activeTab === "Appointments" && (
-              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+              <div className="flex-1 w-full h-full">
                 <DentistsScreen />
               </div>
             )}
 
             {activeTab === "Report" && (
-              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+              <div className="flex-1 w-full h-full">
                 <ReportScreen />
               </div>
             )}
 
             {activeTab === "Chatbot" && (
-              <div className="flex-1 w-full h-[800px] overflow-hidden border border-slate-200 rounded-2xl shadow-sm">
-                <ChatbotScreen />
+              <div className="flex-1 w-full h-full p-4 md:p-8">
+                <div className="w-full h-full min-h-[600px] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                  <ChatbotScreen />
+                </div>
               </div>
             )}
 
             {activeTab === "Settings" && (
-              <div className="flex-1 w-full h-full min-h-[800px] overflow-hidden -m-4 md:-m-8">
+              <div className="flex-1 w-full h-full">
                 <ProfileScreen />
               </div>
             )}

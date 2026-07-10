@@ -22,12 +22,12 @@ import { View } from "react-native";
 
 // Mock Data
 const monthlyCasesData = [
-  { name: "Jan", "Early Childhood Caries": 400, Gingivitis: 240, Calculus: 150 },
-  { name: "Feb", "Early Childhood Caries": 300, Gingivitis: 139, Calculus: 220 },
-  { name: "Mar", "Early Childhood Caries": 200, Gingivitis: 980, Calculus: 229 },
-  { name: "Apr", "Early Childhood Caries": 278, Gingivitis: 390, Calculus: 200 },
-  { name: "May", "Early Childhood Caries": 189, Gingivitis: 480, Calculus: 218 },
-  { name: "Jun", "Early Childhood Caries": 239, Gingivitis: 380, Calculus: 250 },
+  { name: "Jan", "Dental Caries (Tooth Decay)": 400, Gingivitis: 240, "Calculus (Tartar Build-up)": 150 },
+  { name: "Feb", "Dental Caries (Tooth Decay)": 300, Gingivitis: 139, "Calculus (Tartar Build-up)": 220 },
+  { name: "Mar", "Dental Caries (Tooth Decay)": 200, Gingivitis: 980, "Calculus (Tartar Build-up)": 229 },
+  { name: "Apr", "Dental Caries (Tooth Decay)": 278, Gingivitis: 390, "Calculus (Tartar Build-up)": 200 },
+  { name: "May", "Dental Caries (Tooth Decay)": 189, Gingivitis: 480, "Calculus (Tartar Build-up)": 218 },
+  { name: "Jun", "Dental Caries (Tooth Decay)": 239, Gingivitis: 380, "Calculus (Tartar Build-up)": 250 },
 ];
 
 const riskDistributionData = [

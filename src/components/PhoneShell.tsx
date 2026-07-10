@@ -7,6 +7,7 @@ import {
   StatusBar,
   ScrollView,
   Dimensions,
+  useWindowDimensions,
 } from "react-native";
 import { BottomNav } from "./BottomNav";
 
@@ -16,11 +17,14 @@ interface PhoneShellProps {
 }
 
 export const PhoneShell = ({ children, showNav = true }: PhoneShellProps) => {
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === "web" && width >= 768;
+
   return (
     <View style={styles.root}>
       <SafeAreaView style={[styles.safeArea, Platform.OS === "web" && styles.webSafeArea]}>
         <View style={styles.container}>{children}</View>
-        {showNav && <BottomNav />}
+        {showNav && !isDesktop && <BottomNav />}
       </SafeAreaView>
     </View>
   );
@@ -31,7 +35,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Platform.OS === "web" ? "#E2E8F0" : "#F8FAFC",
     alignItems: "stretch",
-    height: Platform.OS === "web" ? Dimensions.get("window").height : undefined,
+    height: Platform.OS === "web" ? "100%" : undefined,
   },
   safeArea: {
     flex: 1,
@@ -42,7 +46,7 @@ const styles = StyleSheet.create({
   webSafeArea: {
     width: "100%",
     maxWidth: "100%", // Changed to 100% for full desktop layout
-    height: Platform.OS === "web" ? Dimensions.get("window").height : "100%", // Critical for web visibility
+    height: "100%", // Critical for web visibility
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,

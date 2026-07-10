@@ -38,13 +38,14 @@ function DoctorDashboard() {
 
       if (data) {
         // Map Supabase columns to our UI structure
-        const mappedData = data.map((item) => ({
+        const mappedData = data.map((item: any) => ({
           id: item.id,
           name: item.patient_name || "Unknown Patient",
+          phone: item.phone || "",
           age: "N/A", // Not currently stored in assessments table
           lastVisit: new Date(item.created_at).toLocaleDateString("en-IN"),
           risk: item.level || "Low",
-          aiDiagnosis: "AI Predicted Result",
+          aiDiagnosis: "Predicted Result",
           confidence: item.score || 0,
           status: item.status || "Pending Review",
           answers: item.answers,
@@ -58,7 +59,7 @@ function DoctorDashboard() {
     }
   };
 
-  const filteredPatients = patients.filter((p) => {
+  const filteredPatients = patients.filter((p: any) => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRisk = filterRisk === "All" || p.risk === filterRisk;
     return matchesSearch && matchesRisk;
@@ -105,7 +106,7 @@ function DoctorDashboard() {
       printWindow.document.write(`
         <html>
           <head>
-            <title>SmileGuard AI - Prescription</title>
+            <title>SmileGuard - Prescription</title>
             <style>
               body { font-family: system-ui, sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; }
               .header { text-align: center; border-bottom: 2px solid #86F1D4; padding-bottom: 20px; margin-bottom: 30px; }
@@ -117,7 +118,7 @@ function DoctorDashboard() {
           </head>
           <body>
             <div class="header">
-              <div class="logo">🦷 SmileGuard AI</div>
+              <div class="logo">🦷 SmileGuard</div>
               <p>Official Dental Prescription Report</p>
             </div>
             
@@ -126,7 +127,7 @@ function DoctorDashboard() {
               <div><strong>Date:</strong> ${new Date().toLocaleDateString("en-IN")}</div>
             </div>
             <div class="row">
-              <div><strong>AI Assessed Risk:</strong> ${selectedPatient.risk} (${selectedPatient.confidence}% Score)</div>
+              <div><strong>Assessed Risk:</strong> ${selectedPatient.risk} (${selectedPatient.confidence}% Score)</div>
             </div>
             
             <div class="prescription-box">
@@ -251,13 +252,13 @@ function DoctorDashboard() {
                     type="text"
                     placeholder="Search patients..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e: any) => setSearchTerm(e.target.value)}
                     className="pl-9 pr-4 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
                   />
                 </div>
                 <select
                   value={filterRisk}
-                  onChange={(e) => setFilterRisk(e.target.value)}
+                  onChange={(e: any) => setFilterRisk(e.target.value)}
                   className="px-4 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="All">All Risks</option>
@@ -292,7 +293,7 @@ function DoctorDashboard() {
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
                   {loading ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-10 text-center text-slate-500">
+                      <td colSpan={6} className="px-6 py-10 text-center text-slate-500">
                         <div className="flex flex-col items-center justify-center">
                           <Activity className="w-8 h-8 animate-spin text-blue-500 mb-2" />
                           <p>Loading records...</p>
@@ -355,6 +356,14 @@ function DoctorDashboard() {
                             )}
                             {patient.status}
                           </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                          <button
+                            onClick={() => handleCall(patient)}
+                            className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 font-medium text-sm flex items-center gap-1 justify-end w-full"
+                          >
+                            Call <Phone className="w-4 h-4" />
+                          </button>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right">
                           <button
@@ -526,7 +535,7 @@ function DoctorDashboard() {
               </div>
 
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-white mb-3">AI Findings</h3>
+                <h3 className="font-bold text-slate-900 dark:text-white mb-3">Diagnostic Findings</h3>
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
                   <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
                     Based on the patient's submitted questionnaire and historical data, the AI model
@@ -584,7 +593,7 @@ function DoctorDashboard() {
                       rows={5}
                       placeholder="Enter prescription details, medications, and clinical notes here. This will be exported as a PDF..."
                       value={prescriptionText}
-                      onChange={(e) => setPrescriptionText(e.target.value)}
+                      onChange={(e: any) => setPrescriptionText(e.target.value)}
                     />
                   </motion.div>
                 )}
@@ -620,6 +629,10 @@ function DoctorDashboard() {
       )}
     </div>
   );
+const handleCall = (patient: any) => {
+  window.open(`tel:${patient.phone || '+1234567890'}`);
+};
+
 }
 
 export default DoctorDashboard;

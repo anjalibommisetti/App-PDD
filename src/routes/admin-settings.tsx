@@ -81,10 +81,10 @@ export default function AdminSettings() {
           </div>
         </div>
 
-        {/* AI Model Settings */}
+        {/* Backend Settings */}
         <div className="p-6">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-            <Database className="w-5 h-5 text-emerald-500" /> AI Prediction Endpoint
+            <Database className="w-5 h-5 text-emerald-500" /> Prediction Endpoint
           </h3>
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
