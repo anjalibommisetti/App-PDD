@@ -57,7 +57,7 @@ function simulateAIAnalysis(seed: number) {
   // Generate a score between 30 and 95
   const score = Math.floor(30 + pseudoRandom * 65);
 
-  let level: "Low" | "Medium" | "High" = "Low";
+  let level: "Healthy" | "Minimal" | "Low" | "Medium" | "High" = "Low";
   if (score >= 70) level = "High";
   else if (score >= 45) level = "Medium";
 
@@ -134,7 +134,7 @@ function simulateAIAnalysis(seed: number) {
 
   return {
     score,
-    level,
+    level: level as "Healthy" | "Minimal" | "Low" | "Medium" | "High",
     findings,
     suggestions,
     predictedClass: hasCaries ? "Dental Caries (Tooth Decay)" : "Healthy",
@@ -193,7 +193,7 @@ async function runOfflineAnalysis(uri: string, seed: number): Promise<ReturnType
         let score = 33 + Math.floor(redRatio * 350) + Math.floor(yellowRatio * 250) + Math.floor(darkRatio * 200);
         score = Math.min(96, Math.max(30, score));
 
-        let level: "Low" | "Medium" | "High" = "Low";
+        let level: "Healthy" | "Minimal" | "Low" | "Medium" | "High" = "Low";
         if (score >= 70) level = "High";
         else if (score >= 45) level = "Medium";
 
@@ -424,7 +424,7 @@ async function callPredictAPI(
 
     findings.sort((a: any, b: any) => b._rawConf - a._rawConf);
 
-    let level: "Low" | "Medium" | "High" = (data.risk_level as any) || "Low";
+    let level: "Healthy" | "Minimal" | "Low" | "Medium" | "High" = (data.risk_level as any) || "Low";
     let score = data.risk_score;
 
     if (boostedCaries) {
@@ -1106,7 +1106,7 @@ export default function ScanScreen() {
                 </View>
 
                 <Text style={s.scoreDesc}>
-                  {result.level === "Low"
+                  {result.level === "Low" || result.level === "Healthy" || result.level === "Minimal"
                     ? "✓ Your teeth look healthy! Maintain your current oral hygiene routine."
                     : result.level === "Medium"
                       ? "⚠ Moderate risk detected. Some areas need attention or professional cleaning."
@@ -1117,8 +1117,8 @@ export default function ScanScreen() {
 
             {/* Findings — 6 categories from Kaggle Oral Diseases dataset */}
                <View style={s.findingsCard}>
-              <Text style={s.findingsTitle}>🔍 AI Findings</Text>
-              <Text style={s.findingsSub}>📊 Kaggle Oral Diseases Dataset</Text>
+              <Text style={s.findingsTitle}>🔍 Scan Findings</Text>
+
               <View style={s.findingsList}>
                 {result.findings.map((f, i) => (
                   <View

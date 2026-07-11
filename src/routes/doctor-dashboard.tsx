@@ -543,7 +543,7 @@ function DoctorDashboard() {
                 <h3 className="font-bold text-slate-900 dark:text-white mb-3">Diagnostic Findings</h3>
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
                   <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-                    Based on the patient's submitted questionnaire and historical data, the AI model
+                    Based on the patient's submitted questionnaire and historical data, the analysis system
                     predicts a {selectedPatient.risk.toLowerCase()} risk of dental complications.
                     {selectedPatient.risk === "High" &&
                       " Immediate clinical evaluation is recommended."}
