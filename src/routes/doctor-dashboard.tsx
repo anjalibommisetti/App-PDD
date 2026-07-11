@@ -10,6 +10,7 @@ import {
   ChevronRight,
   XCircle,
   Clock,
+  Phone,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "../lib/supabase";
@@ -149,6 +150,10 @@ function DoctorDashboard() {
       setShowPrescriptionModal(false);
       setPrescriptionText("");
     }
+  };
+
+  const handleCall = (patient: any) => {
+    window.open(`tel:${patient.phone || '+1234567890'}`);
   };
 
   return (
@@ -629,10 +634,6 @@ function DoctorDashboard() {
       )}
     </div>
   );
-const handleCall = (patient: any) => {
-  window.open(`tel:${patient.phone || '+1234567890'}`);
-};
-
 }
 
 export default DoctorDashboard;

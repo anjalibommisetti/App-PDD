@@ -724,8 +724,9 @@ export default function ScanScreen() {
             detected: false,
             severity: "None",
             color: "#10B981",
-            description: DISEASE_INFO["Hypodontia"].description,
-            urgency: DISEASE_INFO["Hypodontia"].urgency,
+            confidence: 5,
+            description: DISEASE_INFO["Missing Tooth / Tooth Loss"].description,
+            urgency: DISEASE_INFO["Missing Tooth / Tooth Loss"].urgency,
           },
         ],
         suggestions: [
@@ -1115,15 +1116,15 @@ export default function ScanScreen() {
             </View>
 
             {/* Findings — 6 categories from Kaggle Oral Diseases dataset */}
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>🔍 AI Findings</Text>
-              <Text style={styles.datasetTag}>📊 Kaggle Oral Diseases Dataset</Text>
-              <View style={styles.findingsList}>
+               <View style={s.findingsCard}>
+              <Text style={s.findingsTitle}>🔍 AI Findings</Text>
+              <Text style={s.findingsSub}>📊 Kaggle Oral Diseases Dataset</Text>
+              <View style={s.findingsList}>
                 {result.findings.map((f, i) => (
                   <View
                     key={i}
                     style={[
-                      styles.findingRow,
+                      s.findingItem,
                       f.detected && { borderLeftWidth: 3, borderLeftColor: f.color },
                     ]}
                   >
@@ -1140,18 +1141,19 @@ export default function ScanScreen() {
                           justifyContent: "space-between",
                         }}
                       >
-                        <Text style={styles.findingLabel}>{f.label}</Text>
+                        <Text style={s.findingLabel}>{f.label}</Text>
                         <View
                           style={[
-                            styles.findingBadge,
+                            s.severityBadge,
                             {
                               backgroundColor: f.detected ? f.color + "20" : "#DCFCE7",
+                              borderColor: f.detected ? f.color + "40" : "#A7F3D0",
                             },
                           ]}
                         >
                           <Text
                             style={[
-                              styles.findingBadgeText,
+                              s.severityText,
                               {
                                 color: f.detected ? f.color : "#10B981",
                               },
@@ -1170,13 +1172,13 @@ export default function ScanScreen() {
                             marginTop: 4,
                           }}
                         >
-                          <Text style={styles.findingDesc}>{f.description}</Text>
+                          <Text style={s.findingDescText}>{f.description}</Text>
                         </View>
                       )}
                       {f.detected && (
                         <View
                           style={[
-                            styles.urgencyBadge,
+                            s.urgencyBadge,
                             {
                               backgroundColor:
                                 f.urgency === "Immediate"
@@ -1189,7 +1191,7 @@ export default function ScanScreen() {
                         >
                           <Text
                             style={[
-                              styles.urgencyText,
+                              s.urgencyText,
                               {
                                 color:
                                   f.urgency === "Immediate"
@@ -1310,6 +1312,7 @@ export default function ScanScreen() {
 }
 
 const styles = StyleSheet.create({
+  centeredWrap: { flex: 1, width: "100%" },
   content: { paddingHorizontal: 20, paddingBottom: 40, gap: 16, maxWidth: 800, alignSelf: "center", width: "100%" },
 
   // ── Upload ──
@@ -1889,3 +1892,5 @@ const styles = StyleSheet.create({
   },
   dentistBtnText: { fontSize: 14, fontWeight: "700", color: "#157A6E" },
 });
+
+const s = styles;
