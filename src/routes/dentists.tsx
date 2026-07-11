@@ -7,6 +7,7 @@ import {
   Modal,
   TextInput,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { PhoneShell } from "../components/PhoneShell";
@@ -14,57 +15,7 @@ import { ScreenHeader } from "../components/ScreenHeader";
 import { Feather } from "@expo/vector-icons";
 import { supabase } from "../lib/supabase";
 
-// ─── Hardcoded dentist data (always visible) ──────────────────────────────────
-const FALLBACK_DENTISTS = [
-  {
-    id: "f1",
-    name: "Dr. Priya Sharma",
-    specialty: "Orthodontist",
-    experience: "12 yrs exp",
-    location: "Banjara Hills, Hyderabad",
-    rating: 4.9,
-  },
-  {
-    id: "f2",
-    name: "Dr. Ravi Kumar",
-    specialty: "Periodontist",
-    experience: "8 yrs exp",
-    location: "Jubilee Hills, Hyderabad",
-    rating: 4.8,
-  },
-  {
-    id: "f3",
-    name: "Dr. Anjali Reddy",
-    specialty: "Endodontist",
-    experience: "10 yrs exp",
-    location: "Kondapur, Hyderabad",
-    rating: 4.7,
-  },
-  {
-    id: "f4",
-    name: "Dr. Suresh Patel",
-    specialty: "Oral Surgeon",
-    experience: "15 yrs exp",
-    location: "Gachibowli, Hyderabad",
-    rating: 4.9,
-  },
-  {
-    id: "f5",
-    name: "Dr. Meena Iyer",
-    specialty: "Pedodontist",
-    experience: "6 yrs exp",
-    location: "Madhapur, Hyderabad",
-    rating: 4.6,
-  },
-  {
-    id: "f6",
-    name: "Dr. Karthik Rao",
-    specialty: "Prosthodontist",
-    experience: "11 yrs exp",
-    location: "Kukatpally, Hyderabad",
-    rating: 4.8,
-  },
-];
+// ─── Dentist data fetched from database ──────────────────────────────────────
 
 const AVATAR_COLORS = ["#86F1D4", "#C7D2FE", "#FDE68A", "#FBCFE8", "#BBF7D0", "#BAE6FD"];
 const AVATAR_TEXT_COLORS = ["#0D4B42", "#3730A3", "#92400E", "#831843", "#065F46", "#0C4A6E"];
@@ -313,10 +264,11 @@ function BookingModal({
 
 // ─── Main Screen ─────────────────────────────────────────────────────────────
 export default function DentistsScreen() {
-  const [dentists, setDentists] = useState<any[]>(FALLBACK_DENTISTS);
+  const [dentists, setDentists] = useState<any[]>([]);
   const [selectedDentist, setSelectedDentist] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchFromSupabase();
@@ -328,14 +280,13 @@ export default function DentistsScreen() {
         .from("dentists")
         .select("*")
         .order("rating", { ascending: false });
-      if (data && data.length > 0) {
-        // Merge: put DB dentists first, then fallbacks not already in DB
-        const dbIds = new Set(data.map((d: any) => d.id));
-        const merged = [...data, ...FALLBACK_DENTISTS.filter((f) => !dbIds.has(f.id))];
-        setDentists(merged);
+      if (data) {
+        setDentists(data);
       }
     } catch (_) {
-      // Keep fallback data if Supabase fails
+      console.error("Failed to fetch dentists");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -426,7 +377,14 @@ export default function DentistsScreen() {
           );
         })}
 
-        {filtered.length === 0 && (
+        {loading && (
+          <View style={styles.empty}>
+            <ActivityIndicator size="large" color="#0D4B42" />
+            <Text style={styles.emptyText}>Loading doctors...</Text>
+          </View>
+        )}
+
+        {!loading && filtered.length === 0 && (
           <View style={styles.empty}>
             <Feather name="user-x" size={36} color="#CBD5E1" />
             <Text style={styles.emptyText}>No dentists found</Text>
