@@ -81,7 +81,7 @@ export default function SignupScreen() {
       Alert.alert("Signup Problem", `We encountered an issue during signup:\n\n${error.message}`);
     } else {
       console.log("Signup successful:", data);
-      Keyboard.dismiss();
+      Keyboard?.dismiss?.();
 
       // Save role so auto-login routes correctly
       await AsyncStorage.setItem("userRole", role);
@@ -187,7 +187,7 @@ export default function SignupScreen() {
 
           <TouchableOpacity
             onPress={() => {
-              Keyboard.dismiss();
+              Keyboard?.dismiss?.();
               navigation.navigate("Login");
             }}
           >

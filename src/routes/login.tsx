@@ -138,7 +138,7 @@ export default function LoginScreen() {
 
           <TouchableOpacity
             onPress={() => {
-              Keyboard.dismiss();
+              Keyboard?.dismiss?.();
               navigation.navigate("RoleSelection");
             }}
           >
