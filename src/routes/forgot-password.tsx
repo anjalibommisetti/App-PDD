@@ -11,7 +11,7 @@ import {
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { PhoneShell } from "../components/PhoneShell";
 import { supabase } from "../lib/supabase";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react-native";
 
 export default function ForgotPasswordScreen() {
   const navigation = useNavigation<any>();
@@ -132,7 +132,7 @@ export default function ForgotPasswordScreen() {
     <PhoneShell showNav={false}>
       <View style={styles.container}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <ArrowLeft className="w-6 h-6 text-slate-500" />
+          <ArrowLeft size={24} color="#64748b" />
         </TouchableOpacity>
 
         <Text style={styles.title}>

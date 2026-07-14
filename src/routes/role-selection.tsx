@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, SafeAreaView, Platform } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { User, Stethoscope, ShieldCheck, ArrowLeft } from "lucide-react";
+import { User, Stethoscope, ShieldCheck, ArrowLeft } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function RoleSelectionScreen() {
@@ -35,7 +35,7 @@ export default function RoleSelectionScreen() {
             alignSelf: "flex-start",
           }}
         >
-          <ArrowLeft className="w-6 h-6 text-slate-500" />
+          <ArrowLeft size={24} color="#64748b" />
         </TouchableOpacity>
 
         <Text style={{ fontSize: 30, fontWeight: "700", color: "#0f172a", marginBottom: 8 }}>
@@ -71,7 +71,7 @@ export default function RoleSelectionScreen() {
                 justifyContent: "center",
               }}
             >
-              <User className="w-7 h-7 text-blue-600" />
+              <User size={28} color="#2563eb" />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 20, fontWeight: "700", color: "#0f172a", marginBottom: 4 }}>
@@ -107,7 +107,7 @@ export default function RoleSelectionScreen() {
                 justifyContent: "center",
               }}
             >
-              <Stethoscope className="w-7 h-7 text-emerald-600" />
+              <Stethoscope size={28} color="#059669" />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 20, fontWeight: "700", color: "#0f172a", marginBottom: 4 }}>
@@ -143,7 +143,7 @@ export default function RoleSelectionScreen() {
                 justifyContent: "center",
               }}
             >
-              <ShieldCheck className="w-7 h-7 text-purple-600" />
+              <ShieldCheck size={28} color="#9333ea" />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 20, fontWeight: "700", color: "#0f172a", marginBottom: 4 }}>

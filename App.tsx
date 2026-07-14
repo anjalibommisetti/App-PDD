@@ -155,7 +155,7 @@ export default function App() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
-  const [initialRoute, setInitialRoute] = useState<string>(Platform.OS === "web" ? "Landing" : "RoleSelection");
+  const [initialRoute, setInitialRoute] = useState<string>("Landing");
   const [isRecovery, setIsRecovery] = useState(false);
   useEffect(() => {
     // NO auto-dismiss — user must click "Get Started" button
@@ -203,10 +203,10 @@ export default function App() {
             }
           }, 200);
         } else {
-          setInitialRoute(Platform.OS === "web" ? "Landing" : "RoleSelection");
+          setInitialRoute("Landing");
           setTimeout(() => {
             if (navigationRef.isReady()) {
-              navigationRef.navigate(Platform.OS === "web" ? "Landing" : "RoleSelection");
+              navigationRef.navigate("Landing");
             }
           }, 200);
         }
@@ -261,10 +261,10 @@ export default function App() {
           }
         }, 100);
       } else if (!newSession) {
-        setInitialRoute(Platform.OS === "web" ? "Landing" : "RoleSelection");
+        setInitialRoute("Landing");
         setTimeout(() => {
           if (navigationRef.isReady()) {
-            navigationRef.navigate(Platform.OS === "web" ? "Landing" : "RoleSelection");
+            navigationRef.navigate("Landing");
           }
         }, 100);
       }

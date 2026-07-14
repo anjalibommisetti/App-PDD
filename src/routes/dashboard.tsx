@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  Platform,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { supabase } from "../lib/supabase";
 import {
@@ -12,11 +20,8 @@ import {
   Settings,
   LogOut,
   Activity,
-  User,
   Menu,
-  ChevronRight,
-  ChevronDown,
-} from "lucide-react";
+} from "lucide-react-native";
 
 import ScanScreen from "./scan";
 import ResultsScreen from "./results";
@@ -27,7 +32,6 @@ import ProfileScreen from "./profile";
 import HistoryScreen from "./history";
 import AssessmentScreen from "./assessment";
 
-// --- Sub-components for Patient Dashboard Main View ---
 function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => void }) {
   const [userName, setUserName] = useState("User");
   const [initials, setInitials] = useState("U");
@@ -52,14 +56,7 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
       if (user) {
         const fullName = user.user_metadata?.full_name || user.email?.split("@")[0] || "User";
         setUserName(fullName);
-        setInitials(
-          fullName
-            .split(" ")
-            .map((n: string) => n[0])
-            .join("")
-            .toUpperCase()
-            .slice(0, 2),
-        );
+        setInitials(fullName.substring(0, 2).toUpperCase());
 
         let { data: assessment } = await supabase
           .from("assessments")
@@ -101,9 +98,7 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
                 title: isScan
                   ? `Teeth Scan — ${scanClass} (${r.score ?? 0}%)`
                   : `Risk Assessment — ${r.level ?? "Unknown"} (${r.score ?? 0}%)`,
-                subtitle: isScan
-                  ? r.patient_name.replace("[Scan] ", "")
-                  : r.patient_name || "Anonymous",
+                subtitle: isScan ? r.patient_name.replace("[Scan] ", "") : r.patient_name || "Anonymous",
                 time: new Date(r.created_at).toLocaleDateString("en-IN", {
                   day: "2-digit",
                   month: "short",
@@ -117,135 +112,110 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
   };
 
   const getRiskColor = (level: string) => {
-    if (level === "High") return "text-red-500 bg-red-100 dark:bg-red-900/30 dark:text-red-400";
-    if (level === "Medium")
-      return "text-yellow-500 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400";
-    return "text-green-500 bg-green-100 dark:bg-green-900/30 dark:text-green-400";
+    if (level === "High") return { text: "#EF4444", bg: "#FEE2E2" };
+    if (level === "Medium") return { text: "#F59E0B", bg: "#FEF3C7" };
+    return { text: "#10B981", bg: "#D1FAE5" };
   };
   const getRiskBarColor = (level: string) => {
-    if (level === "High") return "bg-red-500";
-    if (level === "Medium") return "bg-yellow-500";
-    return "bg-green-500";
+    if (level === "High") return "#EF4444";
+    if (level === "Medium") return "#F59E0B";
+    return "#10B981";
   };
 
   return (
-    <div className="space-y-6 w-full max-w-[1600px] mx-auto pb-10">
+    <ScrollView style={styles.dashboardContainer} contentContainerStyle={{ paddingBottom: 40 }}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-            Welcome back, {userName}
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400">
-            Here is a summary of your oral health.
-          </p>
-        </div>
-        <button
-          onClick={() => setActiveTab("Assessment")}
-          className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-4 rounded-xl font-bold shadow-md transition-colors flex items-center gap-2 text-base sm:text-lg"
-        >
-          <FileText className="w-5 h-5 sm:w-6 sm:h-6" /> Take Risk Assessment
-        </button>
-      </div>
+      <View style={styles.headerRow}>
+        <View style={styles.welcomeTextContainer}>
+          <Text style={styles.welcomeTitle}>Welcome back, {userName}</Text>
+          <Text style={styles.welcomeSubtitle}>Here is a summary of your oral health.</Text>
+        </View>
+        <TouchableOpacity style={styles.primaryBtn} onPress={() => setActiveTab("Assessment")}>
+          <FileText size={20} color="#fff" />
+          <Text style={styles.primaryBtnText}>Take Risk Assessment</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Main Risk Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 flex flex-col md:flex-row items-center justify-between gap-8">
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">
-            Current Oral Health Status
-          </p>
-          <div className="flex items-baseline gap-4 mb-4">
-            <h2 className="text-5xl font-black text-slate-900 dark:text-white">{riskScore}%</h2>
-            <span className={`px-4 py-1 rounded-full text-sm font-bold ${getRiskColor(riskLevel)}`}>
-              {riskLevel} Risk
-            </span>
-          </div>
-          <p className="text-slate-600 dark:text-slate-400 text-sm">
-            Last assessed on {assessedAt || "Never"}
-          </p>
-        </div>
-        <div className="flex-1 w-full relative h-4 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-          <div
-            className={`absolute left-0 top-0 h-full rounded-full ${getRiskBarColor(riskLevel)} transition-all duration-1000`}
-            style={{ width: `${riskScore}%` }}
-          ></div>
-        </div>
-      </div>
+      <View style={styles.card}>
+        <View style={styles.riskCardContent}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.cardSectionTitle}>CURRENT ORAL HEALTH STATUS</Text>
+            <View style={styles.riskScoreRow}>
+              <Text style={styles.riskScoreText}>{riskScore}%</Text>
+              <View style={[styles.riskBadge, { backgroundColor: getRiskColor(riskLevel).bg }]}>
+                <Text style={[styles.riskBadgeText, { color: getRiskColor(riskLevel).text }]}>
+                  {riskLevel} Risk
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.assessedText}>Last assessed on {assessedAt || "Never"}</Text>
+          </View>
+        </View>
+        <View style={styles.progressBarBg}>
+          <View
+            style={[styles.progressBarFill, { width: `${riskScore}%`, backgroundColor: getRiskBarColor(riskLevel) }]}
+          />
+        </View>
+      </View>
 
-      <div className="grid lg:grid-cols-2 gap-8">
+      <View style={styles.twoColGrid}>
         {/* Recent Activity */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-          <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-            <Activity className="w-6 h-6 text-blue-500" /> Recent Predictions
-          </h3>
-          <div className="space-y-4">
-            {activities.length === 0 ? (
-              <p className="text-slate-500 text-base">No recent activity.</p>
-            ) : (
-              activities.map((act) => (
-                <div
-                  key={act.id}
-                  className="flex items-center justify-between p-4 border border-slate-100 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${getRiskColor(act.level)}`}
-                    >
-                      <Activity className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">
-                        {act.title}
-                      </h4>
-                      <p className="text-xs text-slate-500">{act.subtitle}</p>
-                    </div>
-                  </div>
-                  <span className="text-sm text-slate-400 font-medium">{act.time}</span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+        <View style={[styles.card, { flex: 1 }]}>
+          <View style={styles.cardHeader}>
+            <Activity size={24} color="#3B82F6" />
+            <Text style={styles.cardTitle}>Recent Predictions</Text>
+          </View>
+          {activities.length === 0 ? (
+            <Text style={styles.emptyText}>No recent activity.</Text>
+          ) : (
+            activities.map((act) => (
+              <View key={act.id} style={styles.activityItem}>
+                <View style={styles.activityRow}>
+                  <View style={[styles.activityIconBg, { backgroundColor: getRiskColor(act.level).bg }]}>
+                    <Activity size={20} color={getRiskColor(act.level).text} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.activityTitle}>{act.title}</Text>
+                    <Text style={styles.activitySubtitle}>{act.subtitle}</Text>
+                  </View>
+                  <Text style={styles.activityTime}>{act.time}</Text>
+                </View>
+              </View>
+            ))
+          )}
+        </View>
 
         {/* Reminders */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-          <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-            <Bell className="w-6 h-6 text-purple-500" /> Notifications & Reminders
-          </h3>
-          <div className="space-y-4">
-            <div className="flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/50 rounded-xl">
-              <CalendarIcon className="w-6 h-6 text-blue-600 dark:text-blue-400 shrink-0" />
-              <div>
-                <h4 className="font-bold text-blue-900 dark:text-blue-100 text-sm">
-                  Upcoming Dental Appointment
-                </h4>
-                <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                  Tomorrow at 10:00 AM with Dr. Sarah Smith.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl">
-              <FileText className="w-6 h-6 text-slate-500 shrink-0" />
-              <div>
-                <h4 className="font-bold text-slate-900 dark:text-white text-sm">
-                  New Report Available
-                </h4>
-                <p className="text-xs text-slate-500 mt-1">
-                  Your latest scan report is ready to download.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        <View style={[styles.card, { flex: 1 }]}>
+          <View style={styles.cardHeader}>
+            <Bell size={24} color="#A855F7" />
+            <Text style={styles.cardTitle}>Notifications & Reminders</Text>
+          </View>
+          <View style={styles.reminderItem}>
+            <CalendarIcon size={24} color="#2563EB" />
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.reminderTitle}>Upcoming Dental Appointment</Text>
+              <Text style={styles.reminderSubtitle}>Tomorrow at 10:00 AM with Dr. Sarah Smith.</Text>
+            </View>
+          </View>
+          <View style={[styles.reminderItem, { backgroundColor: "#F8FAFC", borderColor: "#F1F5F9" }]}>
+            <FileText size={24} color="#64748B" />
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={styles.reminderTitle}>New Report Available</Text>
+              <Text style={styles.reminderSubtitle}>Your latest scan report is ready to download.</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
 export default function PatientPortal() {
   const navigation = useNavigation<any>();
   const [activeTab, setActiveTab] = useState("Dashboard");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(Platform.OS === "web"); // default open on web, closed on mobile
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -260,149 +230,229 @@ export default function PatientPortal() {
     { id: "Appointments", label: "Appointments", icon: CalendarIcon },
     { id: "Report", label: "Reports", icon: FileText },
     { id: "Chatbot", label: "Chat Assistant", icon: MessageCircle },
-    { id: "Notifications", label: "Notifications", icon: Bell },
     { id: "Settings", label: "Settings", icon: Settings },
   ];
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F8FAFC" }}>
-      <div className="flex h-screen bg-slate-50 dark:bg-slate-950 font-sans overflow-hidden">
+    <SafeAreaView style={styles.mainWrapper}>
+      <View style={styles.layoutRow}>
         {/* Sidebar */}
-        <aside
-          className={`bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 flex flex-col ${sidebarOpen ? "w-64" : "w-20"}`}
-        >
-          <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
-            <div className="flex items-center gap-2 overflow-hidden">
-              <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center shrink-0">
-                <Activity className="w-5 h-5 text-white" />
-              </div>
-              {sidebarOpen && (
-                <span className="font-bold text-lg text-slate-900 dark:text-white truncate">
-                  SmileGuard
-                </span>
-              )}
-            </div>
-          </div>
+        {sidebarOpen && (
+          <View style={styles.sidebar}>
+            <View style={styles.sidebarHeader}>
+              <View style={styles.logoBadge}>
+                <Activity size={20} color="#fff" />
+              </View>
+              <Text style={styles.sidebarTitle}>SmileGuard</Text>
+            </View>
 
-          <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-            <div className="mb-4">
-              {sidebarOpen && (
-                <p className="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                  Patient Portal
-                </p>
-              )}
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors ${
-                    activeTab === item.id
-                      ? "bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 font-semibold"
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
-                  }`}
-                  title={!sidebarOpen ? item.label : undefined}
-                >
-                  <item.icon
-                    className={`w-5 h-5 shrink-0 ${activeTab === item.id ? "text-teal-600 dark:text-teal-400" : "text-slate-400"}`}
-                  />
-                  {sidebarOpen && <span className="truncate">{item.label}</span>}
-                </button>
-              ))}
-            </div>
-          </nav>
+            <ScrollView style={styles.navMenu}>
+              <Text style={styles.navSectionLabel}>PATIENT PORTAL</Text>
+              {navItems.map((item) => {
+                const isActive = activeTab === item.id;
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[styles.navItem, isActive && styles.navItemActive]}
+                    onPress={() => {
+                      setActiveTab(item.id);
+                      if (Platform.OS !== "web") setSidebarOpen(false);
+                    }}
+                  >
+                    <item.icon size={20} color={isActive ? "#0D9488" : "#64748B"} />
+                    <Text style={[styles.navItemText, isActive && styles.navItemTextActive]}>
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
 
-          <div className="p-4 border-t border-slate-200 dark:border-slate-800 shrink-0">
-            <button
-              onClick={handleLogout}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors`}
-            >
-              <LogOut className="w-5 h-5 shrink-0" />
-              {sidebarOpen && <span>Logout</span>}
-            </button>
-          </div>
-        </aside>
+            <View style={styles.sidebarFooter}>
+              <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+                <LogOut size={20} color="#DC2626" />
+                <Text style={styles.logoutBtnText}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
 
-        {/* Main Content Area */}
-        <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950">
-          {/* Top Navbar */}
-          <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-6 shrink-0">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-            </div>
+        {/* Content Area */}
+        <View style={styles.contentArea}>
+          <View style={styles.topBar}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <TouchableOpacity style={styles.menuBtn} onPress={() => setSidebarOpen(!sidebarOpen)}>
+                <Menu size={24} color="#64748B" />
+              </TouchableOpacity>
+              <Text style={styles.topBarTitle}>{activeTab}</Text>
+            </View>
+            <View style={styles.topBarRight}>
+              <Bell size={24} color="#64748B" />
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>PU</Text>
+              </View>
+            </View>
+          </View>
 
-            <div className="flex items-center gap-4">
-              <button className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-              <div className="h-8 w-px bg-slate-200 dark:bg-slate-700"></div>
-              <div className="flex items-center gap-3">
-                <div className="hidden sm:block text-right">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">Patient User</p>
-                  <p className="text-xs text-slate-500">Premium Plan</p>
-                </div>
-                <div className="w-9 h-9 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center">
-                  <span className="text-teal-700 dark:text-teal-300 font-bold text-sm">PU</span>
-                </div>
-              </div>
-            </div>
-          </header>
-
-          {/* Dynamic View Content */}
-          <div className="flex-1 overflow-y-auto p-4 md:p-8">
+          <View style={styles.mainView}>
             {activeTab === "Dashboard" && <PatientDashboardMain setActiveTab={setActiveTab} />}
-
-            {activeTab === "Assessment" && (
-              <div className="flex-1 w-full h-full">
-                <AssessmentScreen />
-              </div>
-            )}
-
-            {activeTab === "Scan" && (
-              <div className="flex-1 w-full h-full">
-                <ScanScreen />
-              </div>
-            )}
-
-            {activeTab === "History" && (
-              <div className="flex-1 w-full h-full">
-                <HistoryScreen />
-              </div>
-            )}
-
-            {activeTab === "Appointments" && (
-              <div className="flex-1 w-full h-full">
-                <DentistsScreen />
-              </div>
-            )}
-
-            {activeTab === "Report" && (
-              <div className="flex-1 w-full h-full">
-                <ReportScreen />
-              </div>
-            )}
-
-            {activeTab === "Chatbot" && (
-              <div className="flex-1 w-full h-full p-4 md:p-8">
-                <div className="w-full h-full min-h-[600px] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-                  <ChatbotScreen />
-                </div>
-              </div>
-            )}
-
-            {activeTab === "Settings" && (
-              <div className="flex-1 w-full h-full">
-                <ProfileScreen />
-              </div>
-            )}
-          </div>
-        </main>
-      </div>
-    </View>
+            {activeTab === "Assessment" && <AssessmentScreen />}
+            {activeTab === "Scan" && <ScanScreen />}
+            {activeTab === "History" && <HistoryScreen />}
+            {activeTab === "Appointments" && <DentistsScreen />}
+            {activeTab === "Report" && <ReportScreen />}
+            {activeTab === "Chatbot" && <ChatbotScreen />}
+            {activeTab === "Settings" && <ProfileScreen />}
+          </View>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  mainWrapper: { flex: 1, backgroundColor: "#F8FAFC" },
+  layoutRow: { flex: 1, flexDirection: "row" },
+  
+  // Sidebar
+  sidebar: {
+    width: 250,
+    backgroundColor: "#fff",
+    borderRightWidth: 1,
+    borderColor: "#E2E8F0",
+    ...(Platform.OS !== "web" ? { position: "absolute", left: 0, top: 0, bottom: 0, zIndex: 50, elevation: 5 } : {}),
+  },
+  sidebarHeader: {
+    height: 64,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderColor: "#E2E8F0",
+    gap: 12,
+  },
+  logoBadge: {
+    backgroundColor: "#0D9488",
+    padding: 6,
+    borderRadius: 8,
+  },
+  sidebarTitle: { fontSize: 18, fontWeight: "bold", color: "#0F172A" },
+  navMenu: { flex: 1, padding: 12 },
+  navSectionLabel: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#94A3B8",
+    marginBottom: 12,
+    paddingHorizontal: 12,
+  },
+  navItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 4,
+    gap: 12,
+  },
+  navItemActive: { backgroundColor: "#F0FDFA" },
+  navItemText: { fontSize: 15, color: "#64748B", fontWeight: "500" },
+  navItemTextActive: { color: "#0D9488", fontWeight: "bold" },
+  sidebarFooter: { padding: 16, borderTopWidth: 1, borderColor: "#E2E8F0" },
+  logoutBtn: { flexDirection: "row", alignItems: "center", gap: 12, padding: 12 },
+  logoutBtnText: { color: "#DC2626", fontSize: 15, fontWeight: "600" },
+
+  // Content Area
+  contentArea: { flex: 1, backgroundColor: "#F8FAFC" },
+  topBar: {
+    height: 64,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderColor: "#E2E8F0",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+  },
+  menuBtn: { padding: 8, marginRight: 8 },
+  topBarTitle: { fontSize: 18, fontWeight: "bold", color: "#0F172A" },
+  topBarRight: { flexDirection: "row", alignItems: "center", gap: 16 },
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#CCFBF1",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: { color: "#0F766E", fontWeight: "bold" },
+  mainView: { flex: 1 },
+
+  // Dashboard Tab
+  dashboardContainer: { padding: 16, flex: 1 },
+  headerRow: {
+    flexDirection: Platform.OS === "web" ? "row" : "column",
+    justifyContent: "space-between",
+    alignItems: Platform.OS === "web" ? "center" : "flex-start",
+    marginBottom: 24,
+    gap: 16,
+  },
+  welcomeTextContainer: { flex: 1 },
+  welcomeTitle: { fontSize: 24, fontWeight: "bold", color: "#0F172A", marginBottom: 4 },
+  welcomeSubtitle: { fontSize: 16, color: "#64748B" },
+  primaryBtn: {
+    backgroundColor: "#0D9488",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  primaryBtnText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
+
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    marginBottom: 24,
+    overflow: "hidden",
+  },
+  riskCardContent: { padding: 24 },
+  cardSectionTitle: { fontSize: 12, fontWeight: "bold", color: "#64748B", marginBottom: 12 },
+  riskScoreRow: { flexDirection: "row", alignItems: "baseline", gap: 16, marginBottom: 12 },
+  riskScoreText: { fontSize: 48, fontWeight: "900", color: "#0F172A" },
+  riskBadge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 16 },
+  riskBadgeText: { fontWeight: "bold", fontSize: 14 },
+  assessedText: { fontSize: 14, color: "#64748B" },
+  progressBarBg: { height: 16, backgroundColor: "#F1F5F9", width: "100%" },
+  progressBarFill: { height: "100%", borderRadius: 8 },
+
+  twoColGrid: {
+    flexDirection: Platform.OS === "web" ? "row" : "column",
+    gap: 24,
+  },
+  cardHeader: { flexDirection: "row", alignItems: "center", gap: 8, padding: 20, borderBottomWidth: 1, borderColor: "#F1F5F9" },
+  cardTitle: { fontSize: 18, fontWeight: "bold", color: "#0F172A" },
+  emptyText: { padding: 20, color: "#64748B" },
+  
+  activityItem: { padding: 16, borderBottomWidth: 1, borderColor: "#F1F5F9" },
+  activityRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+  activityIconBg: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
+  activityTitle: { fontWeight: "bold", color: "#0F172A", fontSize: 14, marginBottom: 2 },
+  activitySubtitle: { color: "#64748B", fontSize: 12 },
+  activityTime: { color: "#94A3B8", fontSize: 12, fontWeight: "500" },
+
+  reminderItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    margin: 16,
+    marginTop: 0,
+    backgroundColor: "#EFF6FF",
+    borderWidth: 1,
+    borderColor: "#DBEAFE",
+    borderRadius: 12,
+  },
+  reminderTitle: { fontWeight: "bold", color: "#1E3A8A", fontSize: 14, marginBottom: 4 },
+  reminderSubtitle: { color: "#1D4ED8", fontSize: 12 },
+});
