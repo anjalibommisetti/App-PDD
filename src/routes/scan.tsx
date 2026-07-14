@@ -747,7 +747,7 @@ export default function ScanScreen() {
       }
     }
 
-    await new Promise((r) => setTimeout(r, 3000));
+
     scanLineAnim.stopAnimation();
     scanLineAnim.setValue(0);
     setResult(analysis);
