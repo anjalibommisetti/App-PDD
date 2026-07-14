@@ -6,10 +6,14 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
-      "package": "com.lakshmi_anjali.smileguard"
+      "package": "com.lakshmi_anjali.smileguard",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "bundler": "metro",
@@ -17,8 +21,11 @@
     },
     "extra": {
       "eas": {
-        "projectId": "33511fc0-0991-42bd-9271-c64a8c7359b4"
+        "projectId": "cf5467bc-3c0a-4576-b51a-8da4c38ca2cd"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/cf5467bc-3c0a-4576-b51a-8da4c38ca2cd"
     }
   }
 }

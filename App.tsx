@@ -11,6 +11,7 @@ import {
 import { enableScreens } from "react-native-screens";
 import "react-native-gesture-handler";
 import React from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // Disable native screens on web to prevent aria-hidden and focus warnings
 if (Platform.OS === "web") {
@@ -302,7 +303,7 @@ export default function App() {
   }
 
   return (
-    <View
+    <SafeAreaProvider
       style={{
         flex: 1,
         width: (Platform.OS === "web" ? "100vw" : "100%") as any,
@@ -356,6 +357,6 @@ export default function App() {
         </Stack.Navigator>
         <Chatbot />
       </NavigationContainer>
-    </View>
+    </SafeAreaProvider>
   );
 }
