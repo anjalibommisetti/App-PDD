@@ -1,3 +1,5 @@
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Platform, Image, StyleSheet, SafeAreaView, Pressable, ActivityIndicator, Keyboard, Alert } from "react-native";
+import tw from 'twrnc';
 import React from "react";
 import {
   BarChart,
@@ -16,9 +18,9 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import { Activity, TrendingUp, Users, Target } from "lucide-react";
+import { Activity, TrendingUp, Users, Target } from "lucide-react-native";
 import { motion } from "framer-motion";
-import { View } from "react-native";
+
 
 // Mock Data
 const monthlyCasesData = [
@@ -46,17 +48,17 @@ const accuracyTrendData = [
 function AnalyticsDashboard() {
   return (
     <View style={{ flex: 1 }}>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans p-4 md:p-8">
+      <View style={tw`min-h-screen bg-slate-50 dark:bg-slate-950 font-sans p-4 md:p-8`}>
         {/* Header */}
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Platform Analytics</h1>
-          <p className="text-slate-600 dark:text-slate-400">
+        <View style={tw`mb-8`}>
+          <Text style={tw`text-3xl font-bold text-slate-900 dark:text-white`}>Platform Analytics</Text>
+          <Text style={tw`text-slate-600 dark:text-slate-400`}>
             Comprehensive overview of oral disease statistics, patient trends, and AI accuracy.
-          </p>
-        </header>
+          </Text>
+        </View>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <View style={tw`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8`}>
           {[
             {
               label: "Total Scans (Month)",
@@ -96,39 +98,39 @@ function AnalyticsDashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between"
+              style={tw`bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between`}
             >
-              <div>
-                <p className="text-sm text-slate-500 font-medium mb-1">{stat.label}</p>
-                <div className="flex items-baseline gap-2">
-                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
+              <View>
+                <Text style={tw`text-sm text-slate-500 font-medium mb-1`}>{stat.label}</Text>
+                <View style={tw`flex items-baseline gap-2`}>
+                  <Text style={tw`text-2xl font-bold text-slate-900 dark:text-white`}>
                     {stat.value}
-                  </h3>
-                  <span
-                    className={`text-xs font-bold ${stat.change.startsWith("+") ? "text-green-500" : "text-red-500"}`}
+                  </Text>
+                  <Text
+                    style={tw`text-xs font-bold ${stat.change.startsWith("+") ? "text-green-500" : "text-red-500"}`}
                   >
                     {stat.change}
-                  </span>
-                </div>
-              </div>
-              <div className={`p-3 rounded-lg ${stat.bg}`}>
-                <stat.icon className={`w-6 h-6 ${stat.color}`} />
-              </div>
+                  </Text>
+                </View>
+              </View>
+              <View style={tw`p-3 rounded-lg ${stat.bg}`}>
+                <stat.icon style={tw`w-6 h-6 ${stat.color}`} />
+              </View>
             </motion.div>
           ))}
-        </div>
+        </View>
 
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
+        <View style={tw`grid lg:grid-cols-2 gap-8 mb-8`}>
           {/* Monthly Disease Cases (Bar Chart) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+            style={tw`bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm`}
           >
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">
+            <Text style={tw`text-lg font-bold text-slate-900 dark:text-white mb-6`}>
               Monthly Disease Cases
-            </h3>
-            <div className="h-80">
+            </Text>
+            <View style={tw`h-80`}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyCasesData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
@@ -159,7 +161,7 @@ function AnalyticsDashboard() {
                   <Bar dataKey="Calculus" stackId="a" fill="#3B82F6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
-            </div>
+            </View>
           </motion.div>
 
           {/* Risk Category Distribution (Pie Chart) */}
@@ -167,12 +169,12 @@ function AnalyticsDashboard() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+            style={tw`bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm`}
           >
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">
+            <Text style={tw`text-lg font-bold text-slate-900 dark:text-white mb-6`}>
               Risk Category Distribution
-            </h3>
-            <div className="h-80">
+            </Text>
+            <View style={tw`h-80`}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -199,22 +201,22 @@ function AnalyticsDashboard() {
                   <Legend iconType="circle" verticalAlign="bottom" />
                 </PieChart>
               </ResponsiveContainer>
-            </div>
+            </View>
           </motion.div>
-        </div>
+        </View>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <View style={tw`grid lg:grid-cols-2 gap-8`}>
           {/* Prediction Accuracy Trend (Line Chart) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+            style={tw`bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm`}
           >
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">
+            <Text style={tw`text-lg font-bold text-slate-900 dark:text-white mb-6`}>
               AI Prediction Accuracy Trend
-            </h3>
-            <div className="h-80">
+            </Text>
+            <View style={tw`h-80`}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={accuracyTrendData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
@@ -248,7 +250,7 @@ function AnalyticsDashboard() {
                   />
                 </LineChart>
               </ResponsiveContainer>
-            </div>
+            </View>
           </motion.div>
 
           {/* Patient Activity Trends (Area Chart) */}
@@ -256,12 +258,12 @@ function AnalyticsDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+            style={tw`bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm`}
           >
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">
+            <Text style={tw`text-lg font-bold text-slate-900 dark:text-white mb-6`}>
               Patient Activity Trends
-            </h3>
-            <div className="h-80">
+            </Text>
+            <View style={tw`h-80`}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={monthlyCasesData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
@@ -295,10 +297,10 @@ function AnalyticsDashboard() {
                   />
                 </AreaChart>
               </ResponsiveContainer>
-            </div>
+            </View>
           </motion.div>
-        </div>
-      </div>
+        </View>
+      </View>
     </View>
   );
 }

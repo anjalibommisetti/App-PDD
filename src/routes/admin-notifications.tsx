@@ -1,3 +1,5 @@
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Platform, Image, StyleSheet, SafeAreaView, Pressable, ActivityIndicator, Keyboard, Alert } from "react-native";
+import tw from 'twrnc';
 import React, { useState } from "react";
 import {
   Bell,
@@ -8,7 +10,7 @@ import {
   AlertCircle,
   CheckCircle,
   Smartphone,
-} from "lucide-react";
+} from "lucide-react-native";
 
 export default function AdminNotifications() {
   const MOCK_NOTIFICATIONS = [
@@ -47,85 +49,85 @@ export default function AdminNotifications() {
   ];
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-10">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+    <View style={tw`space-y-6 max-w-6xl mx-auto pb-10`}>
+      <View style={tw`flex justify-between items-center mb-6`}>
+        <View>
+          <Text style={tw`text-3xl font-bold text-slate-900 dark:text-white`}>
             Notification Management
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400">
+          </Text>
+          <Text style={tw`text-slate-500 dark:text-slate-400`}>
             Monitor and manage platform-wide communications.
-          </p>
-        </div>
-        <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700">
-          <Bell className="w-4 h-4" /> Send Announcement
-        </button>
-      </div>
+          </Text>
+        </View>
+        <TouchableOpacity style={tw`flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700`}>
+          <Bell   size={20} color="#64748b" /> Send Announcement
+        </TouchableOpacity>
+      </View>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-sm text-slate-500 font-medium mb-1">Total Sent (Today)</p>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">1,284</h3>
-          </div>
-          <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-            <Mail className="w-6 h-6 text-blue-500" />
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-sm text-slate-500 font-medium mb-1">Delivery Rate</p>
-            <h3 className="text-2xl font-bold text-green-600 dark:text-green-400">99.8%</h3>
-          </div>
-          <div className="p-3 rounded-lg bg-green-100 dark:bg-green-900/30">
-            <CheckCircle className="w-6 h-6 text-green-500" />
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-sm text-slate-500 font-medium mb-1">Failed Deliveries</p>
-            <h3 className="text-2xl font-bold text-red-600 dark:text-red-400">3</h3>
-          </div>
-          <div className="p-3 rounded-lg bg-red-100 dark:bg-red-900/30">
-            <AlertCircle className="w-6 h-6 text-red-500" />
-          </div>
-        </div>
-      </div>
+      <View style={tw`grid grid-cols-1 md:grid-cols-3 gap-6 mb-8`}>
+        <View style={tw`bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between`}>
+          <View>
+            <Text style={tw`text-sm text-slate-500 font-medium mb-1`}>Total Sent (Today)</Text>
+            <Text style={tw`text-2xl font-bold text-slate-900 dark:text-white`}>1,284</Text>
+          </View>
+          <View style={tw`p-3 rounded-lg bg-blue-100 dark:bg-blue-900/30`}>
+            <Mail   size={20} color="#64748b" />
+          </View>
+        </View>
+        <View style={tw`bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between`}>
+          <View>
+            <Text style={tw`text-sm text-slate-500 font-medium mb-1`}>Delivery Rate</Text>
+            <Text style={tw`text-2xl font-bold text-green-600 dark:text-green-400`}>99.8%</Text>
+          </View>
+          <View style={tw`p-3 rounded-lg bg-green-100 dark:bg-green-900/30`}>
+            <CheckCircle   size={20} color="#64748b" />
+          </View>
+        </View>
+        <View style={tw`bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between`}>
+          <View>
+            <Text style={tw`text-sm text-slate-500 font-medium mb-1`}>Failed Deliveries</Text>
+            <Text style={tw`text-2xl font-bold text-red-600 dark:text-red-400`}>3</Text>
+          </View>
+          <View style={tw`p-3 rounded-lg bg-red-100 dark:bg-red-900/30`}>
+            <AlertCircle   size={20} color="#64748b" />
+          </View>
+        </View>
+      </View>
 
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
-          <h3 className="font-bold text-slate-900 dark:text-white">Recent Outbound Messages</h3>
-          <div className="flex gap-2">
-            <button className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:hover:text-white">
-              <Filter className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-slate-200 dark:border-slate-700">
-              <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">Type</th>
-              <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+      <View style={tw`bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm`}>
+        <View style={tw`p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50`}>
+          <Text style={tw`font-bold text-slate-900 dark:text-white`}>Recent Outbound Messages</Text>
+          <View style={tw`flex gap-2`}>
+            <TouchableOpacity style={tw`p-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:hover:text-white`}>
+              <Filter   size={20} color="#64748b" />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={tw`w-full text-left border-collapse`}>
+          <View>
+            <View style={tw`border-b border-slate-200 dark:border-slate-700`}>
+              <Text style={tw`p-4 text-sm font-semibold text-slate-600 dark:text-slate-300`}>Type</Text>
+              <Text style={tw`p-4 text-sm font-semibold text-slate-600 dark:text-slate-300`}>
                 Recipient
-              </th>
-              <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+              </Text>
+              <Text style={tw`p-4 text-sm font-semibold text-slate-600 dark:text-slate-300`}>
                 Subject / Content
-              </th>
-              <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+              </Text>
+              <Text style={tw`p-4 text-sm font-semibold text-slate-600 dark:text-slate-300`}>
                 Status
-              </th>
-              <th className="p-4 text-sm font-semibold text-slate-600 dark:text-slate-300">Time</th>
-            </tr>
-          </thead>
-          <tbody>
+              </Text>
+              <Text style={tw`p-4 text-sm font-semibold text-slate-600 dark:text-slate-300`}>Time</Text>
+            </View>
+          </View>
+          <View>
             {MOCK_NOTIFICATIONS.map((notif) => (
-              <tr
+              <View
                 key={notif.id}
-                className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                style={tw`border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50`}
               >
-                <td className="p-4">
-                  <span
-                    className={`flex items-center gap-2 text-sm font-semibold ${
+                <View style={tw`p-4`}>
+                  <Text
+                    style={tw`flex items-center gap-2 text-sm font-semibold ${
                       notif.type === "Email"
                         ? "text-blue-600"
                         : notif.type === "SMS"
@@ -134,22 +136,22 @@ export default function AdminNotifications() {
                     }`}
                   >
                     {notif.type === "Email" ? (
-                      <Mail className="w-4 h-4" />
+                      <Mail   size={20} color="#64748b" />
                     ) : notif.type === "SMS" ? (
-                      <MessageSquare className="w-4 h-4" />
+                      <MessageSquare   size={20} color="#64748b" />
                     ) : (
-                      <Smartphone className="w-4 h-4" />
+                      <Smartphone   size={20} color="#64748b" />
                     )}
                     {notif.type}
-                  </span>
-                </td>
-                <td className="p-4 text-sm text-slate-900 dark:text-white font-medium">
+                  </Text>
+                </View>
+                <View style={tw`p-4 text-sm text-slate-900 dark:text-white font-medium`}>
                   {notif.recipient}
-                </td>
-                <td className="p-4 text-sm text-slate-600 dark:text-slate-400">{notif.subject}</td>
-                <td className="p-4">
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-bold ${
+                </View>
+                <View style={tw`p-4 text-sm text-slate-600 dark:text-slate-400`}>{notif.subject}</View>
+                <View style={tw`p-4`}>
+                  <Text
+                    style={tw`px-2 py-1 rounded text-xs font-bold ${
                       notif.status === "Delivered"
                         ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                         : notif.status === "Pending"
@@ -158,14 +160,14 @@ export default function AdminNotifications() {
                     }`}
                   >
                     {notif.status}
-                  </span>
-                </td>
-                <td className="p-4 text-sm text-slate-500">{notif.time}</td>
-              </tr>
+                  </Text>
+                </View>
+                <View style={tw`p-4 text-sm text-slate-500`}>{notif.time}</View>
+              </View>
             ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </View>
+        </View>
+      </View>
+    </View>
   );
 }
