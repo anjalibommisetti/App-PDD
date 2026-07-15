@@ -920,7 +920,6 @@ export default function ScanScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
-            )}
           </View>
         )}
 
