@@ -66,6 +66,15 @@ function BookingModal({
         status: "pending",
         created_at: new Date().toISOString(),
       });
+      
+      // Real-time messaging to doctor
+      await supabase.from("messages").insert({
+        sender: user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Patient",
+        receiver: dentist?.name,
+        content: `New Appointment Booked!\nDate: ${date}\nTime: ${time}\nNote/Disease: ${note || "None provided"}`,
+        created_at: new Date().toISOString()
+      });
+
       if (error) {
         console.error("Appointment insert error:", error.message);
         // Still show success screen — inform user via console
@@ -89,6 +98,28 @@ function BookingModal({
     setBooked(false);
     onClose();
   };
+
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [loadingTimes, setLoadingTimes] = useState(false);
+
+  useEffect(() => {
+    if (dentist && date) {
+      setLoadingTimes(true);
+      supabase
+        .from("doctor_availability")
+        .select("time_slot")
+        .eq("dentist_name", dentist.name)
+        .eq("date", date)
+        .then(({ data }) => {
+          if (data && data.length > 0) {
+            setAvailableTimes(data.map(d => d.time_slot));
+          } else {
+            setAvailableTimes(["09:00 AM", "11:00 AM", "02:00 PM", "04:00 PM"]);
+          }
+          setLoadingTimes(false);
+        });
+    }
+  }, [dentist, date]);
 
   if (!dentist) return null;
 
@@ -172,17 +203,21 @@ function BookingModal({
 
               <Text style={modal.label}>Preferred Time</Text>
               <View style={modal.timeRow}>
-                {["09:00 AM", "11:00 AM", "02:00 PM", "04:00 PM"].map((t) => (
-                  <TouchableOpacity
-                    key={t}
-                    style={[modal.timeChip, time === t && modal.timeChipActive]}
-                    onPress={() => setTime(t)}
-                  >
-                    <Text style={[modal.timeChipText, time === t && modal.timeChipTextActive]}>
-                      {t}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                {loadingTimes ? (
+                  <ActivityIndicator size="small" color="#7C3AED" />
+                ) : (
+                  availableTimes.map((t) => (
+                    <TouchableOpacity
+                      key={t}
+                      style={[modal.timeChip, time === t && modal.timeChipActive]}
+                      onPress={() => setTime(t)}
+                    >
+                      <Text style={[modal.timeChipText, time === t && modal.timeChipTextActive]}>
+                        {t}
+                      </Text>
+                    </TouchableOpacity>
+                  ))
+                )}
               </View>
 
               <Text style={modal.label}>Note (optional)</Text>

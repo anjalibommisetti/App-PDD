@@ -1,102 +1,129 @@
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Platform, Image, StyleSheet, SafeAreaView, Pressable, ActivityIndicator, Keyboard, Alert } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, TextInput, StyleSheet, ActivityIndicator } from "react-native";
 import tw from 'twrnc';
-import React from "react";
-
-import { Calendar, Clock, MapPin, Video, MoreHorizontal, Plus } from "lucide-react-native";
+import React, { useState, useEffect } from "react";
+import { Calendar, Clock, Plus, Trash2 } from "lucide-react-native";
+import { supabase } from "../lib/supabase";
 
 export default function AppointmentsModule() {
-  const appointments = [
-    {
-      id: 1,
-      patient: "Prathyusha",
-      time: "09:00 AM - 09:30 AM",
-      type: "Follow-up",
-      location: "Clinic Room 1",
-      isVirtual: false,
-    },
-    {
-      id: 2,
-      patient: "John Doe",
-      time: "10:00 AM - 11:00 AM",
-      type: "Root Canal Prep",
-      location: "Clinic Room 2",
-      isVirtual: false,
-    },
-    {
-      id: 3,
-      patient: "Sarah Smith",
-      time: "11:30 AM - 11:45 AM",
-      type: "Consultation",
-      location: "Online",
-      isVirtual: true,
-    },
-    {
-      id: 4,
-      patient: "Michael Brown",
-      time: "02:00 PM - 02:45 PM",
-      type: "Routine Checkup",
-      location: "Clinic Room 1",
-      isVirtual: false,
-    },
-  ];
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [availabilities, setAvailabilities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  const doctorName = "Dr. Sarah Smith"; // Dummy auth
+
+  useEffect(() => {
+    fetchAvailability();
+  }, []);
+
+  const fetchAvailability = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("doctor_availability")
+        .select("*")
+        .eq("dentist_name", doctorName)
+        .order("date", { ascending: true });
+        
+      if (data) setAvailabilities(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addSlot = async () => {
+    if (!date || !time) return;
+    const newSlot = { dentist_name: doctorName, date, time_slot: time };
+    
+    // Optimistic UI
+    setAvailabilities([...availabilities, { ...newSlot, id: Date.now() }]);
+    
+    const { error } = await supabase.from("doctor_availability").insert(newSlot);
+    if (error) {
+      alert("Failed to save. Create 'doctor_availability' table in Supabase.");
+    } else {
+      fetchAvailability();
+    }
+  };
+
+  const deleteSlot = async (id: number) => {
+    setAvailabilities(availabilities.filter(a => a.id !== id));
+    await supabase.from("doctor_availability").delete().eq("id", id);
+  };
+
+  const todayDate = new Date().toISOString().split("T")[0];
 
   return (
-    <View style={tw`p-8 h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white font-sans overflow-y-auto`}>
-      <View style={tw`flex justify-between items-center mb-8`}>
-        <View>
-          <Text style={tw`text-3xl font-bold`}>Appointments Calendar</Text>
-          <Text style={tw`text-slate-500 dark:text-slate-400 mt-1`}>
-            Manage your daily schedule and upcoming visits.
-          </Text>
-        </View>
-        <TouchableOpacity style={tw`bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2`}>
-          <Plus   size={20} color="#64748b" /> New Appointment
-        </TouchableOpacity>
+    <View style={tw`p-8 h-full bg-slate-50 dark:bg-slate-950`}>
+      <View style={tw`mb-8`}>
+        <Text style={tw`text-3xl font-bold dark:text-white`}>Manage Availability</Text>
+        <Text style={tw`text-slate-500 mt-1`}>Set your free time slots so patients can book appointments.</Text>
       </View>
 
-      <View style={tw`grid lg:grid-cols-3 gap-8`}>
-        <View style={tw`lg:col-span-2 space-y-4`}>
-          <Text style={tw`text-xl font-bold mb-4`}>Today's Schedule</Text>
-          {appointments.map((app) => (
-            <View
-              key={app.id}
-              style={tw`bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between hover:border-blue-300 dark:hover:border-blue-700 transition-colors`}
-            >
-              <View style={tw`flex gap-4 items-center`}>
-                <View style={tw`w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400`}>
-                  <Clock   size={20} color="#64748b" />
-                </View>
-                <View>
-                  <Text style={tw`font-bold text-lg`}>{app.patient}</Text>
-                  <Text style={tw`text-sm text-slate-500 font-medium`}>
-                    {app.time} • {app.type}
-                  </Text>
-                </View>
-              </View>
-              <View style={tw`flex items-center gap-4`}>
-                <View
-                  style={tw`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${app.isVirtual ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"}`}
-                >
-                  {app.isVirtual ? <Video   size={20} color="#64748b" /> : <MapPin   size={20} color="#64748b" />}
-                  {app.location}
-                </View>
-                <TouchableOpacity style={tw`p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full`}>
-                  <MoreHorizontal   size={20} color="#64748b" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
+      <View style={tw`flex-row gap-8`}>
+        {/* Add Slot Form */}
+        <View style={tw`w-1/3 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800`}>
+          <Text style={tw`font-bold text-lg mb-4 dark:text-white`}>Add Free Time Slot</Text>
+          
+          <Text style={tw`text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2`}>Date</Text>
+          {/* HTML Date Input for Web */}
+          <input
+            type="date"
+            min={todayDate}
+            value={date}
+            onChange={(e: any) => setDate(e.target.value)}
+            style={{
+              width: "100%", padding: "10px", borderRadius: "8px",
+              border: "1px solid #e2e8f0", marginBottom: "16px",
+              backgroundColor: "transparent", color: "inherit"
+            }}
+          />
+
+          <Text style={tw`text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2`}>Time (e.g. 10:00 AM)</Text>
+          <input
+            type="time"
+            value={time}
+            onChange={(e: any) => setTime(e.target.value)}
+            style={{
+              width: "100%", padding: "10px", borderRadius: "8px",
+              border: "1px solid #e2e8f0", marginBottom: "16px",
+              backgroundColor: "transparent", color: "inherit"
+            }}
+          />
+
+          <TouchableOpacity 
+            onPress={addSlot}
+            style={tw`bg-blue-600 p-3 rounded-lg flex-row justify-center items-center gap-2`}
+          >
+            <Plus size={18} color="#fff" />
+            <Text style={tw`text-white font-bold`}>Add Slot</Text>
+          </TouchableOpacity>
         </View>
 
-        <View style={tw`lg:col-span-1`}>
-          <View style={tw`bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm sticky top-8`}>
-            <Text style={tw`font-bold text-lg mb-4 flex items-center gap-2`}>
-              <Calendar   size={20} color="#64748b" /> Date Picker
-            </Text>
-            <View style={tw`w-full h-64 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-400`}>
-              [ Interactive Calendar View ]
-            </View>
-          </View>
+        {/* Existing Slots List */}
+        <View style={tw`flex-1 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800`}>
+          <Text style={tw`font-bold text-lg mb-4 dark:text-white`}>Your Free Times</Text>
+          <ScrollView>
+            {loading ? <ActivityIndicator size="large" color="#3b82f6" /> : availabilities.length === 0 ? (
+              <Text style={tw`text-slate-400 italic`}>No free times set. Patients cannot book you yet.</Text>
+            ) : (
+              availabilities.map((slot) => (
+                <View key={slot.id} style={tw`flex-row justify-between items-center p-4 border-b border-slate-100 dark:border-slate-800`}>
+                  <View style={tw`flex-row items-center gap-4`}>
+                    <Calendar size={20} color="#3b82f6" />
+                    <Text style={tw`font-bold dark:text-white text-lg`}>{slot.date}</Text>
+                    <Clock size={16} color="#64748b" style={{ marginLeft: 8 }}/>
+                    <Text style={tw`text-slate-600 dark:text-slate-400 font-medium`}>{slot.time_slot}</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => deleteSlot(slot.id)} style={tw`p-2 bg-red-50 dark:bg-red-900/20 rounded-full`}>
+                    <Trash2 size={18} color="#ef4444" />
+                  </TouchableOpacity>
+                </View>
+              ))
+            )}
+          </ScrollView>
         </View>
       </View>
     </View>
