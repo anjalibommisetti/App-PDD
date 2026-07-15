@@ -5,6 +5,12 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0D4B42"
+    },
     "ios": {
       "supportsTablet": true,
       "runtimeVersion": {
@@ -13,7 +19,11 @@
     },
     "android": {
       "package": "com.lakshmi_anjali.smileguard",
-      "runtimeVersion": "1.0.0"
+      "runtimeVersion": "1.0.0",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0D4B42"
+      }
     },
     "web": {
       "bundler": "metro",
