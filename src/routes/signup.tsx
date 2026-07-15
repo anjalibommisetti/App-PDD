@@ -19,17 +19,7 @@ export default function SignupScreen() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Role specific state
-  const [role, setRole] = useState("patient");
-  const [specialization, setSpecialization] = useState("");
-  const [licenseNumber, setLicenseNumber] = useState("");
-  const [adminCode, setAdminCode] = useState("");
-
-  React.useEffect(() => {
-    AsyncStorage.getItem("selectedSignupRole").then((r) => {
-      if (r) setRole(r);
-    });
-  }, []);
+  // Role specific state removed
 
   const handleSignup = async () => {
     setErrorMessage("");
@@ -48,15 +38,7 @@ export default function SignupScreen() {
       return;
     }
 
-    if (role === "doctor" && (!specialization || !licenseNumber)) {
-      setErrorMessage("Please fill in your medical credentials");
-      return;
-    }
-
-    if (role === "admin" && adminCode !== "ADMIN2026") {
-      setErrorMessage("Invalid Admin Registration Code");
-      return;
-    }
+    // Removed role-specific validation
 
     setLoading(true);
     console.log("Attempting signup for:", email.trim());
@@ -66,9 +48,6 @@ export default function SignupScreen() {
       options: {
         data: {
           full_name: fullName,
-          role: role,
-          specialization: role === "doctor" ? specialization : null,
-          license_number: role === "doctor" ? licenseNumber : null,
         },
       },
     });
@@ -83,8 +62,7 @@ export default function SignupScreen() {
       console.log("Signup successful:", data);
       Keyboard?.dismiss?.();
 
-      // Save role so auto-login routes correctly
-      await AsyncStorage.setItem("userRole", role);
+      // Removed AsyncStorage role save
 
       Alert.alert("Success", "Registration successful! You can now log in to access your portal.");
       navigation.navigate("Login");
@@ -95,13 +73,7 @@ export default function SignupScreen() {
     <PhoneShell showNav={false}>
       <View style={{ flex: 1 }}>
         <View style={styles.container}>
-          <Text style={styles.title}>
-            {role === "doctor"
-              ? "Doctor Registration"
-              : role === "admin"
-                ? "Admin Registration"
-                : "Create Account"}
-          </Text>
+          <Text style={styles.title}>Create Account</Text>
 
           {errorMessage ? (
             <View style={styles.errorContainer}>
@@ -112,40 +84,13 @@ export default function SignupScreen() {
 
           <TextInput
             style={styles.input}
-            placeholder={role === "doctor" ? "Dr. Full Name" : "Full Name"}
+            placeholder="Full Name"
             value={fullName}
             onChangeText={(val) => {
               setFullName(val);
               setErrorMessage("");
             }}
           />
-
-          {role === "doctor" && (
-            <>
-              <TextInput
-                style={styles.input}
-                placeholder="Medical Specialization (e.g. Orthodontist)"
-                value={specialization}
-                onChangeText={setSpecialization}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Medical License Number"
-                value={licenseNumber}
-                onChangeText={setLicenseNumber}
-              />
-            </>
-          )}
-
-          {role === "admin" && (
-            <TextInput
-              style={styles.input}
-              placeholder="Admin Registration Code"
-              secureTextEntry
-              value={adminCode}
-              onChangeText={setAdminCode}
-            />
-          )}
 
           <TextInput
             style={styles.input}

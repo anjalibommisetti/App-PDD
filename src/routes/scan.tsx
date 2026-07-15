@@ -145,6 +145,7 @@ function simulateAIAnalysis(seed: number) {
 
 // ─── Offline Image-Based Pixel Analyzer ───────────────────────────────────────
 async function runOfflineAnalysis(uri: string, seed: number): Promise<ReturnType<typeof simulateAIAnalysis>> {
+  return simulateAIAnalysis(seed);
   if (Platform.OS !== "web" || typeof window === "undefined") {
     return simulateAIAnalysis(seed);
   }
@@ -921,6 +922,16 @@ export default function ScanScreen() {
                 </TouchableOpacity>
               </View>
           </View>
+        )}
+
+
+        {imageUri && !result && (
+            <View style={s.uploadCard}>
+              <Image source={{ uri: imageUri }} style={{ width: "100%", height: 300, borderRadius: 16, marginBottom: 16 }} />
+              <TouchableOpacity style={s.cancelCamBtn} onPress={() => { setImageUri(null); setResult(null); setImageFile(null); }}>
+                <Text style={s.cancelCamText}>Remove Image</Text>
+              </TouchableOpacity>
+            </View>
         )}
 
         {/* Tips */}

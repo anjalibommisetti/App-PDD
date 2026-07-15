@@ -50,29 +50,7 @@ export default function LoginScreen() {
           setErrorMessage(msg || "Login failed. Please try again.");
         }
       } else if (data?.session) {
-        // Fetch actual role from user metadata
-        let role = data.session.user.user_metadata?.role;
-
-        // --- AUTO-ROUTING FOR TESTING ---
-        const userEmail = email.toLowerCase();
-        if (userEmail.includes("doctor") || userEmail.includes("doc")) {
-          role = "doctor";
-        } else if (userEmail.includes("admin")) {
-          role = "admin";
-        } else if (userEmail.includes("patient")) {
-          role = "patient";
-        }
-
-        // Fallback
-        if (!role) {
-          role = "patient";
-        }
-
-        await AsyncStorage.setItem("userRole", role);
-
-        if (role === "admin") navigation.navigate("AdminDashboard");
-        else if (role === "doctor") navigation.navigate("DoctorDashboard");
-        else navigation.navigate("Dashboard");
+        navigation.navigate("Dashboard");
       }
     } catch (err: any) {
       setErrorMessage("⚠ No internet connection. Please check your network and try again.");
@@ -139,7 +117,7 @@ export default function LoginScreen() {
           <TouchableOpacity
             onPress={() => {
               Keyboard?.dismiss?.();
-              navigation.navigate("RoleSelection");
+              navigation.navigate("Signup");
             }}
           >
             <Text style={styles.link}>Don't have an account? Sign up</Text>

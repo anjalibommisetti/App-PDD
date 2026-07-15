@@ -46,9 +46,6 @@ import ScanScreen from "./src/routes/scan";
 import { Chatbot } from "./src/components/Chatbot";
 import LandingPage from "./src/routes/index";
 import AnalyticsDashboard from "./src/routes/analytics";
-import RoleSelectionScreen from "./src/routes/role-selection";
-import DoctorPortal from "./src/routes/doctor-portal";
-import AdminPortal from "./src/routes/admin-portal";
 import ForgotPasswordScreen from "./src/routes/forgot-password";
 import ChatbotScreen from "./src/routes/chatbot";
 
@@ -180,26 +177,11 @@ export default function App() {
         } = await supabase.auth.getSession();
 
         if (currentSession) {
-          const email = currentSession.user.email?.toLowerCase() || "";
-          let role = currentSession.user.user_metadata?.role;
-
-          if (email.includes("doctor") || email.includes("doc")) {
-            role = "doctor";
-          } else if (email.includes("admin")) {
-            role = "admin";
-          } else if (email.includes("patient")) {
-            role = "patient";
-          }
-
-          if (role === "admin") setInitialRoute("AdminDashboard");
-          else if (role === "doctor") setInitialRoute("DoctorDashboard");
-          else setInitialRoute("Dashboard");
+          setInitialRoute("Dashboard");
 
           setTimeout(() => {
             if (navigationRef.isReady()) {
-              if (role === "admin") navigationRef.navigate("AdminDashboard");
-              else if (role === "doctor") navigationRef.navigate("DoctorDashboard");
-              else navigationRef.navigate("Dashboard");
+              navigationRef.navigate("Dashboard");
             }
           }, 200);
         } else {
@@ -237,27 +219,12 @@ export default function App() {
           navigationRef.navigate("ForgotPassword", { step: 3 });
         }
       } else if (newSession && !isRecovery) {
-        const email = newSession.user.email?.toLowerCase() || "";
-        let role = newSession.user.user_metadata?.role;
-
-        if (email.includes("doctor") || email.includes("doc")) {
-          role = "doctor";
-        } else if (email.includes("admin")) {
-          role = "admin";
-        } else if (email.includes("patient")) {
-          role = "patient";
-        }
-
-        if (role === "admin") setInitialRoute("AdminDashboard");
-        else if (role === "doctor") setInitialRoute("DoctorDashboard");
-        else setInitialRoute("Dashboard");
+          setInitialRoute("Dashboard");
 
         // Force navigation to the correct route after React Navigation hot-swaps screens
         setTimeout(() => {
           if (navigationRef.isReady()) {
-            if (role === "admin") navigationRef.navigate("AdminDashboard");
-            else if (role === "doctor") navigationRef.navigate("DoctorDashboard");
-            else navigationRef.navigate("Dashboard");
+            navigationRef.navigate("Dashboard");
           }
         }, 100);
       } else if (!newSession) {
@@ -332,8 +299,6 @@ export default function App() {
               <Stack.Screen name="Dentists" component={DentistsScreen} />
               <Stack.Screen name="Alerts" component={AlertsScreen} />
               <Stack.Screen name="Analytics" component={AnalyticsDashboard} />
-              <Stack.Screen name="DoctorDashboard" component={DoctorPortal} />
-              <Stack.Screen name="AdminDashboard" component={AdminPortal} />
               <Stack.Screen
                 name="ForgotPassword"
                 component={ForgotPasswordScreen}
@@ -344,7 +309,6 @@ export default function App() {
             // Auth Screens — Landing is now the entry point
             <>
               <Stack.Screen name="Landing" component={LandingPage} />
-              <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Signup" component={SignupScreen} />
               <Stack.Screen

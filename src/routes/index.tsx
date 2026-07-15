@@ -30,10 +30,17 @@ export default function LandingPage() {
               <Text style={styles.loginBtnText}>Log in</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.navigate("RoleSelection")}
+              onPress={() => navigation.navigate("Login")}
               style={styles.getStartedBtn}
             >
-              <Text style={styles.getStartedBtnText}>Get Started</Text>
+              <Text style={styles.getStartedBtnText}>Log In</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Signup")}
+              style={[styles.getStartedBtn, { backgroundColor: "transparent", borderWidth: 2, borderColor: "#86F1D4" }]}
+            >
+              <Text style={[styles.getStartedBtnText, { color: "#86F1D4" }]}>Sign Up</Text>
             </TouchableOpacity>
           </View>
         </View>
