@@ -43,10 +43,8 @@ import HistoryScreen from "./src/routes/history";
 import DentistsScreen from "./src/routes/dentists";
 import AlertsScreen from "./src/routes/alerts";
 import ScanScreen from "./src/routes/scan";
-import { Chatbot } from "./src/components/Chatbot";
 import AnalyticsDashboard from "./src/routes/analytics";
 import ForgotPasswordScreen from "./src/routes/forgot-password";
-import ChatbotScreen from "./src/routes/chatbot";
 
 const Stack = createStackNavigator();
 
@@ -317,7 +315,6 @@ export default function App() {
             </>
           )}
         </Stack.Navigator>
-        <Chatbot />
       </NavigationContainer>
     </SafeAreaProvider>
   );

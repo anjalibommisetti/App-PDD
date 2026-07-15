@@ -28,7 +28,6 @@ import ScanScreen from "./scan";
 import ResultsScreen from "./results";
 import DentistsScreen from "./dentists";
 import ReportScreen from "./report";
-import ChatbotScreen from "./chatbot";
 import ProfileScreen from "./profile";
 import HistoryScreen from "./history";
 import AssessmentScreen from "./assessment";
@@ -202,7 +201,6 @@ export default function PatientPortal() {
     { id: "Assessment", label: "Take Assessment", icon: FileText },
     { id: "Scan", label: "Upload Scan", icon: UploadCloud },
     { id: "History", label: "Predictions", icon: Activity },
-    { id: "Chatbot", label: "Chat Assistant", icon: MessageCircle },
     { id: "Profile", label: "Profile", icon: User },
   ];
 
@@ -276,7 +274,6 @@ export default function PatientPortal() {
             {activeTab === "History" && <HistoryScreen />}
             {activeTab === "Appointments" && <DentistsScreen />}
             {activeTab === "Report" && <ReportScreen />}
-            {activeTab === "Chatbot" && <ChatbotScreen />}
             {activeTab === "Profile" && <ProfileScreen />}
           </View>
         </View>
