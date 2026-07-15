@@ -40,6 +40,7 @@ export default function ProfileScreen() {
   const [editPhone, setEditPhone] = useState("");
   const [editDob, setEditDob] = useState("");
   const [editGender, setEditGender] = useState("");
+  const [editPassword, setEditPassword] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
 
 
@@ -62,6 +63,7 @@ export default function ProfileScreen() {
         setEditPhone(session.user.user_metadata?.phone || "");
         setEditDob(session.user.user_metadata?.dob || "");
         setEditGender(session.user.user_metadata?.gender || "");
+        setEditPassword("");
       }
 
 
@@ -107,14 +109,18 @@ export default function ProfileScreen() {
   const handleSaveProfile = async () => {
     setSavingProfile(true);
     try {
-      const { error } = await supabase.auth.updateUser({
+      const updatePayload: any = {
         data: {
           full_name: editName,
           phone: editPhone,
           dob: editDob,
           gender: editGender,
         },
-      });
+      };
+      if (editPassword.trim().length > 0) {
+        updatePayload.password = editPassword.trim();
+      }
+      const { error } = await supabase.auth.updateUser(updatePayload);
       if (error) throw error;
       Alert.alert("Success", "Profile updated successfully!");
       setIsEditing(false);
@@ -161,6 +167,9 @@ export default function ProfileScreen() {
               
               <Text style={styles.inputLabel}>Gender</Text>
               <TextInput style={styles.inputField} value={editGender} onChangeText={setEditGender} placeholder="Male / Female / Other" />
+              
+              <Text style={styles.inputLabel}>New Password (leave blank to keep current)</Text>
+              <TextInput style={styles.inputField} value={editPassword} onChangeText={setEditPassword} placeholder="Enter new password" secureTextEntry />
               
               <TouchableOpacity style={styles.saveBtn} onPress={handleSaveProfile} disabled={savingProfile}>
                 {savingProfile ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Save Changes</Text>}
@@ -287,27 +296,6 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Badges */}
-        <View style={styles.badgesCard}>
-          <Text style={styles.badgesTitle}>Badges</Text>
-          <View style={styles.badgesGrid}>
-            {badges.map((b) => {
-              const bg =
-                b.tone === "mint"
-                  ? "rgba(134, 241, 212, 0.4)"
-                  : b.tone === "peach"
-                    ? "rgba(255, 205, 178, 0.5)"
-                    : "#F1F5F9";
-              return (
-                <View key={b.name} style={[styles.badgeItem, { backgroundColor: bg }]}>
-                  <Feather name={b.icon as any} size={24} color="#0F172A" />
-                  <Text style={styles.badgeName}>{b.name}</Text>
-                </View>
-              );
-            })}
-          </View>
-        </View>
-
         {/* Menu */}
         <View style={styles.menuCard}>
           
@@ -360,6 +348,9 @@ export default function ProfileScreen() {
               
               <Text style={styles.inputLabel}>Gender</Text>
               <TextInput style={styles.inputField} value={editGender} onChangeText={setEditGender} placeholder="Male / Female / Other" />
+              
+              <Text style={styles.inputLabel}>New Password (leave blank to keep current)</Text>
+              <TextInput style={styles.inputField} value={editPassword} onChangeText={setEditPassword} placeholder="Enter new password" secureTextEntry />
               
               <TouchableOpacity style={styles.saveBtn} onPress={handleSaveProfile} disabled={savingProfile}>
                 {savingProfile ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Save Changes</Text>}
