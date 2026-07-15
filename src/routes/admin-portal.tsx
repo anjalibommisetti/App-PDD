@@ -87,12 +87,7 @@ export default function AdminPortal() {
     { id: "Settings", icon: Settings, label: "System Settings" },
   ];
 
-  const MOCK_USERS = [
-    { id: "1", name: "Dr. Sarah Smith", role: "Doctor", status: "Active", joined: "May 10, 2026" },
-    { id: "2", name: "Emily Chen", role: "Patient", status: "Active", joined: "May 12, 2026" },
-    { id: "3", name: "Dr. Michael Jones", role: "Doctor", status: "Pending Approval", joined: "May 14, 2026" },
-    { id: "4", name: "John Doe", role: "Patient", status: "Active", joined: "May 15, 2026" },
-  ];
+  const MOCK_USERS: any[] = [];
 
   return (
     <SafeAreaView style={styles.mainWrapper}>
