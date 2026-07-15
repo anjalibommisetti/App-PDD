@@ -5,7 +5,9 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Alert,
   Platform,
+  Image
 } from "react-native";
 import React, { useState, useCallback } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
@@ -16,7 +18,6 @@ import { supabase } from "../lib/supabase";
 
 export default function HistoryScreen() {
   const navigation = useNavigation<any>();
-  const [tab, setTab] = useState<"assessments" | "appointments">("assessments");
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -25,7 +26,7 @@ export default function HistoryScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchHistory();
-    }, [tab]),
+    }, []),
   );
 
   const fetchHistory = async () => {
@@ -38,20 +39,16 @@ export default function HistoryScreen() {
       } = await supabase.auth.getSession();
       const userId = session?.user?.id;
 
-      if (tab === "assessments") {
-        // Try user-specific first
-        let data: any[] | null = null;
-        if (userId) {
-          const res = await supabase
-            .from("assessments")
-            .select("*")
-            .eq("user_id", userId)
-            .order("created_at", { ascending: false });
-          data = res.data;
-        }
-        if (data && data.length > 0) {
+      if (userId) {
+        const res = await supabase
+          .from("assessments")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false });
+        
+        if (res.data && res.data.length > 0) {
           setItems(
-            data.map((it: any) => {
+            res.data.map((it: any) => {
               const isScan = (it.patient_name || "").startsWith("[Scan]");
               const isInProgress = it.level === "In Progress";
               const tone = isInProgress
@@ -66,9 +63,9 @@ export default function HistoryScreen() {
                 type: "assessment",
                 isScan,
                 displayName: isScan
-                  ? (it.patient_name || it.answers?.q0 || "").replace("[Scan] ", "") +
-                    " (Teeth Scan)"
-                  : it.patient_name || it.answers?.q0 || "Risk Assessment",
+                  ? "Teeth Scan"
+                  : "Risk Assessment",
+                imageUrl: it.answers?.imageUrl,
                 displayDate: new Date(it.created_at).toLocaleDateString("en-IN", {
                   day: "2-digit",
                   month: "short",
@@ -83,49 +80,6 @@ export default function HistoryScreen() {
             }),
           );
         }
-      } else {
-        // Appointments
-        let data: any[] | null = null;
-        try {
-          if (userId) {
-            const res = await supabase
-              .from("appointments")
-              .select("*")
-              .eq("user_id", userId)
-              .order("created_at", { ascending: false });
-            if (res.error) {
-              console.error("Appointments fetch error:", res.error.message);
-              setError(
-                "Appointments table not set up yet. Please create the appointments table in Supabase.",
-              );
-            }
-            data = res.data;
-          }
-        } catch (_) {
-          // appointments table may not exist yet
-        }
-        if (data && data.length > 0) {
-          setItems(
-            data.map((it: any) => ({
-              ...it,
-              type: "appointment",
-              displayDate: it.appointment_date
-                ? new Date(it.appointment_date).toLocaleDateString("en-IN", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })
-                : "—",
-              displayTime: it.appointment_time || "—",
-              tone:
-                it.status === "confirmed"
-                  ? "success"
-                  : it.status === "cancelled"
-                    ? "alert"
-                    : "warning",
-            })),
-          );
-        }
       }
     } catch (err: any) {
       setError("Could not load history. Please try again.");
@@ -137,8 +91,7 @@ export default function HistoryScreen() {
   const handleDelete = async (id: string, type: string) => {
     if (Platform.OS === "web") {
       if ((window as any).confirm("Are you sure you want to delete this record?")) {
-        const table = type === "appointment" ? "appointments" : "assessments";
-        const { error } = await supabase.from(table).delete().eq("id", id);
+        const { error } = await supabase.from("assessments").delete().eq("id", id);
         if (error) {
           console.error("Delete error:", error.message);
           alert("Could not delete record. Please try again.");
@@ -153,8 +106,7 @@ export default function HistoryScreen() {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            const table = type === "appointment" ? "appointments" : "assessments";
-            const { error } = await supabase.from(table).delete().eq("id", id);
+            const { error } = await supabase.from("assessments").delete().eq("id", id);
             if (error) {
               console.error("Delete error:", error.message);
               Alert.alert("Error", "Could not delete record. Please try again.");
@@ -182,27 +134,6 @@ export default function HistoryScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Tabs */}
-        <View style={styles.tabsWrap}>
-          {[
-            { key: "assessments", label: "Assessments", icon: "clipboard" },
-            { key: "appointments", label: "Appointments", icon: "calendar" },
-          ].map((t) => (
-            <TouchableOpacity
-              key={t.key}
-              onPress={() => setTab(t.key as any)}
-              style={[styles.tabBtn, tab === t.key && styles.tabBtnActive]}
-            >
-              <Feather
-                name={t.icon as any}
-                size={14}
-                color={tab === t.key ? "#157A6E" : "#94A3B8"}
-              />
-              <Text style={[styles.tabText, tab === t.key && styles.tabTextActive]}>{t.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
         <View style={styles.list}>
           {/* Loading */}
           {loading && (
@@ -228,21 +159,19 @@ export default function HistoryScreen() {
             <View style={styles.centerBox}>
               <Feather name="inbox" size={36} color="#CBD5E1" />
               <Text style={styles.centerText}>
-                {tab === "assessments" ? "No assessments yet." : "No appointments booked yet."}
+                No assessments yet.
               </Text>
               <Text style={styles.centerSub}>
-                {tab === "assessments"
-                  ? "Complete an assessment to see your history here."
-                  : "Book a dentist visit to see your appointments here."}
+                Complete an assessment to see your history here.
               </Text>
               <TouchableOpacity
                 style={styles.actionBtn}
                 onPress={() =>
-                  navigation.navigate(tab === "assessments" ? "Assessment" : "Dentists")
+                  navigation.navigate("Assessment")
                 }
               >
                 <Text style={styles.actionBtnText}>
-                  {tab === "assessments" ? "Start Assessment" : "Book Visit"}
+                  Start Assessment
                 </Text>
               </TouchableOpacity>
             </View>
@@ -250,7 +179,6 @@ export default function HistoryScreen() {
 
           {/* Assessment + Scan Items */}
           {!loading &&
-            tab === "assessments" &&
             items.map((it) => {
               const c = toneColors[it.tone as keyof typeof toneColors] || toneColors.success;
               const isCompleted = it.level !== "In Progress";
@@ -259,9 +187,13 @@ export default function HistoryScreen() {
                   {/* Left color indicator */}
                   <View style={[styles.indicator, { backgroundColor: c.fg }]} />
 
-                  {/* Icon box */}
-                  <View style={[styles.iconBox, { backgroundColor: c.bg }]}>
-                    <Text style={{ fontSize: 20 }}>{it.isScan ? "🦷" : "📋"}</Text>
+                  {/* Icon box or Image */}
+                  <View style={[styles.iconBox, { backgroundColor: c.bg, overflow: "hidden" }]}>
+                    {it.isScan && it.imageUrl ? (
+                      <Image source={{ uri: it.imageUrl }} style={{ width: 48, height: 48 }} />
+                    ) : (
+                      <Text style={{ fontSize: 20 }}>{it.isScan ? "🦷" : "📋"}</Text>
+                    )}
                   </View>
 
                   {/* Body */}
@@ -301,45 +233,6 @@ export default function HistoryScreen() {
               );
             })}
 
-          {/* Appointment Items */}
-          {!loading &&
-            tab === "appointments" &&
-            items.map((it) => {
-              const c = toneColors[it.tone as keyof typeof toneColors] || toneColors.warning;
-              return (
-                <View key={it.id} style={styles.itemCard}>
-                  <View style={[styles.indicator, { backgroundColor: c.fg }]} />
-                  <View style={[styles.iconBox, { backgroundColor: c.bg }]}>
-                    <Feather name="calendar" size={20} color={c.fg} />
-                  </View>
-                  <View style={styles.itemBody}>
-                    <Text style={styles.itemTitle}>{it.dentist_name || "Appointment"}</Text>
-                    <Text style={styles.itemSpec}>{it.dentist_specialty || ""}</Text>
-                    <Text style={styles.itemDate}>
-                      {it.displayDate} · {it.displayTime}
-                    </Text>
-                    {it.note ? (
-                      <Text style={styles.itemNote} numberOfLines={1}>
-                        📝 {it.note}
-                      </Text>
-                    ) : null}
-                    <View style={[styles.badge, { backgroundColor: c.bg, marginTop: 4 }]}>
-                      <Text
-                        style={[styles.badgeText, { color: c.fg, textTransform: "capitalize" }]}
-                      >
-                        {it.status || "pending"}
-                      </Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.deleteBtn}
-                    onPress={() => handleDelete(it.id, "appointment")}
-                  >
-                    <Feather name="trash-2" size={16} color="#EF4444" />
-                  </TouchableOpacity>
-                </View>
-              );
-            })}
         </View>
       </ScrollView>
     </PhoneShell>

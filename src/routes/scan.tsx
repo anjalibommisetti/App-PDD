@@ -506,7 +506,7 @@ function ConfidenceBar({ confidence, color, delay = 0 }: { confidence: number; c
 export default function ScanScreen() {
   const navigation = useNavigation<any>();
   const [imageUri, setImageUri] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFile, setImageFile] = useState<File | string | null>(null);
   const [imageSeed, setImageSeed] = useState<number>(0);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<ReturnType<typeof simulateAIAnalysis> | null>(null);
@@ -538,10 +538,13 @@ export default function ScanScreen() {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: false,
-      quality: 1,
+      quality: 0.3,
+      base64: true,
     });
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const uri = result.assets[0].uri;
+      const b64 = result.assets[0].base64;
+      if (b64) setImageFile(`data:image/jpeg;base64,${b64}` as any);
       setImageUri(uri);
       setImageSeed(result.assets[0].fileSize || 1000);
       setResult(null);
@@ -585,10 +588,13 @@ export default function ScanScreen() {
     let result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: false,
-      quality: 1,
+      quality: 0.3,
+      base64: true,
     });
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const uri = result.assets[0].uri;
+      const b64 = result.assets[0].base64;
+      if (b64) setImageFile(`data:image/jpeg;base64,${b64}` as any);
       setImageUri(uri);
       setImageSeed(result.assets[0].fileSize || 1000);
       setResult(null);
@@ -753,7 +759,7 @@ export default function ScanScreen() {
         score: analysis.score,
         level: analysis.level,
         patient_name: `[Scan] ${userName}`,
-        answers: { predictedClass: analysis.predictedClass },
+        answers: { predictedClass: analysis.predictedClass, imageUrl: typeof imageFile === "string" ? imageFile : null },
         created_at: new Date().toISOString(),
       });
       setAutoSaved(true);
@@ -906,20 +912,6 @@ export default function ScanScreen() {
                     <Text style={s.openCamText}>Take Photo</Text>
                   </TouchableOpacity>
                 </View>
-
-                {/* Demo Mode Toggle */}
-                <TouchableOpacity
-                  onPress={() => setDemoMode(!demoMode)}
-                  style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 14 }}
-                  activeOpacity={0.8}
-                >
-                  <View style={{ width: 18, height: 18, borderRadius: 5, borderWidth: 2, borderColor: "#157A6E", backgroundColor: demoMode ? "#157A6E" : "transparent", alignItems: "center", justifyContent: "center" }}>
-                    {demoMode && <Feather name="check" size={12} color="#FFF" />}
-                  </View>
-                  <Text style={{ fontSize: 12, color: "#64748B", fontWeight: "600" }}>
-                    Demo Mode: Force High Risk Caries
-                  </Text>
-                </TouchableOpacity>
               </View>
           </View>
         )}

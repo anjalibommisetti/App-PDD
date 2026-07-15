@@ -20,7 +20,6 @@ const sections = [
     id: "A",
     title: "Basic Information",
     questions: [
-      { id: "q2", text: "Gender", type: "single", options: ["Male", "Female", "Other"] },
       {
         id: "q3",
         text: "Do you live in an urban or rural area?",

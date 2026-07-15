@@ -7,6 +7,7 @@ import {
   ScrollView,
   SafeAreaView,
   Platform,
+  Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { supabase } from "../lib/supabase";
@@ -103,6 +104,8 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
                   day: "2-digit",
                   month: "short",
                 }),
+                isScan,
+                imageUrl: r.answers?.imageUrl,
               };
             }),
           );
@@ -168,8 +171,12 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
             activities.map((act) => (
               <View key={act.id} style={styles.activityItem}>
                 <View style={styles.activityRow}>
-                  <View style={[styles.activityIconBg, { backgroundColor: getRiskColor(act.level).bg }]}>
-                    <Activity size={20} color={getRiskColor(act.level).text} />
+                  <View style={[styles.activityIconBg, { backgroundColor: getRiskColor(act.level).bg, overflow: "hidden" }]}>
+                    {act.isScan && act.imageUrl ? (
+                      <Image source={{ uri: act.imageUrl }} style={{ width: 40, height: 40 }} />
+                    ) : (
+                      <Activity size={20} color={getRiskColor(act.level).text} />
+                    )}
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.activityTitle}>{act.title}</Text>
@@ -261,9 +268,6 @@ export default function PatientPortal() {
               <TouchableOpacity onPress={() => navigation.navigate("Alerts")}>
                 <Bell size={24} color="#64748B" />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.avatar} onPress={() => setActiveTab("Profile")}>
-                <Text style={styles.avatarText}>PU</Text>
-              </TouchableOpacity>
             </View>
           </View>
 
@@ -272,10 +276,37 @@ export default function PatientPortal() {
             {activeTab === "Assessment" && <AssessmentScreen />}
             {activeTab === "Scan" && <ScanScreen />}
             {activeTab === "History" && <HistoryScreen />}
-            {activeTab === "Appointments" && <DentistsScreen />}
-            {activeTab === "Report" && <ReportScreen />}
             {activeTab === "Profile" && <ProfileScreen />}
           </View>
+
+          {/* Bottom Navigation for Mobile */}
+          {Platform.OS !== "web" && (
+            <View style={styles.bottomNav}>
+              <TouchableOpacity style={styles.bottomNavItem} onPress={() => setActiveTab("Dashboard")}>
+                <LayoutDashboard size={22} color={activeTab === "Dashboard" ? "#0D9488" : "#64748B"} />
+                <Text style={[styles.bottomNavText, activeTab === "Dashboard" && styles.bottomNavTextActive]}>Home</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.bottomNavItem} onPress={() => setActiveTab("Assessment")}>
+                <FileText size={22} color={activeTab === "Assessment" ? "#0D9488" : "#64748B"} />
+                <Text style={[styles.bottomNavText, activeTab === "Assessment" && styles.bottomNavTextActive]}>Assessment</Text>
+              </TouchableOpacity>
+              
+              <View style={styles.scanBtnContainer}>
+                <TouchableOpacity style={styles.scanBtn} onPress={() => setActiveTab("Scan")}>
+                  <UploadCloud size={24} color="#FFF" />
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity style={styles.bottomNavItem} onPress={() => setActiveTab("History")}>
+                <Activity size={22} color={activeTab === "History" ? "#0D9488" : "#64748B"} />
+                <Text style={[styles.bottomNavText, activeTab === "History" && styles.bottomNavTextActive]}>History</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.bottomNavItem} onPress={() => setActiveTab("Profile")}>
+                <User size={22} color={activeTab === "Profile" ? "#0D9488" : "#64748B"} />
+                <Text style={[styles.bottomNavText, activeTab === "Profile" && styles.bottomNavTextActive]}>Profile</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -283,7 +314,7 @@ export default function PatientPortal() {
 }
 
 const styles = StyleSheet.create({
-  mainWrapper: { flex: 1, backgroundColor: "#F8FAFC" },
+  mainWrapper: { flex: 1, backgroundColor: "#F8FAFC", paddingTop: Platform.OS !== "web" ? 35 : 0 },
   layoutRow: { flex: 1, flexDirection: "row" },
   
   // Sidebar
@@ -427,4 +458,52 @@ const styles = StyleSheet.create({
   },
   reminderTitle: { fontWeight: "bold", color: "#1E3A8A", fontSize: 14, marginBottom: 4 },
   reminderSubtitle: { color: "#1D4ED8", fontSize: 12 },
+
+  // Bottom Nav
+  bottomNav: {
+    flexDirection: "row",
+    height: 70,
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderColor: "#E2E8F0",
+    paddingHorizontal: 10,
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  bottomNavItem: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+  bottomNavText: {
+    fontSize: 10,
+    color: "#64748B",
+    marginTop: 4,
+    fontWeight: "500",
+  },
+  bottomNavTextActive: {
+    color: "#0D9488",
+    fontWeight: "bold",
+  },
+  scanBtnContainer: {
+    width: 60,
+    height: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: -30,
+    flex: 1,
+  },
+  scanBtn: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#0D9488",
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 4,
+    shadowColor: "#0D9488",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
 });

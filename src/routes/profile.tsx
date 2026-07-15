@@ -306,17 +306,7 @@ export default function ProfileScreen() {
           />
           <View style={styles.divider} />
 
-          <MenuRow
-            icon="shield"
-            label="Privacy & data sharing"
-            onPress={() =>
-              Alert.alert(
-                "Privacy & Data Sharing",
-                "Your data is stored securely in Supabase.\n\n• Assessment data is linked to your account\n• We do not share data with third parties\n• You can delete your account at any time\n\nFor questions, contact support.",
-              )
-            }
-          />
-          <View style={styles.divider} />
+
           <TouchableOpacity style={styles.menuRow} onPress={handleLogout}>
             <View style={styles.menuRowLeft}>
               <Feather name="log-out" size={16} color="#EF4444" />
