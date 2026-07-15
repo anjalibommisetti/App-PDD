@@ -5,53 +5,7 @@ import React from "react";
 import { Users, Search, MoreVertical, Filter, FileText, ChevronRight } from "lucide-react-native";
 
 export default function PatientsModule() {
-  const dummyPatients = [
-    {
-      id: 1,
-      name: "Prathyusha",
-      age: 24,
-      lastVisit: "15/05/2026",
-      status: "Active Treatment",
-      risk: "High",
-      image: "P",
-    },
-    {
-      id: 2,
-      name: "John Doe",
-      age: 34,
-      lastVisit: "10/05/2026",
-      status: "Routine Checkup",
-      risk: "Low",
-      image: "J",
-    },
-    {
-      id: 3,
-      name: "Sarah Smith",
-      age: 28,
-      lastVisit: "02/05/2026",
-      status: "Pending Review",
-      risk: "Medium",
-      image: "S",
-    },
-    {
-      id: 4,
-      name: "Michael Brown",
-      age: 45,
-      lastVisit: "28/04/2026",
-      status: "Completed",
-      risk: "Low",
-      image: "M",
-    },
-    {
-      id: 5,
-      name: "Emily Davis",
-      age: 31,
-      lastVisit: "20/04/2026",
-      status: "Active Treatment",
-      risk: "High",
-      image: "E",
-    },
-  ];
+  const dummyPatients: any[] = [];
 
   return (
     <View style={tw`p-8 h-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white font-sans`}>
