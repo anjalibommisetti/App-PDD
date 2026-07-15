@@ -39,6 +39,7 @@ export default function ProfileScreen() {
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editDob, setEditDob] = useState("");
+  const [editGender, setEditGender] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
 
 
@@ -60,6 +61,7 @@ export default function ProfileScreen() {
         setEditName(session.user.user_metadata?.full_name || "");
         setEditPhone(session.user.user_metadata?.phone || "");
         setEditDob(session.user.user_metadata?.dob || "");
+        setEditGender(session.user.user_metadata?.gender || "");
       }
 
 
@@ -110,6 +112,7 @@ export default function ProfileScreen() {
           full_name: editName,
           phone: editPhone,
           dob: editDob,
+          gender: editGender,
         },
       });
       if (error) throw error;
@@ -156,6 +159,9 @@ export default function ProfileScreen() {
               <Text style={styles.inputLabel}>Date of Birth</Text>
               <TextInput style={styles.inputField} value={editDob} onChangeText={setEditDob} placeholder="DD/MM/YYYY" />
               
+              <Text style={styles.inputLabel}>Gender</Text>
+              <TextInput style={styles.inputField} value={editGender} onChangeText={setEditGender} placeholder="Male / Female / Other" />
+              
               <TouchableOpacity style={styles.saveBtn} onPress={handleSaveProfile} disabled={savingProfile}>
                 {savingProfile ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Save Changes</Text>}
               </TouchableOpacity>
@@ -197,6 +203,9 @@ export default function ProfileScreen() {
           <View style={{ flex: 1 }}>
             <Text style={styles.userName}>{fullName}</Text>
             <Text style={styles.userEmail}>{user?.email}</Text>
+            {user?.user_metadata?.phone ? <Text style={styles.userEmail}>📞 {user.user_metadata.phone}</Text> : null}
+            {user?.user_metadata?.dob || user?.user_metadata?.gender ? <Text style={styles.userEmail}>👤 {user?.user_metadata?.gender ? user.user_metadata.gender + " · " : ""}{user?.user_metadata?.dob || ""}</Text> : null}
+
             <View style={{ flexDirection: "row", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
               <View style={styles.roleBadge}>
                 <Text style={styles.roleText}>{role}</Text>
@@ -348,6 +357,9 @@ export default function ProfileScreen() {
               
               <Text style={styles.inputLabel}>Date of Birth</Text>
               <TextInput style={styles.inputField} value={editDob} onChangeText={setEditDob} placeholder="DD/MM/YYYY" />
+              
+              <Text style={styles.inputLabel}>Gender</Text>
+              <TextInput style={styles.inputField} value={editGender} onChangeText={setEditGender} placeholder="Male / Female / Other" />
               
               <TouchableOpacity style={styles.saveBtn} onPress={handleSaveProfile} disabled={savingProfile}>
                 {savingProfile ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Save Changes</Text>}

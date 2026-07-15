@@ -131,10 +131,6 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
           <Text style={styles.welcomeTitle}>Welcome back, {userName}</Text>
           <Text style={styles.welcomeSubtitle}>Here is a summary of your oral health.</Text>
         </View>
-        <TouchableOpacity style={styles.primaryBtn} onPress={() => setActiveTab("Assessment")}>
-          <FileText size={20} color="#fff" />
-          <Text style={styles.primaryBtnText}>Take Risk Assessment</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Main Risk Card */}
@@ -203,11 +199,13 @@ export default function PatientPortal() {
 
   const navItems = [
     { id: "Dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "Assessment", label: "Take Assessment", icon: FileText },
     { id: "Scan", label: "Upload Scan", icon: UploadCloud },
     { id: "History", label: "Predictions", icon: Activity },
     { id: "Appointments", label: "Appointments", icon: CalendarIcon },
     { id: "Report", label: "Reports", icon: FileText },
     { id: "Chatbot", label: "Chat Assistant", icon: MessageCircle },
+    { id: "Profile", label: "Profile", icon: User },
   ];
 
   return (
