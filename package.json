@@ -27,6 +27,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "expo": "~55.0.27",
+    "expo-image-picker": "~55.0.21",
     "expo-updates": "~55.0.25",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.14.0",

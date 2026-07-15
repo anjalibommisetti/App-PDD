@@ -5,6 +5,7 @@ import { PhoneShell } from "../components/PhoneShell";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { supabase } from "../lib/supabase";
+import * as ImagePicker from "expo-image-picker";
 
 // ─── Backend URL ──────────────────────────────────────────────────────────────
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || "https://smileguard-api.onrender.com";
@@ -532,17 +533,26 @@ export default function ScanScreen() {
     }
   }, [result]);
 
-  const handleImagePick = (e: any) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    setImageUri(url);
-    setImageFile(file);
-    setImageSeed(file.size);
-    setResult(null);
-    setAutoSaved(false);
-    setImageWarning(null);
-    setOfflineMode(false);
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      quality: 1,
+    });
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const uri = result.assets[0].uri;
+      setImageUri(uri);
+      setImageSeed(result.assets[0].fileSize || 1000);
+      setResult(null);
+      setAutoSaved(false);
+      setImageWarning(null);
+      setOfflineMode(false);
+      if (Platform.OS === 'web') {
+        const res = await fetch(uri);
+        const blob = await res.blob();
+        setImageFile(new File([blob], 'upload.jpg', { type: blob.type }) as any);
+      }
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -571,57 +581,33 @@ export default function ScanScreen() {
   };
 
   const startCamera = async () => {
-    setShowCamera(true);
-    setResult(null);
-    try {
-      const stream = await (navigator as any).mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-      });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        (videoRef.current as any).srcObject = stream;
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      quality: 1,
+    });
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const uri = result.assets[0].uri;
+      setImageUri(uri);
+      setImageSeed(result.assets[0].fileSize || 1000);
+      setResult(null);
+      setAutoSaved(false);
+      setImageWarning(null);
+      setOfflineMode(false);
+      if (Platform.OS === 'web') {
+        const res = await fetch(uri);
+        const blob = await res.blob();
+        setImageFile(new File([blob], 'camera.jpg', { type: blob.type }) as any);
       }
-    } catch (err) {
-      console.error("Camera error:", err);
-      if (typeof window !== "undefined")
-        window.alert("Could not access camera. Please check permissions.");
-      setShowCamera(false);
     }
   };
 
   const stopCamera = () => {
-    if (streamRef.current) {
-      (streamRef.current as any).getTracks().forEach((track: any) => track.stop());
-      streamRef.current = null;
-    }
-    setShowCamera(false);
+    // No-op for expo-image-picker
   };
 
   const capturePhoto = () => {
-    if (!videoRef.current) return;
-    const canvas = (document as any).createElement("canvas");
-    canvas.width = (videoRef.current as any).videoWidth;
-    canvas.height = (videoRef.current as any).videoHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.drawImage(videoRef.current as any, 0, 0);
-
-    canvas.toBlob(
-      (blob: any) => {
-        if (!blob) return;
-        const file = new File([blob], "camera_capture.jpg", { type: "image/jpeg" });
-        const url = URL.createObjectURL(file);
-        setImageUri(url);
-        setImageFile(file);
-        setImageSeed(file.size);
-        setAutoSaved(false);
-        setImageWarning(null);
-        setOfflineMode(false);
-        stopCamera();
-      },
-      "image/jpeg",
-      0.9,
-    );
+    // No-op for expo-image-picker
   };
 
   // Cleanup camera on unmount
@@ -884,34 +870,6 @@ export default function ScanScreen() {
         {/* Upload Area */}
         {!result && (
           <View style={s.uploadCard}>
-            {showCamera ? (
-              <View style={{ alignItems: "center", width: "100%" }}>
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  style={
-                    {
-                      width: "100%",
-                      height: 300,
-                      objectFit: "cover",
-                      borderRadius: 16,
-                      backgroundColor: "#000",
-                      display: "block",
-                    } as any
-                  }
-                />
-                <View style={{ flexDirection: "row", gap: 12, marginTop: 16 }}>
-                  <TouchableOpacity style={s.cancelCamBtn} onPress={stopCamera}>
-                    <Text style={s.cancelCamText}>Cancel</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={s.captureBtn} onPress={capturePhoto}>
-                    <Feather name="camera" size={16} color="#FFF" />
-                    <Text style={s.captureBtnText}>Snap Photo</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ) : (
             <View
               {...({ onDragOver: handleDragOver, onDragLeave: handleDragLeave, onDrop: handleDrop } as any)}
               style={{
@@ -933,22 +891,14 @@ export default function ScanScreen() {
                 </View>
                 <Text style={s.uploadTitle}>Upload Teeth Photo</Text>
                 <Text style={s.uploadSub}>
-                  Drag and drop your image here, or use the buttons below
+                  Select an image from your device or take a new photo.
                 </Text>
 
                 <View style={{ flexDirection: "row", gap: 12, marginTop: 16 }}>
-                  <label style={{ cursor: "pointer" } as any}>
-                    <View style={s.uploadBtn}>
-                      <Feather name="upload" size={16} color="#0D4B42" />
-                      <Text style={s.uploadBtnText}>Upload File</Text>
-                    </View>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      style={{ display: "none" } as any}
-                      onChange={handleImagePick}
-                    />
-                  </label>
+                  <TouchableOpacity style={s.uploadBtn} onPress={pickImage}>
+                    <Feather name="upload" size={16} color="#0D4B42" />
+                    <Text style={s.uploadBtnText}>Upload File</Text>
+                  </TouchableOpacity>
 
                   <TouchableOpacity style={s.openCamBtn} onPress={startCamera}>
                     <Feather name="camera" size={16} color="#0D4B42" />
