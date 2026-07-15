@@ -185,28 +185,6 @@ function PatientDashboardMain({ setActiveTab }: { setActiveTab: (t: string) => v
             ))
           )}
         </View>
-
-        {/* Reminders */}
-        <View style={[styles.card, { flex: 1 }]}>
-          <View style={styles.cardHeader}>
-            <Bell size={24} color="#A855F7" />
-            <Text style={styles.cardTitle}>Notifications & Reminders</Text>
-          </View>
-          <View style={styles.reminderItem}>
-            <CalendarIcon size={24} color="#2563EB" />
-            <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={styles.reminderTitle}>Upcoming Dental Appointment</Text>
-              <Text style={styles.reminderSubtitle}>Tomorrow at 10:00 AM with Dr. Sarah Smith.</Text>
-            </View>
-          </View>
-          <View style={[styles.reminderItem, { backgroundColor: "#F8FAFC", borderColor: "#F1F5F9" }]}>
-            <FileText size={24} color="#64748B" />
-            <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text style={styles.reminderTitle}>New Report Available</Text>
-              <Text style={styles.reminderSubtitle}>Your latest scan report is ready to download.</Text>
-            </View>
-          </View>
-        </View>
       </View>
     </ScrollView>
   );
@@ -287,7 +265,9 @@ export default function PatientPortal() {
               <Text style={styles.topBarTitle}>{activeTab}</Text>
             </View>
             <View style={styles.topBarRight}>
-              <Bell size={24} color="#64748B" />
+              <TouchableOpacity onPress={() => navigation.navigate("Alerts")}>
+                <Bell size={24} color="#64748B" />
+              </TouchableOpacity>
               <View style={styles.avatar}>
                 <Text style={styles.avatarText}>PU</Text>
               </View>
