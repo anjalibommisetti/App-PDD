@@ -21,6 +21,7 @@ import {
   LogOut,
   Activity,
   Menu,
+  User,
 } from "lucide-react-native";
 
 import ScanScreen from "./scan";
@@ -208,7 +209,7 @@ export default function PatientPortal() {
     { id: "Appointments", label: "Appointments", icon: CalendarIcon },
     { id: "Report", label: "Reports", icon: FileText },
     { id: "Chatbot", label: "Chat Assistant", icon: MessageCircle },
-    { id: "Settings", label: "Settings", icon: Settings },
+    { id: "Profile", label: "Profile", icon: User },
   ];
 
   return (
@@ -268,7 +269,7 @@ export default function PatientPortal() {
               <TouchableOpacity onPress={() => navigation.navigate("Alerts")}>
                 <Bell size={24} color="#64748B" />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.avatar} onPress={() => setActiveTab("Settings")}>
+              <TouchableOpacity style={styles.avatar} onPress={() => setActiveTab("Profile")}>
                 <Text style={styles.avatarText}>PU</Text>
               </TouchableOpacity>
             </View>
@@ -282,7 +283,7 @@ export default function PatientPortal() {
             {activeTab === "Appointments" && <DentistsScreen />}
             {activeTab === "Report" && <ReportScreen />}
             {activeTab === "Chatbot" && <ChatbotScreen />}
-            {activeTab === "Settings" && <ProfileScreen />}
+            {activeTab === "Profile" && <ProfileScreen />}
           </View>
         </View>
       </View>

@@ -308,17 +308,7 @@ export default function ProfileScreen() {
             onPress={() => setIsEditing(true)}
           />
           <View style={styles.divider} />
-          <MenuRow
-            icon="settings"
-            label="Settings"
-            onPress={() =>
-              Alert.alert(
-                "Settings",
-                "Notification preferences, language, and theme settings coming soon.",
-              )
-            }
-          />
-          <View style={styles.divider} />
+
           <MenuRow
             icon="shield"
             label="Privacy & data sharing"
