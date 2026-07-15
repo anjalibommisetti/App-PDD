@@ -268,9 +268,9 @@ export default function PatientPortal() {
               <TouchableOpacity onPress={() => navigation.navigate("Alerts")}>
                 <Bell size={24} color="#64748B" />
               </TouchableOpacity>
-              <View style={styles.avatar}>
+              <TouchableOpacity style={styles.avatar} onPress={() => setActiveTab("Settings")}>
                 <Text style={styles.avatarText}>PU</Text>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
 

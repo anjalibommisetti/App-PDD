@@ -6,6 +6,10 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  Modal,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
@@ -31,6 +35,13 @@ export default function ProfileScreen() {
   const [totalAssessments, setTotalAssessments] = useState(0);
   const [role, setRole] = useState("Patient");
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editDob, setEditDob] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+
+
   useFocusEffect(
     useCallback(() => {
       fetchUser();
@@ -43,7 +54,14 @@ export default function ProfileScreen() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+      
       setUser(session?.user ?? null);
+      if (session?.user) {
+        setEditName(session.user.user_metadata?.full_name || "");
+        setEditPhone(session.user.user_metadata?.phone || "");
+        setEditDob(session.user.user_metadata?.dob || "");
+      }
+
 
       const storedRole = await AsyncStorage.getItem("userRole");
       if (storedRole === "doctor") {
@@ -83,6 +101,28 @@ export default function ProfileScreen() {
     }
   };
 
+  
+  const handleSaveProfile = async () => {
+    setSavingProfile(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          full_name: editName,
+          phone: editPhone,
+          dob: editDob,
+        },
+      });
+      if (error) throw error;
+      Alert.alert("Success", "Profile updated successfully!");
+      setIsEditing(false);
+      fetchUser();
+    } catch (err: any) {
+      Alert.alert("Error", err.message || "Could not update profile.");
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
@@ -96,7 +136,35 @@ export default function ProfileScreen() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#157A6E" />
         </View>
-      </PhoneShell>
+  
+      <Modal visible={isEditing} animationType="slide" transparent>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalBg}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Edit Profile</Text>
+              <TouchableOpacity onPress={() => setIsEditing(false)}>
+                <Feather name="x" size={24} color="#64748B" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalBody}>
+              <Text style={styles.inputLabel}>Full Name</Text>
+              <TextInput style={styles.inputField} value={editName} onChangeText={setEditName} placeholder="Enter your full name" />
+              
+              <Text style={styles.inputLabel}>Phone Number</Text>
+              <TextInput style={styles.inputField} value={editPhone} onChangeText={setEditPhone} placeholder="e.g. +1 234 567 8900" keyboardType="phone-pad" />
+              
+              <Text style={styles.inputLabel}>Date of Birth</Text>
+              <TextInput style={styles.inputField} value={editDob} onChangeText={setEditDob} placeholder="DD/MM/YYYY" />
+              
+              <TouchableOpacity style={styles.saveBtn} onPress={handleSaveProfile} disabled={savingProfile}>
+                {savingProfile ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Save Changes</Text>}
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+    </PhoneShell>
+
     );
   }
 
@@ -233,6 +301,13 @@ export default function ProfileScreen() {
 
         {/* Menu */}
         <View style={styles.menuCard}>
+          
+          <MenuRow
+            icon="user"
+            label="Edit Profile"
+            onPress={() => setIsEditing(true)}
+          />
+          <View style={styles.divider} />
           <MenuRow
             icon="settings"
             label="Settings"
@@ -264,7 +339,35 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <Modal visible={isEditing} animationType="slide" transparent>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalBg}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Edit Profile</Text>
+              <TouchableOpacity onPress={() => setIsEditing(false)}>
+                <Feather name="x" size={24} color="#64748B" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalBody}>
+              <Text style={styles.inputLabel}>Full Name</Text>
+              <TextInput style={styles.inputField} value={editName} onChangeText={setEditName} placeholder="Enter your full name" />
+              
+              <Text style={styles.inputLabel}>Phone Number</Text>
+              <TextInput style={styles.inputField} value={editPhone} onChangeText={setEditPhone} placeholder="e.g. +1 234 567 8900" keyboardType="phone-pad" />
+              
+              <Text style={styles.inputLabel}>Date of Birth</Text>
+              <TextInput style={styles.inputField} value={editDob} onChangeText={setEditDob} placeholder="DD/MM/YYYY" />
+              
+              <TouchableOpacity style={styles.saveBtn} onPress={handleSaveProfile} disabled={savingProfile}>
+                {savingProfile ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Save Changes</Text>}
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </PhoneShell>
+
   );
 }
 
@@ -470,4 +573,14 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: "#E2E8F0",
   },
+
+  modalBg: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "flex-end" },
+  modalCard: { backgroundColor: "#fff", borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: "80%" },
+  modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
+  modalTitle: { fontSize: 18, fontWeight: "bold", color: "#0F172A" },
+  modalBody: { paddingBottom: 40 },
+  inputLabel: { fontSize: 13, fontWeight: "600", color: "#64748B", marginBottom: 6, marginTop: 12 },
+  inputField: { borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 12, padding: 14, fontSize: 15, color: "#0F172A", backgroundColor: "#F8FAFC" },
+  saveBtn: { backgroundColor: "#0D9488", padding: 16, borderRadius: 16, alignItems: "center", marginTop: 24 },
+  saveBtnText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
 });
