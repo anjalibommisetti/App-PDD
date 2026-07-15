@@ -175,30 +175,12 @@ function BookingModal({
               <View style={modal.divider} />
 
               <Text style={modal.label}>Select Date</Text>
-              {/* HTML date input renders native calendar picker on web/Expo web */}
-              <input
-                type="date"
+              <TextInput
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor="#94A3B8"
                 value={date}
-                min={today}
-                onChange={(e: any) => setDate(e.target.value)}
-                style={
-                  {
-                    display: "block",
-                    width: "100%",
-                    backgroundColor: "#F8FAFC",
-                    border: "1.5px solid #E2E8F0",
-                    borderRadius: 14,
-                    padding: "12px 14px",
-                    fontSize: 15,
-                    color: date ? "#0F172A" : "#94A3B8",
-                    marginBottom: 16,
-                    outline: "none",
-                    cursor: "pointer",
-                    fontFamily: "inherit",
-                    boxSizing: "border-box",
-                    WebkitAppearance: "none",
-                  } as any
-                }
+                onChangeText={setDate}
+                style={[modal.input, { marginBottom: 16 }]}
               />
 
               <Text style={modal.label}>Preferred Time</Text>

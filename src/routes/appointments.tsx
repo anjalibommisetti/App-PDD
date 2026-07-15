@@ -68,29 +68,21 @@ export default function AppointmentsModule() {
           <Text style={tw`font-bold text-lg mb-4 dark:text-white`}>Add Free Time Slot</Text>
           
           <Text style={tw`text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2`}>Date</Text>
-          {/* HTML Date Input for Web */}
-          <input
-            type="date"
-            min={todayDate}
+          <TextInput
+            placeholder="YYYY-MM-DD"
+            placeholderTextColor="#94A3B8"
             value={date}
-            onChange={(e: any) => setDate(e.target.value)}
-            style={{
-              width: "100%", padding: "10px", borderRadius: "8px",
-              border: "1px solid #e2e8f0", marginBottom: "16px",
-              backgroundColor: "transparent", color: "inherit"
-            }}
+            onChangeText={setDate}
+            style={tw`w-full p-3 rounded-lg border border-slate-200 mb-4 bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-white`}
           />
 
           <Text style={tw`text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2`}>Time (e.g. 10:00 AM)</Text>
-          <input
-            type="time"
+          <TextInput
+            placeholder="HH:MM AM/PM"
+            placeholderTextColor="#94A3B8"
             value={time}
-            onChange={(e: any) => setTime(e.target.value)}
-            style={{
-              width: "100%", padding: "10px", borderRadius: "8px",
-              border: "1px solid #e2e8f0", marginBottom: "16px",
-              backgroundColor: "transparent", color: "inherit"
-            }}
+            onChangeText={setTime}
+            style={tw`w-full p-3 rounded-lg border border-slate-200 mb-4 bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-white`}
           />
 
           <TouchableOpacity 
