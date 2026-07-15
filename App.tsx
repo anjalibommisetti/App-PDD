@@ -44,7 +44,6 @@ import DentistsScreen from "./src/routes/dentists";
 import AlertsScreen from "./src/routes/alerts";
 import ScanScreen from "./src/routes/scan";
 import { Chatbot } from "./src/components/Chatbot";
-import LandingPage from "./src/routes/index";
 import AnalyticsDashboard from "./src/routes/analytics";
 import ForgotPasswordScreen from "./src/routes/forgot-password";
 import ChatbotScreen from "./src/routes/chatbot";
@@ -185,10 +184,10 @@ export default function App() {
             }
           }, 200);
         } else {
-          setInitialRoute("Landing");
+          setInitialRoute("Login");
           setTimeout(() => {
             if (navigationRef.isReady()) {
-              navigationRef.navigate("Landing");
+              navigationRef.navigate("Login");
             }
           }, 200);
         }
@@ -228,10 +227,10 @@ export default function App() {
           }
         }, 100);
       } else if (!newSession) {
-        setInitialRoute("Landing");
+        setInitialRoute("Login");
         setTimeout(() => {
           if (navigationRef.isReady()) {
-            navigationRef.navigate("Landing");
+            navigationRef.navigate("Login");
           }
         }, 100);
       }
@@ -308,8 +307,7 @@ export default function App() {
           ) : (
             // Auth Screens — Landing is now the entry point
             <>
-              <Stack.Screen name="Landing" component={LandingPage} />
-              <Stack.Screen name="Login" component={LoginScreen} />
+                            <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Signup" component={SignupScreen} />
               <Stack.Screen
                 name="ForgotPassword"
