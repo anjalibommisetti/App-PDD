@@ -20,8 +20,6 @@ const sections = [
     id: "A",
     title: "Basic Information",
     questions: [
-      { id: "q0", text: "Patient Name", type: "text" },
-      { id: "q1", text: "Age (in years)", type: "number" },
       { id: "q2", text: "Gender", type: "single", options: ["Male", "Female", "Other"] },
       {
         id: "q3",
@@ -414,13 +412,17 @@ export default function AssessmentScreen() {
       } catch (e) {
         console.error("Submit error:", e);
         const { score, level, breakdown, insight, recommendations } = computeRisk(answers);
+        
+        const { data: { session } } = await supabase.auth.getSession();
+        const userName = session?.user?.user_metadata?.full_name || session?.user?.email?.split("@")[0] || null;
+
         navigation.navigate("Results", {
           score,
           level,
           breakdown,
           insight,
           recommendations,
-          patientName: answers.q0 || "",
+          patientName: userName || "",
         });
 
         setTimeout(() => {

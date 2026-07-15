@@ -202,8 +202,6 @@ export default function PatientPortal() {
     { id: "Assessment", label: "Take Assessment", icon: FileText },
     { id: "Scan", label: "Upload Scan", icon: UploadCloud },
     { id: "History", label: "Predictions", icon: Activity },
-    { id: "Appointments", label: "Appointments", icon: CalendarIcon },
-    { id: "Report", label: "Reports", icon: FileText },
     { id: "Chatbot", label: "Chat Assistant", icon: MessageCircle },
     { id: "Profile", label: "Profile", icon: User },
   ];
