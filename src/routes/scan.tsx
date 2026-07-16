@@ -1091,20 +1091,7 @@ export default function ScanScreen() {
               </View>
             )}
 
-            {/* ── Healthy Status Banner ── */}
-            {isHealthy && (
-              <View style={s.healthyBanner}>
-                <View style={s.healthyIconWrap}>
-                  <Text style={{ fontSize: 28 }}>😁</Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.healthyTitle}>Great News — Your Teeth Look Healthy!</Text>
-                  <Text style={s.healthySub}>
-                    No significant oral conditions were detected. Keep up your excellent dental hygiene routine.
-                  </Text>
-                </View>
-              </View>
-            )}
+
 
             {/* ── Score Card (modern medical style) ── */}
             <View style={s.scoreCardOuter}>
