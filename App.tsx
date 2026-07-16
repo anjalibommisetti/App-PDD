@@ -7,7 +7,10 @@ import {
   Platform,
   ActivityIndicator,
   Animated,
+  KeyboardAvoidingView,
+  Alert,
 } from "react-native";
+import * as Updates from "expo-updates";
 import { enableScreens } from "react-native-screens";
 import "react-native-gesture-handler";
 import React from "react";
@@ -153,6 +156,39 @@ export default function App() {
   const [isRecovery, setIsRecovery] = useState(false);
   useEffect(() => {
     // NO auto-dismiss — user must click "Get Started" button
+  }, []);
+
+  // Check for OTA Updates on App Start
+  useEffect(() => {
+    async function checkForUpdates() {
+      if (Platform.OS === 'web') return;
+      try {
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          Alert.alert(
+            "Update Available",
+            "A new version of the app is available. Would you like to download and install it now?",
+            [
+              { text: "Later", style: "cancel" },
+              { 
+                text: "Update Now", 
+                onPress: async () => {
+                  try {
+                    await Updates.fetchUpdateAsync();
+                    await Updates.reloadAsync();
+                  } catch (err) {
+                    console.log("Failed to fetch update:", err);
+                  }
+                }
+              }
+            ]
+          );
+        }
+      } catch (e) {
+        console.log("Error checking for updates:", e);
+      }
+    }
+    checkForUpdates();
   }, []);
 
   useEffect(() => {
