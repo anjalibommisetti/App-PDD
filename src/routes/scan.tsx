@@ -595,36 +595,88 @@ export default function ScanScreen() {
   };
 
   const startCamera = async () => {
-    let result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 0.3,
-      base64: true,
-    });
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      const uri = result.assets[0].uri;
-      const b64 = result.assets[0].base64;
-      if (b64) setImageFile(`data:image/jpeg;base64,${b64}` as any);
-      setImageUri(uri);
-      setImageSeed(result.assets[0].fileSize || Date.now());
-      setResult(null);
-      setAutoSaved(false);
-      setImageWarning(null);
-      setOfflineMode(false);
-      if (Platform.OS === 'web') {
-        const res = await fetch(uri);
-        const blob = await res.blob();
-        setImageFile(new File([blob], 'camera.jpg', { type: blob.type }) as any);
+    if (Platform.OS === "web") {
+      setShowCamera(true);
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (err) {
+        setShowCamera(false);
+        // Fallback to picker if no camera
+        let result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          quality: 0.3,
+          base64: true,
+        });
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+          const uri = result.assets[0].uri;
+          const b64 = result.assets[0].base64;
+          if (b64) setImageFile(`data:image/jpeg;base64,${b64}` as any);
+          setImageUri(uri);
+          setImageSeed(result.assets[0].fileSize || Date.now());
+          setResult(null);
+          setAutoSaved(false);
+          setImageWarning(null);
+          setOfflineMode(false);
+          const res = await fetch(uri);
+          const blob = await res.blob();
+          setImageFile(new File([blob], 'camera.jpg', { type: blob.type }) as any);
+        }
+      }
+    } else {
+      let result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.3,
+        base64: true,
+      });
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const uri = result.assets[0].uri;
+        const b64 = result.assets[0].base64;
+        if (b64) setImageFile(`data:image/jpeg;base64,${b64}` as any);
+        setImageUri(uri);
+        setImageSeed(result.assets[0].fileSize || Date.now());
+        setResult(null);
+        setAutoSaved(false);
+        setImageWarning(null);
+        setOfflineMode(false);
       }
     }
   };
 
   const stopCamera = () => {
-    // No-op for expo-image-picker
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    setShowCamera(false);
   };
 
   const capturePhoto = () => {
-    // No-op for expo-image-picker
+    if (videoRef.current) {
+      const canvas = document.createElement("canvas");
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(videoRef.current, 0, 0);
+        const url = canvas.toDataURL("image/jpeg", 0.9);
+        setImageUri(url);
+        setImageSeed(Date.now());
+        setResult(null);
+        setAutoSaved(false);
+        setImageWarning(null);
+        setOfflineMode(false);
+        canvas.toBlob((blob) => {
+          if (blob) setImageFile(new File([blob], "camera.jpg", { type: "image/jpeg" }) as any);
+        }, "image/jpeg", 0.9);
+        stopCamera();
+      }
+    }
   };
 
   // Cleanup camera on unmount
@@ -885,7 +937,7 @@ export default function ScanScreen() {
         {/* Centered container for desktop readability */}
         <View style={s.centeredWrap}>
         {/* Upload Area */}
-        {!result && (
+        {!result && !showCamera && (
           <View style={s.uploadCard}>
             <View
               {...({ onDragOver: handleDragOver, onDragLeave: handleDragLeave, onDrop: handleDrop } as any)}
@@ -927,13 +979,34 @@ export default function ScanScreen() {
         )}
 
 
-        {imageUri && !result && (
+        {imageUri && !result && !showCamera && (
             <View style={s.uploadCard}>
               <Image source={{ uri: imageUri }} style={{ width: "100%", height: 300, borderRadius: 16, marginBottom: 16 }} />
               <TouchableOpacity style={s.cancelCamBtn} onPress={() => { setImageUri(null); setResult(null); setImageFile(null); }}>
                 <Text style={s.cancelCamText}>Remove Image</Text>
               </TouchableOpacity>
             </View>
+        )}
+
+        {/* Web Camera View */}
+        {showCamera && Platform.OS === "web" && (
+          <View style={s.uploadCard}>
+            <video
+              ref={videoRef as any}
+              autoPlay
+              playsInline
+              style={{ width: "100%", height: 300, borderRadius: 16, objectFit: "cover", backgroundColor: "#000" }}
+            />
+            <View style={{ flexDirection: "row", gap: 12, marginTop: 16, justifyContent: "center" }}>
+              <TouchableOpacity style={s.openCamBtn} onPress={capturePhoto}>
+                <Feather name="camera" size={16} color="#0D4B42" />
+                <Text style={s.openCamText}>Take Photo</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={s.cancelCamBtn} onPress={stopCamera}>
+                <Text style={s.cancelCamText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         )}
 
         {/* Tips */}
