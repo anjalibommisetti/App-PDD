@@ -367,11 +367,21 @@ const checkImageQuality = (uri: string): Promise<{ isUnclear: boolean; reason: s
 
 // ─── Real API call ────────────────────────────────────────────────────────────
 async function callPredictAPI(
-  imageFile: File,
+  imageUri: string,
+  imageFile: File | string | null,
 ): Promise<ReturnType<typeof simulateAIAnalysis> | null> {
   try {
     const form = new FormData();
-    form.append("file", imageFile);
+    if (Platform.OS === "web" && typeof imageFile !== "string" && imageFile) {
+      form.append("file", imageFile);
+    } else {
+      // React Native FormData file upload format
+      form.append("file", {
+        uri: imageUri,
+        name: "upload.jpg",
+        type: "image/jpeg",
+      } as any);
+    }
     const res = await fetch(`${BACKEND_URL}/predict`, { method: "POST", body: form });
     if (!res.ok) return null;
     const data = await res.json();
@@ -546,7 +556,7 @@ export default function ScanScreen() {
       const b64 = result.assets[0].base64;
       if (b64) setImageFile(`data:image/jpeg;base64,${b64}` as any);
       setImageUri(uri);
-      setImageSeed(result.assets[0].fileSize || 1000);
+      setImageSeed(result.assets[0].fileSize || Date.now());
       setResult(null);
       setAutoSaved(false);
       setImageWarning(null);
@@ -596,7 +606,7 @@ export default function ScanScreen() {
       const b64 = result.assets[0].base64;
       if (b64) setImageFile(`data:image/jpeg;base64,${b64}` as any);
       setImageUri(uri);
-      setImageSeed(result.assets[0].fileSize || 1000);
+      setImageSeed(result.assets[0].fileSize || Date.now());
       setResult(null);
       setAutoSaved(false);
       setImageWarning(null);
@@ -730,7 +740,7 @@ export default function ScanScreen() {
         ],
       };
     } else {
-      const apiResult = imageFile ? await callPredictAPI(imageFile) : null;
+      const apiResult = await callPredictAPI(imageUri, imageFile);
       if (apiResult) {
         analysis = apiResult;
         setOfflineMode(false);
