@@ -215,7 +215,7 @@ export default function PatientPortal() {
     <SafeAreaView style={styles.mainWrapper}>
       <View style={styles.layoutRow}>
         {/* Sidebar */}
-        {sidebarOpen && (
+        {sidebarOpen && Platform.OS === "web" && (
           <View style={styles.sidebar}>
             <View style={styles.sidebarHeader}>
               <View style={styles.logoBadge}>
@@ -259,9 +259,11 @@ export default function PatientPortal() {
         <View style={styles.contentArea}>
           <View style={styles.topBar}>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <TouchableOpacity style={styles.menuBtn} onPress={() => setSidebarOpen(!sidebarOpen)}>
-                <Menu size={24} color="#64748B" />
-              </TouchableOpacity>
+              {Platform.OS === "web" && (
+                <TouchableOpacity style={styles.menuBtn} onPress={() => setSidebarOpen(!sidebarOpen)}>
+                  <Menu size={24} color="#64748B" />
+                </TouchableOpacity>
+              )}
               <Text style={styles.topBarTitle}>{activeTab}</Text>
             </View>
             <View style={styles.topBarRight}>

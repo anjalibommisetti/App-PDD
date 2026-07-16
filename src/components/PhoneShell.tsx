@@ -9,7 +9,6 @@ import {
   Dimensions,
   useWindowDimensions,
 } from "react-native";
-import { BottomNav } from "./BottomNav";
 
 interface PhoneShellProps {
   children: React.ReactNode;
@@ -24,7 +23,6 @@ export const PhoneShell = ({ children, showNav = true }: PhoneShellProps) => {
     <View style={styles.root}>
       <SafeAreaView style={[styles.safeArea, Platform.OS === "web" && styles.webSafeArea]}>
         <View style={styles.container}>{children}</View>
-        {showNav && !isDesktop && <BottomNav />}
       </SafeAreaView>
     </View>
   );
